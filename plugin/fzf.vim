@@ -54,7 +54,7 @@ function! s:fzf(opts, bang)
 endfunction
 
 let s:default_action = {
-  \ 'ctrl-t': 'tabedit',
+  \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
 
