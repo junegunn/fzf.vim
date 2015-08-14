@@ -152,9 +152,9 @@ command! -bang -nargs=1 Locate call s:fzf({
 " ------------------------------------------------------------------
 function! s:all_files()
   return extend(
-  \ filter(copy(v:oldfiles),
+  \ filter(reverse(copy(v:oldfiles)),
   \        "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"),
-  \ map(s:buflisted(), 'bufname(v:val)'))
+  \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
 endfunction
 
 command! -bang History call s:fzf({
