@@ -207,6 +207,7 @@ endfunction
 
 function! s:format_buffer(b)
   let name = bufname(a:b)
+  let name = empty(name) ? '[No Name]' : name
   let flag = a:b == bufnr('')  ? s:blue('%') :
           \ (a:b == bufnr('#') ? s:magenta('#') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]') : ''
