@@ -72,7 +72,7 @@ function! s:common_sink(lines) abort
     let autochdir = &autochdir
     set noautochdir
     for item in a:lines
-      execute cmd s:escape(item)
+      execute 'silent' cmd s:escape(item)
     endfor
   finally
     let &autochdir = autochdir
