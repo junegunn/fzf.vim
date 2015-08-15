@@ -32,7 +32,7 @@ function! s:strip(str)
 endfunction
 
 function! s:escape(path)
-  return escape(a:path, ' %#\')
+  return escape(a:path, ' %#''"\')
 endfunction
 
 function! s:ansi(str, col, bold)
