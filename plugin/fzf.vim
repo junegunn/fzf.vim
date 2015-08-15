@@ -95,6 +95,34 @@ function! s:align_lists(lists)
 endfunction
 
 " ------------------------------------------------------------------
+" Files
+" ------------------------------------------------------------------
+function! s:files(dir, bang)
+  let args = {
+  \ 'sink*':   function('s:common_sink'),
+  \ 'options': '-m'.s:expect()
+  \}
+
+  if !empty(a:dir)
+    if !isdirectory(expand(a:dir))
+      echohl WarningMsg
+      echom 'Invalid directory'
+      echohl None
+      return
+    endif
+    let dir = substitute(a:dir, '/*$', '/', '')
+    let args.dir = dir
+    let args.options .= ' --prompt '.shellescape(dir)
+  else
+    let args.options .= ' --prompt "./"'
+  endif
+
+  call s:fzf(args, a:bang)
+endfunction
+
+command! -bang -nargs=? -complete=dir Files call s:files(<q-args>, <bang>0)
+
+" ------------------------------------------------------------------
 " Lines
 " ------------------------------------------------------------------
 function! s:line_handler(lines)

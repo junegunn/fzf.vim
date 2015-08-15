@@ -32,6 +32,7 @@ List of commands
 
 | Command        | List                                                                      |
 | ---            | ---                                                                       |
+| `Files [PATH]` | Files (similar to `:FZF`)                                                 |
 | `Buffers`      | Open buffers                                                              |
 | `Colors`       | Color schemes                                                             |
 | `Ag [PATTERN]` | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
