@@ -30,17 +30,17 @@ Plug 'junegunn/fzf.vim'
 List of commands
 ----------------
 
-| Command        | List                                                                      |
-| ---            | ---                                                                       |
-| `Files [PATH]` | Files (similar to `:FZF`)                                                 |
-| `Buffers`      | Open buffers                                                              |
-| `Colors`       | Color schemes                                                             |
-| `Ag [PATTERN]` | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
-| `Lines`        | Lines in loaded buffers                                                   |
-| `Tags`         | Tags in the project (`ctags -R`)                                          |
-| `BTags`        | Tags in the current buffer                                                |
-| `Locate PATH`  | `locate` command output                                                   |
-| `History`      | `v:oldfiles` and open buffers                                             |
+| Command          | List                                                                      |
+| ---              | ---                                                                       |
+| `Files [PATH]`   | Files (similar to `:FZF`)                                                 |
+| `Buffers`        | Open buffers                                                              |
+| `Colors`         | Color schemes                                                             |
+| `Ag [PATTERN]`   | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
+| `Lines`          | Lines in loaded buffers                                                   |
+| `Tags`           | Tags in the project (`ctags -R`)                                          |
+| `BTags`          | Tags in the current buffer                                                |
+| `Locate PATTERN` | `locate` command output                                                   |
+| `History`        | `v:oldfiles` and open buffers                                             |
 
 - All commands except `Colors` support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.
