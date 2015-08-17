@@ -339,6 +339,32 @@ endfunction
 command! -bang Tags call s:tags(<bang>0)
 
 " ------------------------------------------------------------------
+" Snippets (UltiSnips)
+" ------------------------------------------------------------------
+function! s:inject_snippet(line)
+  let snip = split(a:line, "\t")[0]
+  execute 'normal! a'.s:strip(snip)."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
+endfunction
+
+function! s:snippets(bang)
+  if !exists(':UltiSnipsEdit')
+    return s:warn('UltiSnips not found')
+  endif
+  let list = UltiSnips#SnippetsInCurrentScope()
+  if empty(list)
+    return s:warn('No snippets available here')
+  endif
+  let aligned = sort(s:align_lists(items(list)))
+  let colored = map(aligned, 's:yellow(v:val[0], 1)."\t".v:val[1]')
+  call s:fzf({
+  \ 'source':  colored,
+  \ 'options': '--ansi +m -n 1 -d "\t"',
+  \ 'sink':    function('s:inject_snippet')}, a:bang)
+endfunction
+
+command! -bang Snippets call s:snippets(<bang>0)
+
+" ------------------------------------------------------------------
 let &cpo = s:cpo_save
 unlet s:cpo_save
 

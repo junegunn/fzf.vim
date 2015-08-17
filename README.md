@@ -41,6 +41,7 @@ List of commands
 | `BTags`          | Tags in the current buffer                                                |
 | `Locate PATTERN` | `locate` command output                                                   |
 | `History`        | `v:oldfiles` and open buffers                                             |
+| `Snippets`       | Snippets ([UltiSnips][us])                                                |
 
 - All commands except `Colors` support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.
@@ -66,3 +67,4 @@ MIT
 [run]:   https://github.com/junegunn/fzf#usage-as-vim-plugin
 [vimrc]: https://github.com/junegunn/dotfiles/blob/master/vimrc
 [ag]:    https://github.com/ggreer/the_silver_searcher
+[us]:    https://github.com/SirVer/ultisnips
