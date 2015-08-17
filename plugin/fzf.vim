@@ -118,7 +118,7 @@ function! s:files(dir, bang)
     let args.dir = dir
     let args.options .= ' --prompt '.shellescape(dir)
   else
-    let args.options .= ' --prompt "./"'
+    let args.options .= ' --prompt '.shellescape(pathshorten(getcwd())).'/'
   endif
 
   call s:fzf(args, a:bang)
