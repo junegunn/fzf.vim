@@ -367,17 +367,42 @@ command! -bang Snippets call s:snippets(<bang>0)
 " ----------------------------------------------------------------------------
 " Completion helper
 " ----------------------------------------------------------------------------
-function! s:complete_insert(data)
-  execute 'normal!' (empty(s:query) ? 'a' : 'ciW')."\<C-R>=a:data\<CR>"
-  startinsert!
-endfunction
+inoremap <silent> <Plug>(-fzf-complete-trigger) <c-o>:call <sid>complete_trigger()<cr>
 
-function! fzf#complete(source, ...)
-  let s:query = get(a:, 1, expand('<cWORD>'))
+function! s:complete_trigger()
   call s:fzf({
-  \ 'source':  a:source,
+  \ 'source':  s:source,
   \ 'sink':    function('s:complete_insert'),
   \ 'options': '+m -q '.shellescape(s:query)}, 0)
+endfunction
+
+function! s:complete_insert(data)
+  let chars = strchars(s:query)
+  if chars == 0     | let del = ''
+  elseif chars == 1 | let del = '"_x'
+  else              | let del = (chars - 1).'"_dvh'
+  endif
+  execute 'normal!' (s:eol ? '' : 'h').del.(s:eol ? 'a': 'i').a:data
+  if has('nvim')
+    call feedkeys('a')
+  else
+    execute "normal! \<esc>la"
+  endif
+endfunction
+
+function! fzf#complete(source)
+  let s:source = a:source
+
+  let eol = col('$')
+  let ve = &ve
+  set ve=all
+  let s:eol = col('.') == eol
+  let &ve = ve
+
+  let s:query = col('.') == 1 ? '' :
+        \ matchstr(getline('.')[0 : col('.')-2], '\k*$')
+  call feedkeys("\<Plug>(-fzf-complete-trigger)")
+  return ''
 endfunction
 
 " ------------------------------------------------------------------
