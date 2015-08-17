@@ -364,6 +364,22 @@ endfunction
 
 command! -bang Snippets call s:snippets(<bang>0)
 
+" ----------------------------------------------------------------------------
+" Completion helper
+" ----------------------------------------------------------------------------
+function! s:complete_insert(data)
+  execute 'normal!' (empty(s:query) ? 'a' : 'ciW')."\<C-R>=a:data\<CR>"
+  startinsert!
+endfunction
+
+function! fzf#complete(source, ...)
+  let s:query = get(a:, 1, expand('<cWORD>'))
+  call s:fzf({
+  \ 'source':  a:source,
+  \ 'sink':    function('s:complete_insert'),
+  \ 'options': '+m -q '.shellescape(s:query)}, 0)
+endfunction
+
 " ------------------------------------------------------------------
 let &cpo = s:cpo_save
 unlet s:cpo_save
