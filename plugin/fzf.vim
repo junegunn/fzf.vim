@@ -94,6 +94,12 @@ function! s:align_lists(lists)
   return a:lists
 endfunction
 
+function! s:warn(message)
+  echohl WarningMsg
+  echom a:message
+  echohl None
+endfunction
+
 " ------------------------------------------------------------------
 " Files
 " ------------------------------------------------------------------
@@ -105,9 +111,7 @@ function! s:files(dir, bang)
 
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
-      echohl WarningMsg
-      echom 'Invalid directory'
-      echohl None
+      call s:warn('Invalid directory')
       return
     endif
     let dir = substitute(a:dir, '/*$', '/', '')
@@ -297,9 +301,7 @@ function! s:btags(bang)
     \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:expect(),
     \ 'sink*':   function('s:btags_sink')}, a:bang)
   catch
-    echohl WarningMsg
-    echom v:exception
-    echohl None
+    call s:warn(v:exception)
   endtry
 endfunction
 
@@ -323,9 +325,7 @@ endfunction
 
 function! s:tags(bang)
   if empty(tagfiles())
-    echohl WarningMsg
-    echom 'Preparing tags'
-    echohl None
+    call s:warn('Preparing tags')
     call system('ctags -R')
   endif
 
