@@ -42,6 +42,7 @@ List of commands
 | `Locate PATTERN` | `locate` command output                                                   |
 | `History`        | `v:oldfiles` and open buffers                                             |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
+| `Commands`       | User-defined commands                                                     |
 
 - All commands except `Colors` support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.

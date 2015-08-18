@@ -364,6 +364,34 @@ endfunction
 
 command! -bang Snippets call s:snippets(<bang>0)
 
+" ------------------------------------------------------------------
+" Commands
+" ------------------------------------------------------------------
+let s:nbs = nr2char(0x2007)
+
+function! s:format_cmd(line)
+  return substitute(a:line, '\C \([A-Z]\S*\) ',
+        \ '\=s:nbs.s:yellow(submatch(1), 1).s:nbs', '')
+endfunction
+
+function! s:command_sink(cmd)
+  let cmd = matchstr(a:cmd, '\C[A-Z]\S*\ze'.s:nbs)
+  call feedkeys(':'.cmd.(a:cmd[0] == '!' ? '' : ' '))
+endfunction
+
+function! s:commands(bang)
+  redir => cout
+  silent command
+  redir END
+  let list = split(cout, "\n")
+  call s:fzf({
+  \ 'source':  extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')),
+  \ 'sink':    function('s:command_sink'),
+  \ 'options': '--ansi --header-lines 1 -x --prompt "Commands> " -n2 -d'.s:nbs}, a:bang)
+endfunction
+
+command! -bang Commands call s:commands(<bang>0)
+
 " ----------------------------------------------------------------------------
 " Completion helper
 " ----------------------------------------------------------------------------
