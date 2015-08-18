@@ -49,8 +49,10 @@ function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val)')
 endfunction
 
+let s:default_window = {'down': '40%'}
+
 function! s:fzf(opts, bang)
-  return fzf#run(extend(a:opts, a:bang ? {} : get(g:, 'fzf_window', {'down': '40%'})))
+  return fzf#run(extend(a:opts, a:bang ? {} : get(g:, 'fzf_window', s:default_window)))
 endfunction
 
 let s:default_action = {
@@ -398,19 +400,36 @@ command! -bang Commands call s:commands(<bang>0)
 inoremap <silent> <Plug>(-fzf-complete-trigger) <c-o>:call <sid>complete_trigger()<cr>
 
 function! s:complete_trigger()
-  call s:fzf({
-  \ 'source':  s:source,
-  \ 'sink':    function('s:complete_insert'),
-  \ 'options': '+m -q '.shellescape(s:query)}, 0)
+  let opts = copy(s:opts)
+  let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
+  let opts['sink*'] = function('s:complete_insert')
+  if has_key(opts, 'reducer')
+    let s:reducer = opts.reducer
+    call remove(opts, 'reducer')
+  else
+    let s:reducer = function('s:first_line')
+  endif
+  call fzf#run(opts)
 endfunction
 
-function! s:complete_insert(data)
+" The default reducer
+function! s:first_line(lines)
+  return a:lines[0]
+endfunction
+
+function! s:complete_insert(lines)
+  if empty(a:lines)
+    return
+  endif
+
   let chars = strchars(s:query)
-  if chars == 0     | let del = ''
+  if     chars == 0 | let del = ''
   elseif chars == 1 | let del = '"_x'
   else              | let del = (chars - 1).'"_dvh'
   endif
-  execute 'normal!' (s:eol ? '' : 'h').del.(s:eol ? 'a': 'i').a:data
+
+  let data = call(s:reducer, [a:lines])
+  execute 'normal!' (s:eol ? '' : 'h').del.(s:eol ? 'a': 'i').data
   if has('nvim')
     call feedkeys('a')
   else
@@ -418,8 +437,16 @@ function! s:complete_insert(data)
   endif
 endfunction
 
-function! fzf#complete(source)
-  let s:source = a:source
+function! fzf#complete(arg)
+  if type(a:arg) == type({})
+    if has_key(a:arg, 'sink') || has_key(a:arg, 'sink*')
+      echoerr 'sink not allowed'
+      return ''
+    endif
+    let s:opts = a:arg
+  else
+    let s:opts = extend({'source': a:arg}, get(g:, 'fzf_window', s:default_window))
+  endif
 
   let eol = col('$')
   let ve = &ve

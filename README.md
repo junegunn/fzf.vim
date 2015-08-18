@@ -48,8 +48,7 @@ List of commands
   bindings to open in a new tab, a new split, or in a new vertical split.
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
 
-Customization
--------------
+### Customization
 
 ```vim
 " This is the default extra key bindings
@@ -57,6 +56,35 @@ let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
+```
+
+Fuzzy completion helper
+-----------------------
+
+`fzf#complete` is a helper function for creating custom fuzzy completion using
+fzf. If the first parameter is a command string or a Vim list, it will be used
+as the source.
+
+```vim
+" Replace the default dictionary completion with fzf-based fuzzy completion
+inoremap <expr> <c-x><c-k> fzf#complete('cat /usr/share/dict/words')
+```
+
+For advanced uses, you can pass an options dictionary to the function. The set
+of options is almost identical to that for `fzf#run`, except that it takes
+`reducer` function instead of `sink` or `sink*`.
+
+```vim
+" Reducer function transforms the output of fzf into a single string value
+function! FirstLineInUpperCase(lines)
+  return toupper(a:lines[0])
+endfunction
+
+inoremap <expr> <c-x><c-k> fzf#complete({
+  \ 'source':  'cat /usr/share/dict/words',
+  \ 'reducer': function('FirstLineInUpperCase'),
+  \ 'options': '--no-multi --reverse --margin 15%,0',
+  \ 'left':    20})
 ```
 
 License
