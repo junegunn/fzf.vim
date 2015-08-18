@@ -72,7 +72,7 @@ function! s:common_sink(lines) abort
     let autochdir = &autochdir
     set noautochdir
     for item in a:lines
-      execute 'silent' cmd s:escape(item)
+      execute cmd s:escape(item)
     endfor
   finally
     let &autochdir = autochdir
@@ -317,7 +317,7 @@ function! s:tags_sink(lines)
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
   let parts = split(a:lines[1], '\t\zs')
   let excmd = matchstr(parts[2:], '^.*\ze;"\t')
-  execute 'silent' cmd s:escape(parts[1][:-2])
+  execute cmd s:escape(parts[1][:-2])
   let [magic, &magic] = [&magic, 0]
   execute excmd
   let &magic = magic
