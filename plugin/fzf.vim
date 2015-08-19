@@ -437,15 +437,17 @@ function! s:complete_insert(lines)
   endif
 endfunction
 
-function! fzf#complete(arg)
-  if type(a:arg) == type({})
-    if has_key(a:arg, 'sink') || has_key(a:arg, 'sink*')
+function! fzf#complete(...)
+  if a:0 == 0
+    let s:opts = copy(get(g:, 'fzf_window', s:default_window))
+  elseif type(a:1) == type({})
+    if has_key(a:1, 'sink') || has_key(a:1, 'sink*')
       echoerr 'sink not allowed'
       return ''
     endif
-    let s:opts = a:arg
+    let s:opts = copy(a:1)
   else
-    let s:opts = extend({'source': a:arg}, get(g:, 'fzf_window', s:default_window))
+    let s:opts = extend({'source': a:1}, get(g:, 'fzf_window', s:default_window))
   endif
 
   let eol = col('$')
