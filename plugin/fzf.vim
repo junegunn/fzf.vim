@@ -399,16 +399,15 @@ command! -bang Commands call s:commands(<bang>0)
 " ----------------------------------------------------------------------------
 inoremap <silent> <Plug>(-fzf-complete-trigger) <c-o>:call <sid>complete_trigger()<cr>
 
+function! s:pluck(dict, key, default)
+  return has_key(a:dict, a:key) ? remove(a:dict, a:key) : a:default
+endfunction
+
 function! s:complete_trigger()
   let opts = copy(s:opts)
   let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
   let opts['sink*'] = function('s:complete_insert')
-  if has_key(opts, 'reducer')
-    let s:reducer = opts.reducer
-    call remove(opts, 'reducer')
-  else
-    let s:reducer = function('s:first_line')
-  endif
+  let s:reducer = s:pluck(opts, 'reducer', function('s:first_line'))
   call fzf#run(opts)
 endfunction
 
