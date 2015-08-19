@@ -71,18 +71,25 @@ inoremap <expr> <c-x><c-k> fzf#complete('cat /usr/share/dict/words')
 ```
 
 For advanced uses, you can pass an options dictionary to the function. The set
-of options is almost identical to that for `fzf#run`, except that it takes
-`reducer` function instead of `sink` or `sink*`.
+of options is pretty much identical to that for `fzf#run` only with the
+following exceptions:
+
+- `reducer` (funcref)
+    - Reducer transforms the output lines of fzf into a single string value
+- `prefix` (string; default: `\k*$`)
+    - Regular expression pattern to extract the completion prefix
+- Both `source` and `options` can be given as funcrefs that take the
+  completion prefix as the argument and return the final value
+- `sink` or `sink*` are not allowed
 
 ```vim
-" Reducer function transforms the output of fzf into a single string value
-function! FirstLineInUpperCase(lines)
+function! s:first_line_in_uppercase(lines)
   return toupper(a:lines[0])
 endfunction
 
 inoremap <expr> <c-x><c-k> fzf#complete({
   \ 'source':  'cat /usr/share/dict/words',
-  \ 'reducer': function('FirstLineInUpperCase'),
+  \ 'reducer': function('<sid>first_line_in_uppercase'),
   \ 'options': '--no-multi --reverse --margin 15%,0',
   \ 'left':    20})
 ```

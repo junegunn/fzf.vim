@@ -436,10 +436,21 @@ function! s:complete_insert(lines)
   endif
 endfunction
 
+let s:TYPE = {'dict': type({}), 'funcref': type(function('call'))}
+
+function! s:eval(dict, key, arg)
+  if has_key(a:dict, a:key) && type(a:dict[a:key]) == s:TYPE.funcref
+    let ret = copy(a:dict)
+    let ret[a:key] = call(a:dict[a:key], [a:arg])
+    return ret
+  endif
+  return a:dict
+endfunction
+
 function! fzf#complete(...)
   if a:0 == 0
     let s:opts = copy(get(g:, 'fzf_window', s:default_window))
-  elseif type(a:1) == type({})
+  elseif type(a:1) == s:TYPE.dict
     if has_key(a:1, 'sink') || has_key(a:1, 'sink*')
       echoerr 'sink not allowed'
       return ''
@@ -455,8 +466,12 @@ function! fzf#complete(...)
   let s:eol = col('.') == eol
   let &ve = ve
 
+  let prefix = s:pluck(s:opts, 'prefix', '\k*$')
   let s:query = col('.') == 1 ? '' :
-        \ matchstr(getline('.')[0 : col('.')-2], '\k*$')
+        \ matchstr(getline('.')[0 : col('.')-2], prefix)
+  let s:opts = s:eval(s:opts, 'source', s:query)
+  let s:opts = s:eval(s:opts, 'options', s:query)
+
   call feedkeys("\<Plug>(-fzf-complete-trigger)")
   return ''
 endfunction
