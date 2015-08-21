@@ -1,7 +1,7 @@
-fzf.vim
-=======
+fzf :heart: vim
+===============
 
-A set of [fzf][fzf]-based Vim commands.
+A set of [fzf][fzf]-based commands and mappings.
 
 Rationale
 ---------
@@ -12,10 +12,10 @@ write their own Vim commands with it. However, I've learned that many users of
 fzf are not familiar with Vimscript and are looking for the "default"
 implementation of the features they can find in the alternative Vim plugins.
 
-This repository is a bundle of fzf-based commands extracted from my
-[.vimrc][vimrc] to address such needs. The commands are opinionated and not
-designed to be extremely flexible or configurable, and they are not guaranteed
-to be backward-compatible.
+This repository is a bundle of fzf-based commands and mappings extracted from
+my [.vimrc][vimrc] to address such needs. They are *not* designed to be
+flexible or configurable, nor are not guaranteed to be backward-compatible at
+the moment, so you might want to treat this repository as a reference.
 
 Installation
 ------------
@@ -27,8 +27,8 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': 'yes \| ./install' }
 Plug 'junegunn/fzf.vim'
 ```
 
-List of commands
-----------------
+Commands
+--------
 
 | Command          | List                                                                      |
 | ---              | ---                                                                       |
@@ -44,7 +44,7 @@ List of commands
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
 | `Commands`       | User-defined commands                                                     |
 
-- All commands except `Colors` support `CTRL-T` / `CTRL-X` / `CTRL-V` key
+- Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
 
@@ -61,8 +61,25 @@ let g:fzf_action = {
 let g:fzf_layout = { 'down': '40%' }
 ```
 
-Fuzzy completion helper
------------------------
+Mappings
+--------
+
+| Mapping                        | Description                               |
+| ---                            | ---                                       |
+| `<plug>(fzf-complete-word)`    | `cat /usr/share/dict/words`               |
+| `<plug>(fzf-complete-path)`    | Path completion using `find` (file + dir) |
+| `<plug>(fzf-complete-file)`    | File completion using `find`              |
+| `<plug>(fzf-complete-file-ag)` | File completion using `ag`                |
+
+### Usage
+
+```vim
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+```
+
+### Completion helper
 
 `fzf#complete` is a helper function for creating custom fuzzy completion using
 fzf. If the first parameter is a command string or a Vim list, it will be used

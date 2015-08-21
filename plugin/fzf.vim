@@ -482,6 +482,53 @@ function! fzf#complete(...)
   return ''
 endfunction
 
+" ----------------------------------------------------------------------------
+" <plug>(fzf-complete-word)
+" ----------------------------------------------------------------------------
+inoremap <expr> <plug>(fzf-complete-word) fzf#complete('cat /usr/share/dict/words')
+
+" ----------------------------------------------------------------------------
+" <plug>(fzf-complete-path)
+" <plug>(fzf-complete-file)
+" <plug>(fzf-complete-file-ag)
+" ----------------------------------------------------------------------------
+function! s:file_split_prefix(prefix)
+  let expanded = expand(a:prefix)
+  return isdirectory(expanded) ?
+    \ [expanded,
+    \  substitute(a:prefix, '/*$', '/', ''),
+    \  ''] :
+    \ [fnamemodify(expanded, ':h'),
+    \  substitute(fnamemodify(a:prefix, ':h'), '/*$', '/', ''),
+    \  fnamemodify(expanded, ':t')]
+endfunction
+
+function! s:file_source(prefix)
+  let [dir, head, tail] = s:file_split_prefix(a:prefix)
+  return printf(
+    \ "cd %s && ".s:file_cmd." | sed 's:^:%s:'",
+    \ shellescape(dir), empty(a:prefix) || a:prefix == tail ? '' : head)
+endfunction
+
+function! s:file_options(prefix)
+  let [_, head, tail] = s:file_split_prefix(a:prefix)
+  return printf('--prompt %s --query %s', shellescape(head), shellescape(tail))
+endfunction
+
+function! s:complete_file(bang, command)
+  let s:file_cmd = a:command
+  return fzf#complete(extend({
+  \ 'prefix':  '\S*$',
+  \ 'source':  function('<sid>file_source'),
+  \ 'options': function('<sid>file_options')}, a:bang ? {} : s:win()))
+endfunction
+
+inoremap <expr> <plug>(fzf-complete-path)
+\ <sid>complete_file(0, "find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'")
+inoremap <expr> <plug>(fzf-complete-file)
+\ <sid>complete_file(0, "find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed '1d;s:^..::'")
+inoremap <expr> <plug>(fzf-complete-file-ag) <sid>complete_file(0, "ag -l -g ''")
+
 " ------------------------------------------------------------------
 let &cpo = s:cpo_save
 unlet s:cpo_save
