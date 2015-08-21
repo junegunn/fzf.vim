@@ -85,15 +85,17 @@ following exceptions:
   completion prefix as the argument and return the final value
 - `sink` or `sink*` are not allowed
 
+#### Reducer example
+
 ```vim
-function! s:first_line_in_uppercase(lines)
-  return toupper(a:lines[0])
+function! s:make_sentence(lines)
+  return substitute(join(a:lines), '^.', '\=toupper(submatch(0))', '').'.'
 endfunction
 
-inoremap <expr> <c-x><c-k> fzf#complete({
+inoremap <expr> <c-x><c-s> fzf#complete({
   \ 'source':  'cat /usr/share/dict/words',
-  \ 'reducer': function('<sid>first_line_in_uppercase'),
-  \ 'options': '--no-multi --reverse --margin 15%,0',
+  \ 'reducer': function('<sid>make_sentence'),
+  \ 'options': '--multi --reverse --margin 15%,0',
   \ 'left':    20})
 ```
 
