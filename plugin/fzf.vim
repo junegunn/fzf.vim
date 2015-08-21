@@ -49,10 +49,14 @@ function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val)')
 endfunction
 
-let s:default_window = {'down': '40%'}
+let s:default_layout = {'down': '40%'}
+
+function! s:win()
+  return copy(get(g:, 'fzf_layout', s:default_layout))
+endfunction
 
 function! s:fzf(opts, bang)
-  return fzf#run(extend(a:opts, a:bang ? {} : get(g:, 'fzf_window', s:default_window)))
+  return fzf#run(extend(a:opts, a:bang ? {} : s:win()))
 endfunction
 
 let s:default_action = {
@@ -451,7 +455,7 @@ endfunction
 
 function! fzf#complete(...)
   if a:0 == 0
-    let s:opts = copy(get(g:, 'fzf_window', s:default_window))
+    let s:opts = s:win()
   elseif type(a:1) == s:TYPE.dict
     if has_key(a:1, 'sink') || has_key(a:1, 'sink*')
       echoerr 'sink not allowed'
@@ -459,7 +463,7 @@ function! fzf#complete(...)
     endif
     let s:opts = copy(a:1)
   else
-    let s:opts = extend({'source': a:1}, get(g:, 'fzf_window', s:default_window))
+    let s:opts = extend({'source': a:1}, s:win())
   endif
 
   let eol = col('$')

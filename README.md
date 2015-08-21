@@ -56,6 +56,9 @@ let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
+
+" Default fzf layout
+let g:fzf_layout = { 'down': '40%' }
 ```
 
 Fuzzy completion helper
