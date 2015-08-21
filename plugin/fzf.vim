@@ -331,9 +331,11 @@ function! s:tags(bang)
     call system('ctags -R')
   endif
 
+  let tagfile = tagfiles()[0]
   call s:fzf({
-  \ 'source':  'cat '.join(map(tagfiles(), 'fnamemodify(v:val, ":S")')).
+  \ 'source':  'cat '.shellescape(tagfile).
   \            '| grep -v "^!"',
+  \ 'dir':     fnamemodify(tagfile, ':h'),
   \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --prompt "Tags> "'.s:expect(),
   \ 'sink*':   function('s:tags_sink')}, a:bang)
 endfunction
