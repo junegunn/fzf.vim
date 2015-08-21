@@ -1,7 +1,7 @@
 fzf :heart: vim
 ===============
 
-A set of [fzf][fzf]-based commands and mappings.
+A set of [fzf][fzf]-based Vim commands and mappings.
 
 Rationale
 ---------
