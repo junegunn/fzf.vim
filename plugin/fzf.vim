@@ -233,7 +233,7 @@ function! s:bufselect(bang)
   call fzf#run(extend({
   \ 'source':  reverse(bufs),
   \ 'sink*':   function('s:bufopen'),
-  \ 'options': '+m --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
+  \ 'options': '+m -x --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
   \}, a:bang ? {} : {'down': height + 2}))
 endfunction
 
@@ -426,7 +426,7 @@ function! s:marks(bang)
   call s:fzf({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   function('s:mark_sink'),
-  \ 'options': '+m --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:bang)
+  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:bang)
 endfunction
 
 command! -bang Marks call s:marks(<bang>0)
