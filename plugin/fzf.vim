@@ -106,6 +106,18 @@ function! s:warn(message)
   echohl None
 endfunction
 
+function! s:uniq(list)
+  let visited = {}
+  let ret = []
+  for l in a:list
+    if !empty(l) && !has_key(visited, l)
+      call add(ret, l)
+      let visited[l] = 1
+    endif
+  endfor
+  return ret
+endfunction
+
 " ------------------------------------------------------------------
 " Files
 " ------------------------------------------------------------------
@@ -588,6 +600,24 @@ inoremap <expr> <plug>(fzf-complete-path)
 inoremap <expr> <plug>(fzf-complete-file)
 \ <sid>complete_file(0, "find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed '1d;s:^..::'")
 inoremap <expr> <plug>(fzf-complete-file-ag) <sid>complete_file(0, "ag -l -g ''")
+
+" ----------------------------------------------------------------------------
+" <plug>(fzf-complete-line)
+" <plug>(fzf-complete-buffer-line)
+" ----------------------------------------------------------------------------
+function! s:reduce_line(lines)
+  return join(split(a:lines[0], '\t\zs')[2:], '')
+endfunction
+
+inoremap <expr> <plug>(fzf-complete-line) fzf#complete(extend({
+\ 'prefix':  '^.*$',
+\ 'source':  <sid>lines(),
+\ 'options': '--tiebreak=index --ansi --nth 3..',
+\ 'reducer': function('<sid>reduce_line')}, <sid>win()))
+
+inoremap <expr> <plug>(fzf-complete-buffer-line) fzf#complete(extend({
+\ 'prefix': '^.*$',
+\ 'source': <sid>uniq(getline(1, '$'))}, <sid>win()))
 
 " ------------------------------------------------------------------
 let &cpo = s:cpo_save
