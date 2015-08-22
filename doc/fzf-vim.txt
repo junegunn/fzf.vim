@@ -1,0 +1,174 @@
+fzf-vim.txt	fzf-vim	Last change: August 22 2015
+FZF-VIM - TABLE OF CONTENTS                         *fzfvim* *fzf-vim* *fzf-vim-toc*
+==============================================================================
+
+  fzf :heart: vim
+    Rationale                                                  |fzf-vim-1|
+    Installation                                               |fzf-vim-2|
+    Commands                                                   |fzf-vim-3|
+      Customization                                            |fzf-vim-3-1|
+    Mappings                                                   |fzf-vim-4|
+      Usage                                                    |fzf-vim-4-1|
+      Completion helper                                        |fzf-vim-4-2|
+        Reducer example                                        |fzf-vim-4-2-1|
+    License                                                    |fzf-vim-5|
+
+
+FZF :HEART: VIM                                          *fzf-vim-fzf-heart-vim*
+==============================================================================
+
+A set of {fzf}{1}-based Vim commands and mappings.
+
+                                           {1} https://github.com/junegunn/fzf
+
+
+                                                                     *fzf-vim-1*
+RATIONALE                                                    *fzf-vim-rationale*
+==============================================================================
+
+{fzf}{1} in itself is not a Vim plugin, and the official repository only
+provides the {basic wrapper function}{2} for Vim and it's up to the users to
+write their own Vim commands with it. However, I've learned that many users of
+fzf are not familiar with Vimscript and are looking for the "default"
+implementation of the features they can find in the alternative Vim plugins.
+
+This repository is a bundle of fzf-based commands and mappings extracted from
+my {.vimrc}{3} to address such needs. They are not designed to be flexible or
+configurable, nor are not guaranteed to be backward-compatible at the moment,
+so you might want to treat this repository as a reference.
+
+                    {1} https://github.com/junegunn/fzf
+                    {2} https://github.com/junegunn/fzf#usage-as-vim-plugin
+                    {3} https://github.com/junegunn/dotfiles/blob/master/vimrc
+
+
+                                                                     *fzf-vim-2*
+INSTALLATION                                              *fzf-vim-installation*
+==============================================================================
+
+Using {vim-plug}{4}:
+>
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': 'yes \| ./install' }
+    Plug 'junegunn/fzf.vim'
+<
+                                      {4} https://github.com/junegunn/vim-plug
+
+
+                                                                     *fzf-vim-3*
+COMMANDS                                                      *fzf-vim-commands*
+==============================================================================
+
+                                                                          *:FZF*
+
+ -----------------+---------------------------------------------------------------------
+ Command          | List                                                                ~
+ -----------------+---------------------------------------------------------------------
+  `Files [PATH]`    | Files (similar to  `:FZF` )
+  `Buffers`         | Open buffers
+  `Colors`          | Color schemes
+  `Ag [PATTERN]`    | {ag}{5} search result (CTRL-A to select all, CTRL-D to deselect all)
+  `Lines`           | Lines in loaded buffers
+  `Marks`           | Marks
+  `Tags`            | Tags in the project ( `ctags -R` )
+  `BTags`           | Tags in the current buffer
+  `Locate PATTERN`  |  `locate`  command output
+  `History`         |  `v:oldfiles`  and open buffers
+  `Snippets`        | Snippets ({UltiSnips}{6})
+  `Commands`        | User-defined commands
+ -----------------+---------------------------------------------------------------------
+
+ - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
+   tab, a new split, or in a new vertical split.
+ - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
+
+                             {5} https://github.com/ggreer/the_silver_searcher
+                             {6} https://github.com/SirVer/ultisnips
+
+
+< Customization >_____________________________________________________________~
+                                                         *fzf-vim-customization*
+                                                                   *fzf-vim-3-1*
+
+                                                     *g:fzf_action* *g:fzf_layout*
+>
+    " This is the default extra key bindings
+    let g:fzf_action = {
+      \ 'ctrl-t': 'tab split',
+      \ 'ctrl-x': 'split',
+      \ 'ctrl-v': 'vsplit' }
+
+    " Default fzf layout
+    let g:fzf_layout = { 'down': '40%' }
+<
+
+                                                                     *fzf-vim-4*
+MAPPINGS                                                      *fzf-vim-mappings*
+==============================================================================
+
+ -----------------------------+------------------------------------------
+ Mapping                      | Description                              ~
+ -----------------------------+------------------------------------------
+ <plug>(fzf-complete-word)    |  `cat /usr/share/dict/words`
+ <plug>(fzf-complete-path)    | Path completion using  `find`  (file + dir)
+ <plug>(fzf-complete-file)    | File completion using  `find`
+ <plug>(fzf-complete-file-ag) | File completion using  `ag`
+ -----------------------------+------------------------------------------
+
+
+< Usage >_____________________________________________________________________~
+                                                                 *fzf-vim-usage*
+                                                                   *fzf-vim-4-1*
+>
+    imap <c-x><c-k> <plug>(fzf-complete-word)
+    imap <c-x><c-f> <plug>(fzf-complete-path)
+    imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+<
+
+< Completion helper >_________________________________________________________~
+                                                     *fzf-vim-completion-helper*
+                                                                   *fzf-vim-4-2*
+
+`fzf#complete` is a helper function for creating custom fuzzy completion using
+fzf. If the first parameter is a command string or a Vim list, it will be used
+as the source.
+>
+    " Replace the default dictionary completion with fzf-based fuzzy completion
+    inoremap <expr> <c-x><c-k> fzf#complete('cat /usr/share/dict/words')
+<
+For advanced uses, you can pass an options dictionary to the function. The set
+of options is pretty much identical to that for `fzf#run` only with the
+following exceptions:
+
+ - `reducer` (funcref)
+   - Reducer transforms the output lines of fzf into a single string value
+ - `prefix` (string; default: `\k*$`)
+   - Regular expression pattern to extract the completion prefix
+ - Both `source` and `options` can be given as funcrefs that take the completion
+   prefix as the argument and return the final value
+ - `sink` or `sink*` are not allowed
+
+
+Reducer example~
+                                                       *fzf-vim-reducer-example*
+                                                                 *fzf-vim-4-2-1*
+>
+    function! s:make_sentence(lines)
+      return substitute(join(a:lines), '^.', '\=toupper(submatch(0))', '').'.'
+    endfunction
+
+    inoremap <expr> <c-x><c-s> fzf#complete({
+      \ 'source':  'cat /usr/share/dict/words',
+      \ 'reducer': function('<sid>make_sentence'),
+      \ 'options': '--multi --reverse --margin 15%,0',
+      \ 'left':    20})
+<
+
+                                                                     *fzf-vim-5*
+LICENSE                                                        *fzf-vim-license*
+==============================================================================
+
+MIT
+
+
+==============================================================================
+vim:tw=78:sw=2:ts=2:ft=help:norl:nowrap:
