@@ -400,6 +400,37 @@ endfunction
 
 command! -bang Commands call s:commands(<bang>0)
 
+" ------------------------------------------------------------------
+" Marks
+" ------------------------------------------------------------------
+function! s:format_mark(line)
+  return substitute(a:line, '\S', '\=s:yellow(submatch(0), 1)', '')
+endfunction
+
+function! s:mark_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  if !empty(cmd)
+    execute 'silent' cmd
+  endif
+  execute 'normal! `'.matchstr(a:lines[1], '\S').'zz'
+endfunction
+
+function! s:marks(bang)
+  redir => cout
+  silent marks
+  redir END
+  let list = split(cout, "\n")
+  call s:fzf({
+  \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
+  \ 'sink*':   function('s:mark_sink'),
+  \ 'options': '+m --ansi --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:bang)
+endfunction
+
+command! -bang Marks call s:marks(<bang>0)
+
 " ----------------------------------------------------------------------------
 " Completion helper
 " ----------------------------------------------------------------------------

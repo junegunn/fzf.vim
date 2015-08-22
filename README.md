@@ -37,6 +37,7 @@ Commands
 | `Colors`         | Color schemes                                                             |
 | `Ag [PATTERN]`   | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
 | `Lines`          | Lines in loaded buffers                                                   |
+| `Marks`          | Marks                                                                     |
 | `Tags`           | Tags in the project (`ctags -R`)                                          |
 | `BTags`          | Tags in the current buffer                                                |
 | `Locate PATTERN` | `locate` command output                                                   |
