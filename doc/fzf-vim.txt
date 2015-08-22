@@ -1,18 +1,17 @@
 fzf-vim.txt	fzf-vim	Last change: August 22 2015
-FZF-VIM - TABLE OF CONTENTS                         *fzfvim* *fzf-vim* *fzf-vim-toc*
+FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
   fzf :heart: vim
-    Rationale                                                  |fzf-vim-1|
-    Installation                                               |fzf-vim-2|
-    Commands                                                   |fzf-vim-3|
-      Customization                                            |fzf-vim-3-1|
-    Mappings                                                   |fzf-vim-4|
-      Usage                                                    |fzf-vim-4-1|
-      Completion helper                                        |fzf-vim-4-2|
-        Reducer example                                        |fzf-vim-4-2-1|
-    License                                                    |fzf-vim-5|
-
+    Rationale
+    Installation
+    Commands
+      Customization
+    Mappings
+      Usage
+      Completion helper
+        Reducer example
+    License
 
 FZF :HEART: VIM                                          *fzf-vim-fzf-heart-vim*
 ==============================================================================
@@ -22,7 +21,6 @@ A set of {fzf}{1}-based Vim commands and mappings.
                                            {1} https://github.com/junegunn/fzf
 
 
-                                                                     *fzf-vim-1*
 RATIONALE                                                    *fzf-vim-rationale*
 ==============================================================================
 
@@ -42,7 +40,6 @@ so you might want to treat this repository as a reference.
                     {3} https://github.com/junegunn/dotfiles/blob/master/vimrc
 
 
-                                                                     *fzf-vim-2*
 INSTALLATION                                              *fzf-vim-installation*
 ==============================================================================
 
@@ -54,11 +51,8 @@ Using {vim-plug}{4}:
                                       {4} https://github.com/junegunn/vim-plug
 
 
-                                                                     *fzf-vim-3*
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
-
-                                                                          *:FZF*
 
  -----------------+---------------------------------------------------------------------
  Command          | List                                                                ~
@@ -87,7 +81,6 @@ COMMANDS                                                      *fzf-vim-commands*
 
 < Customization >_____________________________________________________________~
                                                          *fzf-vim-customization*
-                                                                   *fzf-vim-3-1*
 
                                                      *g:fzf_action* *g:fzf_layout*
 >
@@ -101,7 +94,6 @@ COMMANDS                                                      *fzf-vim-commands*
     let g:fzf_layout = { 'down': '40%' }
 <
 
-                                                                     *fzf-vim-4*
 MAPPINGS                                                      *fzf-vim-mappings*
 ==============================================================================
 
@@ -117,7 +109,6 @@ MAPPINGS                                                      *fzf-vim-mappings*
 
 < Usage >_____________________________________________________________________~
                                                                  *fzf-vim-usage*
-                                                                   *fzf-vim-4-1*
 >
     imap <c-x><c-k> <plug>(fzf-complete-word)
     imap <c-x><c-f> <plug>(fzf-complete-path)
@@ -126,7 +117,6 @@ MAPPINGS                                                      *fzf-vim-mappings*
 
 < Completion helper >_________________________________________________________~
                                                      *fzf-vim-completion-helper*
-                                                                   *fzf-vim-4-2*
 
 `fzf#complete` is a helper function for creating custom fuzzy completion using
 fzf. If the first parameter is a command string or a Vim list, it will be used
@@ -150,7 +140,6 @@ following exceptions:
 
 Reducer example~
                                                        *fzf-vim-reducer-example*
-                                                                 *fzf-vim-4-2-1*
 >
     function! s:make_sentence(lines)
       return substitute(join(a:lines), '^.', '\=toupper(submatch(0))', '').'.'
@@ -163,7 +152,6 @@ Reducer example~
       \ 'left':    20})
 <
 
-                                                                     *fzf-vim-5*
 LICENSE                                                        *fzf-vim-license*
 ==============================================================================
 
