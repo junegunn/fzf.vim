@@ -322,7 +322,7 @@ function! s:tags_sink(lines)
   endif
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
   let parts = split(a:lines[1], '\t\zs')
-  let excmd = matchstr(parts[2:], '^.*\ze;"\t')
+  let excmd = matchstr(join(parts[2:], ''), '^.*\ze;"\t')
   execute cmd s:escape(parts[1][:-2])
   let [magic, &magic] = [&magic, 0]
   execute excmd
