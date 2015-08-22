@@ -150,20 +150,49 @@ function! s:line_handler(lines)
   normal! ^zz
 endfunction
 
-function! s:buffer_lines()
-  let res = []
+function! s:lines()
+  let cur = []
+  let rest = []
+  let buf = bufnr('')
   for b in s:buflisted()
-    call extend(res,
-    \ map(getbufline(b, 0, "$"),
+    call extend(b == buf ? cur : rest,
+    \ map(getbufline(b, 1, "$"),
     \ 'printf("[%s]\t%s:\t%s", s:blue(b, 1), s:yellow(v:key + 1, 1), v:val)'))
   endfor
-  return res
+  return extend(cur, rest)
 endfunction
 
 command! -bang Lines call s:fzf({
-\ 'source':  <sid>buffer_lines(),
+\ 'source':  <sid>lines(),
 \ 'sink*':   function('<sid>line_handler'),
-\ 'options': '+m --prompt "Lines> " --ansi --extended --nth=3..'.s:expect()
+\ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3..'.s:expect()
+\}, <bang>0)
+
+" ------------------------------------------------------------------
+" BLines
+" ------------------------------------------------------------------
+function! s:buffer_line_handler(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  if !empty(cmd)
+    execute 'silent' cmd
+  endif
+
+  execute split(a:lines[1], '\t')[0][0:-2]
+  normal! ^zz
+endfunction
+
+function! s:buffer_lines()
+  return map(getline(1, "$"),
+    \ 'printf("%s:\t%s", s:yellow(v:key + 1, 1), v:val)')
+endfunction
+
+command! -bang BLines call s:fzf({
+\ 'source':  <sid>buffer_lines(),
+\ 'sink*':   function('<sid>buffer_line_handler'),
+\ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2..'.s:expect()
 \}, <bang>0)
 
 " ------------------------------------------------------------------
