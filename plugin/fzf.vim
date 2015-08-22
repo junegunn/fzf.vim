@@ -233,7 +233,7 @@ function! s:bufselect(bang)
   call fzf#run(extend({
   \ 'source':  reverse(bufs),
   \ 'sink*':   function('s:bufopen'),
-  \ 'options': '+m --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
+  \ 'options': '+m --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
   \}, a:bang ? {} : {'down': height + 2}))
 endfunction
 
@@ -366,7 +366,7 @@ function! s:snippets(bang)
   let colored = map(aligned, 's:yellow(v:val[0], 1)."\t".v:val[1]')
   call s:fzf({
   \ 'source':  colored,
-  \ 'options': '--ansi +m -n 1 -d "\t"',
+  \ 'options': '--ansi --tiebreak=index +m -n 1 -d "\t"',
   \ 'sink':    function('s:inject_snippet')}, a:bang)
 endfunction
 
@@ -395,7 +395,7 @@ function! s:commands(bang)
   call s:fzf({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')),
   \ 'sink':    function('s:command_sink'),
-  \ 'options': '--ansi --header-lines 1 -x --prompt "Commands> " -n2 -d'.s:nbs}, a:bang)
+  \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2 -d'.s:nbs}, a:bang)
 endfunction
 
 command! -bang Commands call s:commands(<bang>0)
@@ -426,7 +426,7 @@ function! s:marks(bang)
   call s:fzf({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   function('s:mark_sink'),
-  \ 'options': '+m --ansi --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:bang)
+  \ 'options': '+m --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:bang)
 endfunction
 
 command! -bang Marks call s:marks(<bang>0)
