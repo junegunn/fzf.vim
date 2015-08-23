@@ -45,6 +45,7 @@ Commands
 | `History`        | `v:oldfiles` and open buffers                                             |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
 | `Commands`       | User-defined commands                                                     |
+| `Helptags`       | Help tags                                                                 |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.

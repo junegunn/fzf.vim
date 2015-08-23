@@ -472,6 +472,24 @@ endfunction
 
 command! -bang Marks call s:marks(<bang>0)
 
+" ------------------------------------------------------------------
+" Help tags
+" ------------------------------------------------------------------
+function! s:helptag_sink(line)
+  execute 'help' split(a:line)[0]
+endfunction
+
+function! s:helptags(bang)
+  let tags = split(globpath(&runtimepath, '**/doc/tags'), '\n')
+
+  call s:fzf({
+  \ 'source':  'cat '.join(map(tags, 'shellescape(v:val)'))."| sort | awk '{printf \"%-40s%s\\n\", $1, $2}'",
+  \ 'sink':    function('s:helptag_sink'),
+  \ 'options': '+m --tiebreak=begin'}, a:bang)
+endfunction
+
+command! -bang Helptags call s:helptags(<bang>0)
+
 " ----------------------------------------------------------------------------
 " Completion helper
 " ----------------------------------------------------------------------------
