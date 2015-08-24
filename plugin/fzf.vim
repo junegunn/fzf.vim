@@ -169,7 +169,7 @@ function! s:lines()
   for b in s:buflisted()
     call extend(b == buf ? cur : rest,
     \ map(getbufline(b, 1, "$"),
-    \ 'printf("[%s]\t%s:\t%s", s:blue(b, 1), s:yellow(v:key + 1, 1), v:val)'))
+    \ 'printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'))
   endfor
   return extend(cur, rest)
 endfunction
@@ -198,7 +198,7 @@ endfunction
 
 function! s:buffer_lines()
   return map(getline(1, "$"),
-    \ 'printf("%s:\t%s", s:yellow(v:key + 1, 1), v:val)')
+    \ 'printf("%s:\t%s", s:yellow(v:key + 1), v:val)')
 endfunction
 
 command! -bang BLines call s:fzf({
@@ -264,7 +264,7 @@ function! s:format_buffer(b)
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]') : ''
   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]')
   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 1), flag, name, extra))
+  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b), flag, name, extra))
 endfunction
 
 function! s:bufselect(bang)
@@ -404,7 +404,7 @@ function! s:snippets(bang)
     return s:warn('No snippets available here')
   endif
   let aligned = sort(s:align_lists(items(list)))
-  let colored = map(aligned, 's:yellow(v:val[0], 1)."\t".v:val[1]')
+  let colored = map(aligned, 's:yellow(v:val[0])."\t".v:val[1]')
   call s:fzf({
   \ 'source':  colored,
   \ 'options': '--ansi --tiebreak=index +m -n 1 -d "\t"',
@@ -420,7 +420,7 @@ let s:nbs = nr2char(0x2007)
 
 function! s:format_cmd(line)
   return substitute(a:line, '\C \([A-Z]\S*\) ',
-        \ '\=s:nbs.s:yellow(submatch(1), 1).s:nbs', '')
+        \ '\=s:nbs.s:yellow(submatch(1)).s:nbs', '')
 endfunction
 
 function! s:command_sink(cmd)
@@ -445,7 +445,7 @@ command! -bang Commands call s:commands(<bang>0)
 " Marks
 " ------------------------------------------------------------------
 function! s:format_mark(line)
-  return substitute(a:line, '\S', '\=s:yellow(submatch(0), 1)', '')
+  return substitute(a:line, '\S', '\=s:yellow(submatch(0))', '')
 endfunction
 
 function! s:mark_sink(lines)
