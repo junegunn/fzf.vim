@@ -379,9 +379,9 @@ function! s:tags(bang)
   let tagfile = tagfiles()[0]
   call s:fzf({
   \ 'source':  'cat '.shellescape(tagfile).
-  \            '| grep -v "^!"',
+  \            '| grep -v "^!" | perl -pe "s/^(.*?)\t(.*?)\t/\x1b[33m\1\x1b[m\t\x1b[34m\2\x1b[m\t/"',
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --prompt "Tags> "'.s:expect(),
+  \ 'options': '--ansi +m --tiebreak=begin --prompt "Tags> "'.s:expect(),
   \ 'sink*':   function('s:tags_sink')}, a:bang)
 endfunction
 
