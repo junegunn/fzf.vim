@@ -269,8 +269,6 @@ endfunction
 
 function! s:bufselect(bang)
   let bufs = map(s:buflisted(), 's:format_buffer(v:val)')
-  let height = min([len(bufs), &lines * 4 / 10])
-
   call s:fzf({
   \ 'source':  reverse(bufs),
   \ 'sink*':   function('s:bufopen'),
