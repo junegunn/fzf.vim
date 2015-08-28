@@ -39,7 +39,7 @@ function! s:ansi(str, col, bold)
   return printf("\x1b[%s%sm%s\x1b[m", a:col, a:bold ? ';1' : '', a:str)
 endfunction
 
-for [s:c, s:a] in items({'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35})
+for [s:c, s:a] in items({'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36})
   execute "function! s:".s:c."(str, ...)\n"
         \ "  return s:ansi(a:str, ".s:a.", get(a:, 1, 0))\n"
         \ "endfunction"
@@ -489,6 +489,43 @@ function! s:helptags(bang)
 endfunction
 
 command! -bang Helptags call s:helptags(<bang>0)
+
+" ------------------------------------------------------------------
+" Windows
+" ------------------------------------------------------------------
+function! s:format_win(tab, win, buf)
+  let modified = getbufvar(a:buf, '&modified')
+  let name = bufname(a:buf)
+  let name = empty(name) ? '[No Name]' : name
+  let active = tabpagewinnr(a:tab) == a:win
+  return (active? s:blue('> ') : '  ') . name . (modified? s:red(' [+]') : '')
+endfunction
+
+function! s:windows_sink(line)
+  let list = matchlist(a:line, '\([ 0-9]*\):\([ 0-9]*\)')
+  execute 'normal!' list[1].'gt'
+  execute list[2].'wincmd w'
+endfunction
+
+function! s:windows(bang)
+  let lines = []
+  for t in range(1, tabpagenr('$'))
+    let buffers = tabpagebuflist(t)
+    for w in range(1, len(buffers))
+      call add(lines,
+        \ printf('%s:%s: %s',
+            \ s:yellow(printf('%3d', t)),
+            \ s:cyan(printf('%3d', w)),
+            \ s:format_win(t, w, buffers[w-1])))
+    endfor
+  endfor
+  call s:fzf({
+  \ 'source':  extend(['Tab Win    Name'], lines),
+  \ 'sink':    function('s:windows_sink'),
+  \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:bang)
+endfunction
+
+command! -bang Windows call s:windows(<bang>0)
 
 " ----------------------------------------------------------------------------
 " Completion helper

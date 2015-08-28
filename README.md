@@ -38,9 +38,10 @@ Commands
 | `Ag [PATTERN]`   | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
 | `Lines`          | Lines in loaded buffers                                                   |
 | `BLines`         | Lines in the current buffer                                               |
-| `Marks`          | Marks                                                                     |
 | `Tags`           | Tags in the project (`ctags -R`)                                          |
 | `BTags`          | Tags in the current buffer                                                |
+| `Marks`          | Marks                                                                     |
+| `Windows`        | Windows                                                                   |
 | `Locate PATTERN` | `locate` command output                                                   |
 | `History`        | `v:oldfiles` and open buffers                                             |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
