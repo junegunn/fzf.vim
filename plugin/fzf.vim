@@ -49,7 +49,7 @@ function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val)')
 endfunction
 
-let s:default_layout = {'down': '40%'}
+let s:default_layout = {'down': '~40%'}
 
 function! s:win()
   return copy(get(g:, 'fzf_layout', s:default_layout))
@@ -271,11 +271,11 @@ function! s:bufselect(bang)
   let bufs = map(s:buflisted(), 's:format_buffer(v:val)')
   let height = min([len(bufs), &lines * 4 / 10])
 
-  call fzf#run(extend({
+  call s:fzf({
   \ 'source':  reverse(bufs),
   \ 'sink*':   function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
-  \}, a:bang ? {} : {'down': height + 2}))
+  \}, a:bang)
 endfunction
 
 command! -bang Buffers call s:bufselect(<bang>0)
