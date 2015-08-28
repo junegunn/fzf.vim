@@ -474,16 +474,22 @@ command! -bang Marks call s:marks(<bang>0)
 " Help tags
 " ------------------------------------------------------------------
 function! s:helptag_sink(line)
-  execute 'help' split(a:line)[0]
+  let [tag, file, path] = split(a:line, "\t")[0:2]
+  let rtp = fnamemodify(path, ':p:h:h')
+  if stridx(&rtp, rtp) < 0
+    execute 'set rtp+='.s:escape(rtp)
+  endif
+  execute 'help' tag
 endfunction
 
 function! s:helptags(bang)
   let tags = split(globpath(&runtimepath, '**/doc/tags'), '\n')
 
   call s:fzf({
-  \ 'source':  'cat '.join(map(tags, 'shellescape(v:val)'))."| sort | awk '{printf \"%-40s%s\\n\", $1, $2}'",
+  \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
+    \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(\x1b[33m%-40s\x1b[m\t%s\t%s\n), $2, $3, $1)' | sort",
   \ 'sink':    function('s:helptag_sink'),
-  \ 'options': '+m --tiebreak=begin'}, a:bang)
+  \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:bang)
 endfunction
 
 command! -bang Helptags call s:helptags(<bang>0)
