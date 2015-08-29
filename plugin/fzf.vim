@@ -337,6 +337,7 @@ function! s:btags_sink(lines)
     execute 'silent' cmd '%'
   endif
   execute split(a:lines[1], "\t")[2]
+  normal! zz
 endfunction
 
 function! s:btags(bang)
@@ -366,6 +367,7 @@ function! s:tags_sink(lines)
   let [magic, &magic] = [&magic, 0]
   execute excmd
   let &magic = magic
+  normal! zz
 endfunction
 
 function! s:tags(bang)
