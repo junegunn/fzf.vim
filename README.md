@@ -1,7 +1,7 @@
 fzf :heart: vim
 ===============
 
-A set of [fzf][fzf]-based Vim commands and mappings.
+Things you can do with [fzf][fzf] and Vim.
 
 Rationale
 ---------
@@ -14,8 +14,7 @@ implementation of the features they can find in the alternative Vim plugins.
 
 This repository is a bundle of fzf-based commands and mappings extracted from
 my [.vimrc][vimrc] to address such needs. They are *not* designed to be
-flexible or configurable, nor are not guaranteed to be backward-compatible at
-the moment, so you might want to treat this repository as a reference.
+flexible or configurable, and there's no guarantee of backward-compatibility.
 
 Installation
 ------------
