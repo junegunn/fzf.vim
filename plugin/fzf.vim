@@ -422,8 +422,39 @@ function! s:format_cmd(line)
 endfunction
 
 function! s:command_sink(cmd)
-  let cmd = matchstr(a:cmd, '\C[A-Z]\S*\ze'.s:nbs)
+  let cmd = matchstr(a:cmd, s:nbs.'\zs\S*\ze'.s:nbs)
   call feedkeys(':'.cmd.(a:cmd[0] == '!' ? '' : ' '))
+endfunction
+
+function! s:format_excmd(ex)
+  let match = matchlist(a:ex, '^|:\(\S\+\)|\s*\S*\(.*\)')
+  return printf("   \x1b[34m%-38s\x1b[m%s", s:nbs.match[1].s:nbs, s:strip(match[2]))
+endfunction
+
+function! s:excmds()
+  let help = globpath($VIMRUNTIME, 'doc/index.txt')
+  if empty(help)
+    return []
+  endif
+
+  let commands = []
+  let command = ''
+  for line in readfile(help)
+    if line =~ '^|:[^|]'
+      if !empty(command)
+        call add(commands, s:format_excmd(command))
+      endif
+      let command = line
+    elseif line =~ '^\s\+\S' && !empty(command)
+      let command .= substitute(line, '^\s*', ' ', '')
+    elseif !empty(commands) && line =~ '^\s*$'
+      break
+    endif
+  endfor
+  if !empty(command)
+    call add(commands, s:format_excmd(command))
+  endif
+  return commands
 endfunction
 
 function! s:commands(bang)
@@ -432,7 +463,7 @@ function! s:commands(bang)
   redir END
   let list = split(cout, "\n")
   call s:fzf({
-  \ 'source':  extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')),
+  \ 'source':  extend(extend(list[0:0], s:excmds()), map(list[1:], 's:format_cmd(v:val)')),
   \ 'sink':    function('s:command_sink'),
   \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2 -d'.s:nbs}, a:bang)
 endfunction

@@ -44,7 +44,7 @@ Commands
 | `Locate PATTERN` | `locate` command output                                                   |
 | `History`        | `v:oldfiles` and open buffers                                             |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
-| `Commands`       | User-defined commands                                                     |
+| `Commands`       | Commands                                                                  |
 | `Helptags`       | Help tags                                                                 |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
