@@ -465,7 +465,7 @@ function! s:commands(bang)
   redir END
   let list = split(cout, "\n")
   call s:fzf({
-  \ 'source':  extend(extend(list[0:0], s:excmds()), map(list[1:], 's:format_cmd(v:val)')),
+  \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
   \ 'sink':    function('s:command_sink'),
   \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2 -d'.s:nbs}, a:bang)
 endfunction
