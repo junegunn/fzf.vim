@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: August 23 2015
+fzf-vim.txt	fzf-vim	Last change: September 1 2015
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -70,7 +70,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `Locate PATTERN`  |  `locate`  command output
   `History`         |  `v:oldfiles`  and open buffers
   `Snippets`        | Snippets ({UltiSnips}{6})
-  `Commands`        | User-defined commands
+  `Commands`        | Commands
   `Helptags`        | Help tags
  -----------------+---------------------------------------------------------------------
 
