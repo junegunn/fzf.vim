@@ -239,16 +239,12 @@ endfunction
 function! s:history_source(type)
   let max  = histnr(a:type)
   let fmt  = '%'.len(string(max)).'d'
-  let list = filter(map(range(1, max), '[-v:val, histget(a:type, - v:val)]'), '!empty(v:val[1])')
-  return extend([':: Press CTRL-E to edit'],
-    \ map(list, 'v:val[0]." ".s:yellow(printf(fmt, len(list) - v:key)).": ".v:val[1]'))
+  let list = filter(map(range(1, max), 'histget(a:type, - v:val)'), '!empty(v:val)')
+  return extend([' :: Press CTRL-E to edit'],
+    \ map(list, 's:yellow(printf(fmt, len(list) - v:key)).": ".v:val'))
 endfunction
 
-function! s:do()
-  execute s:command
-endfunction
-
-nnoremap <plug>(-fzf-vim-do) :call <sid>do()<cr>
+nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<bar>unlet g:__fzf_command<cr>
 
 function! s:history_sink(type, lines)
   if empty(a:lines)
@@ -256,12 +252,12 @@ function! s:history_sink(type, lines)
   endif
 
   let key  = a:lines[0]
-  let item = histget(a:type, split(a:lines[1])[1])
+  let item = matchstr(a:lines[1], ': \zs.*')
   if key == 'ctrl-e'
     call histadd(a:type, item)
     call feedkeys(a:type."\<up>")
   else
-    let s:command = "normal ".a:type.item."\<cr>"
+    let g:__fzf_command = "normal ".a:type.item."\<cr>"
     call feedkeys("\<plug>(-fzf-vim-do)")
   endif
 endfunction
@@ -274,7 +270,7 @@ function! s:cmd_history(bang)
   call s:fzf({
   \ 'source':  s:history_source(':'),
   \ 'sink*':   function('s:cmd_history_sink'),
-  \ 'options': '+m --ansi --with-nth=2.. --prompt="Hist:> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
+  \ 'options': '+m --ansi --prompt="Hist:> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
 endfunction
 
 function! s:search_history_sink(lines)
@@ -285,7 +281,7 @@ function! s:search_history(bang)
   call s:fzf({
   \ 'source':  s:history_source('/'),
   \ 'sink*':   function('s:search_history_sink'),
-  \ 'options': '+m --ansi --with-nth 2.. --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
+  \ 'options': '+m --ansi --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
 endfunction
 
 function! s:history(arg, bang)
