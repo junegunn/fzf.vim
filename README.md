@@ -43,6 +43,8 @@ Commands
 | `Windows`        | Windows                                                                   |
 | `Locate PATTERN` | `locate` command output                                                   |
 | `History`        | `v:oldfiles` and open buffers                                             |
+| `History:`       | Command history                                                           |
+| `History/`       | Search history                                                            |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
 | `Commands`       | Commands                                                                  |
 | `Helptags`       | Help tags                                                                 |

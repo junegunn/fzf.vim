@@ -227,7 +227,7 @@ command! -bang -nargs=1 Locate call s:fzf({
 \}, <bang>0)
 
 " ------------------------------------------------------------------
-" History
+" History[:/]
 " ------------------------------------------------------------------
 function! s:all_files()
   return extend(
@@ -236,11 +236,74 @@ function! s:all_files()
   \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
 endfunction
 
-command! -bang History call s:fzf({
-\ 'source':  reverse(s:all_files()),
-\ 'sink*':   function('<sid>common_sink'),
-\ 'options': '--prompt "Hist> " -m' . s:expect(),
-\}, <bang>0)
+function! s:history_source(type)
+  let max  = histnr(a:type)
+  let fmt  = '%'.len(string(max)).'d'
+  let list = filter(map(range(1, max), '[-v:val, histget(a:type, - v:val)]'), '!empty(v:val[1])')
+  return extend([':: Press CTRL-E to edit'],
+    \ map(list, 'v:val[0]." ".s:yellow(printf(fmt, len(list) - v:key)).": ".v:val[1]'))
+endfunction
+
+function! s:do()
+  execute s:command
+endfunction
+
+nnoremap <plug>(-fzf-vim-do) :call <sid>do()<cr>
+
+function! s:history_sink(type, lines)
+  if empty(a:lines)
+    return
+  endif
+
+  let key  = a:lines[0]
+  let item = histget(a:type, split(a:lines[1])[1])
+  if key == 'ctrl-e'
+    call histadd(a:type, item)
+    call feedkeys(a:type."\<up>")
+  else
+    let s:command = "normal ".a:type.item."\<cr>"
+    call feedkeys("\<plug>(-fzf-vim-do)")
+  endif
+endfunction
+
+function! s:cmd_history_sink(lines)
+  call s:history_sink(':', a:lines)
+endfunction
+
+function! s:cmd_history(bang)
+  call s:fzf({
+  \ 'source':  s:history_source(':'),
+  \ 'sink*':   function('s:cmd_history_sink'),
+  \ 'options': '+m --ansi --with-nth=2.. --prompt="Hist:> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
+endfunction
+
+function! s:search_history_sink(lines)
+  call s:history_sink('/', a:lines)
+endfunction
+
+function! s:search_history(bang)
+  call s:fzf({
+  \ 'source':  s:history_source('/'),
+  \ 'sink*':   function('s:search_history_sink'),
+  \ 'options': '+m --ansi --with-nth 2.. --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:bang)
+endfunction
+
+function! s:history(arg, bang)
+  let bang = a:bang || a:arg[len(a:arg)-1] == '!'
+  if a:arg[0] == ':'
+    call s:cmd_history(bang)
+  elseif a:arg[0] == '/'
+    call s:search_history(bang)
+  else
+    call s:fzf({
+    \ 'source':  reverse(s:all_files()),
+    \ 'sink*':   function('s:common_sink'),
+    \ 'options': '--prompt "Hist> " -m' . s:expect(),
+    \}, bang)
+  endif
+endfunction
+
+command! -bang -nargs=* History call s:history(<q-args>, <bang>0)
 
 " ------------------------------------------------------------------
 " Buffers
