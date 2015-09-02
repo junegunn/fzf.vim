@@ -69,6 +69,8 @@ COMMANDS                                                      *fzf-vim-commands*
   `Windows`         | Windows
   `Locate PATTERN`  |  `locate`  command output
   `History`         |  `v:oldfiles`  and open buffers
+  `History:`        | Command history
+  `History/`        | Search history
   `Snippets`        | Snippets ({UltiSnips}{6})
   `Commands`        | Commands
   `Helptags`        | Help tags
