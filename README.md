@@ -16,6 +16,21 @@ This repository is a bundle of fzf-based commands and mappings extracted from
 my [.vimrc][vimrc] to address such needs. They are *not* designed to be
 flexible or configurable, and there's no guarantee of backward-compatibility.
 
+Why you should use fzf on Vim
+-----------------------------
+
+Because you can and you love fzf.
+
+fzf runs asynchronously and can be orders of magnitude faster than similar Vim
+plugins. However, the benefit may not be noticeable if the size of the input
+is small, which is the case for many of the commands provided here.
+Nevertheless I wrote them anyway since it's really easy to implement custom
+selector with fzf.
+
+fzf is an independent command-line program and thus requires an external
+terminal emulator when on GVim. You may or may not like the experience. Also
+note that fzf currently does not compile on Windows.
+
 Installation
 ------------
 
