@@ -244,7 +244,7 @@ function! s:history_source(type)
     \ map(list, 's:yellow(printf(fmt, len(list) - v:key)).": ".v:val'))
 endfunction
 
-nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<bar>unlet g:__fzf_command<cr>
+nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<cr>
 
 function! s:history_sink(type, lines)
   if empty(a:lines)
