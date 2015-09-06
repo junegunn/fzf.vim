@@ -47,11 +47,17 @@ Commands
 | `History/`       | Search history                                                            |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
 | `Commands`       | Commands                                                                  |
-| `Helptags`       | Help tags                                                                 |
+| `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split.
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
+
+(<a name="helptags">1</a>: `Helptags` will shadow the command of the same name
+from [pathogen][pat]. But its functionality is still available via `call
+pathogen#helptags()`. [↩](#a1))
+
+[pat]: https://github.com/tpope/vim-pathogen
 
 ### Customization
 
