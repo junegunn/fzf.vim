@@ -58,34 +58,54 @@ function! s:file_options(prefix)
   return printf('--prompt %s --query %s', shellescape(head), shellescape(tail))
 endfunction
 
-function! s:fname_regex()
+function! s:fname_prefix(str)
   let isf = &isfname
-  let pats = []
+  let white = []
+  let black = []
   if isf =~ ',,,'
-    call add(pats, ',')
+    call add(white, ',')
     let isf = substitute(isf, ',,,', ',', 'g')
   endif
+  if isf =~ ',^,,'
+    call add(black, ',')
+    let isf = substitute(isf, ',^,,', ',', 'g')
+  endif
+
   for token in split(isf, ',')
-    if token =~ '[0-9]\+-[0-9]\+'
-      let range = map(split(token, '-'), 'str2nr(v:val)')
-      for i in range(range[0], range[1])
-        call add(pats, nr2char(i))
-      endfor
+    let target = white
+    if token[0] == '^'
+      let target = black
+      let token = token[1:]
+    endif
+
+    let ends = matchlist(token, '\(.\+\)-\(.\+\)')
+    if empty(ends)
+      call add(target, token)
     else
-      call add(pats, token)
+      let ends = map(ends[1:2], "len(v:val) == 1 ? char2nr(v:val) : str2nr(v:val)")
+      for i in range(ends[0], ends[1])
+        call add(target, nr2char(i))
+      endfor
     endif
   endfor
-  let pattern = escape(join(pats, ''), ']')
-  if pattern =~ '-'
-    let pattern = substitute(pattern, '-', '', 'g').'-'
-  endif
-  return '[\w'.pattern.']'
+
+  let prefix = a:str
+  for offset in range(1, len(a:str))
+    let char = a:str[len(a:str) - offset]
+    if (char =~ '\w' || index(white, char) >= 0) && index(black, char) < 0
+      continue
+    endif
+    let prefix = strpart(a:str, len(a:str) - offset + 1)
+    break
+  endfor
+
+  return prefix
 endfunction
 
 function! s:complete_file(command, extra_opts)
   let s:file_cmd = a:command
   return fzf#vim#complete(extend({
-  \ 'prefix':  s:fname_regex().'*$',
+  \ 'prefix':  function('s:fname_prefix'),
   \ 'source':  function('s:file_source'),
   \ 'options': function('s:file_options')}, get(a:extra_opts, 0, g:fzf#vim#default_layout)))
 endfunction

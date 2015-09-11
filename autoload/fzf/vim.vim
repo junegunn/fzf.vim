@@ -672,9 +672,17 @@ function! fzf#vim#complete(...)
   let s:eol = col('.') == eol
   let &ve = ve
 
-  let prefix = s:pluck(s:opts, 'prefix', '\k*$')
-  let s:query = col('.') == 1 ? '' :
-        \ matchstr(getline('.')[0 : col('.')-2], prefix)
+  let Prefix = s:pluck(s:opts, 'prefix', '\k*$')
+  if col('.') == 1
+    let s:query = ''
+  else
+    let full_prefix = getline('.')[0 : col('.')-2]
+    if type(Prefix) == s:TYPE.funcref
+      let s:query = call(Prefix, [full_prefix])
+    else
+      let s:query = matchstr(full_prefix, Prefix)
+    endif
+  endif
   let s:opts = s:eval(s:opts, 'source', s:query)
   let s:opts = s:eval(s:opts, 'options', s:query)
 

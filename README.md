@@ -131,8 +131,9 @@ following exceptions:
 
 - `reducer` (funcref)
     - Reducer transforms the output lines of fzf into a single string value
-- `prefix` (string; default: `\k*$`)
+- `prefix` (string or funcref; default: `\k*$`)
     - Regular expression pattern to extract the completion prefix
+    - Or a function to extract completion prefix
 - Both `source` and `options` can be given as funcrefs that take the
   completion prefix as the argument and return the final value
 - `sink` or `sink*` are not allowed
