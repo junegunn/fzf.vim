@@ -58,10 +58,34 @@ function! s:file_options(prefix)
   return printf('--prompt %s --query %s', shellescape(head), shellescape(tail))
 endfunction
 
+function! s:fname_regex()
+  let isf = &isfname
+  let pats = []
+  if isf =~ ',,,'
+    call add(pats, ',')
+    let isf = substitute(isf, ',,,', ',', 'g')
+  endif
+  for token in split(isf, ',')
+    if token =~ '[0-9]\+-[0-9]\+'
+      let range = map(split(token, '-'), 'str2nr(v:val)')
+      for i in range(range[0], range[1])
+        call add(pats, nr2char(i))
+      endfor
+    else
+      call add(pats, token)
+    endif
+  endfor
+  let pattern = escape(join(pats, ''), ']')
+  if pattern =~ '-'
+    let pattern = substitute(pattern, '-', '', 'g').'-'
+  endif
+  return '[\w'.pattern.']'
+endfunction
+
 function! s:complete_file(command, extra_opts)
   let s:file_cmd = a:command
   return fzf#vim#complete(extend({
-  \ 'prefix':  '\S*$',
+  \ 'prefix':  s:fname_regex().'*$',
   \ 'source':  function('s:file_source'),
   \ 'options': function('s:file_options')}, get(a:extra_opts, 0, g:fzf#vim#default_layout)))
 endfunction
