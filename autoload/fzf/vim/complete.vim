@@ -102,24 +102,12 @@ function! s:fname_prefix(str)
   return prefix
 endfunction
 
-function! s:complete_file(command, extra_opts)
+function! fzf#vim#complete#path(command, ...)
   let s:file_cmd = a:command
   return fzf#vim#complete(extend({
   \ 'prefix':  function('s:fname_prefix'),
   \ 'source':  function('s:file_source'),
-  \ 'options': function('s:file_options')}, get(a:extra_opts, 0, g:fzf#vim#default_layout)))
-endfunction
-
-function! fzf#vim#complete#path(...)
-  return s:complete_file("find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'", a:000)
-endfunction
-
-function! fzf#vim#complete#file(...)
-  return s:complete_file("find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed '1d;s:^..::'", a:000)
-endfunction
-
-function! fzf#vim#complete#file_ag(...)
-  return s:complete_file("ag -l -g ''", a:000)
+  \ 'options': function('s:file_options')}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
 
 " ----------------------------------------------------------------------------
