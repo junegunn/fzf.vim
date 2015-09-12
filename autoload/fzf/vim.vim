@@ -425,11 +425,19 @@ function! fzf#vim#tags(...)
   endif
 
   let tagfile = tagfiles()[0]
+  " We don't want to apply --ansi option when tags file is large as it makes
+  " processing much slower.
+  if getfsize(tagfile) > 1024 * 1024 * 20
+    let proc = 'grep -v ''^!'' '
+    let copt = ''
+  else
+    let proc = 'perl -ne ''unless (/^!/) { s/^(.*?)\t(.*?)\t/\x1b[33m\1\x1b[m\t\x1b[34m\2\x1b[m\t/; print }'' '
+    let copt = '--ansi '
+  endif
   call s:fzf({
-  \ 'source':  'cat '.shellescape(tagfile).
-  \            '| grep -v "^!" | perl -pe "s/^(.*?)\t(.*?)\t/\x1b[33m\1\x1b[m\t\x1b[34m\2\x1b[m\t/"',
+  \ 'source':  proc.shellescape(tagfile),
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': '--ansi +m --tiebreak=begin --prompt "Tags> "'.s:expect(),
+  \ 'options': copt.'+m --tiebreak=begin --prompt "Tags> "'.s:expect(),
   \ 'sink*':   function('s:tags_sink')}, a:000)
 endfunction
 
