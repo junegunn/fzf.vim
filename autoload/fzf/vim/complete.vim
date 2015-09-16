@@ -121,7 +121,7 @@ endfunction
 function! fzf#vim#complete#line(...)
   return fzf#vim#complete(extend({
   \ 'prefix':  '^.*$',
-  \ 'source':  fzf#vim#_lines(),
+  \ 'source':  fzf#vim#_lines(0),
   \ 'options': '--tiebreak=index --ansi --nth 3..',
   \ 'reducer': function('s:reduce_line')}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction

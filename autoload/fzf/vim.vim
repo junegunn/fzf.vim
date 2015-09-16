@@ -154,21 +154,23 @@ function! s:line_handler(lines)
   normal! ^zz
 endfunction
 
-function! fzf#vim#_lines()
+function! fzf#vim#_lines(all)
   let cur = []
   let rest = []
   let buf = bufnr('')
   for b in s:buflisted()
     call extend(b == buf ? cur : rest,
-    \ map(getbufline(b, 1, "$"),
-    \ 'printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'))
+    \ filter(
+    \   map(getbufline(b, 1, "$"),
+    \       '(!a:all && empty(v:val)) ? "" : printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'),
+    \   'a:all || !empty(v:val)'))
   endfor
   return extend(cur, rest)
 endfunction
 
 function! fzf#vim#lines(...)
   call s:fzf({
-  \ 'source':  fzf#vim#_lines(),
+  \ 'source':  fzf#vim#_lines(1),
   \ 'sink*':   function('s:line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3..'.s:expect()
   \}, a:000)
