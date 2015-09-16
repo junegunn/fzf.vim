@@ -564,7 +564,7 @@ function! s:helptag_sink(line)
 endfunction
 
 function! fzf#vim#helptags(...)
-  let tags = split(globpath(&runtimepath, '**/doc/tags'), '\n')
+  let tags = uniq(sort(split(globpath(&runtimepath, '**/doc/tags'), '\n')))
 
   call s:fzf({
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
