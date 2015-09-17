@@ -437,7 +437,7 @@ function! fzf#vim#tags(...)
     let copt = '--ansi '
   endif
   call s:fzf({
-  \ 'source':  proc.shellescape(tagfile),
+  \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'dir':     fnamemodify(tagfile, ':h'),
   \ 'options': copt.'+m --tiebreak=begin --prompt "Tags> "'.s:expect(),
   \ 'sink*':   function('s:tags_sink')}, a:000)
