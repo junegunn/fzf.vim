@@ -61,6 +61,7 @@ Commands
 | `History:`       | Command history                                                           |
 | `History/`       | Search history                                                            |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
+| `Commits`        | Git commits (requires [fugitive.vim][f]                                   |
 | `Commands`       | Commands                                                                  |
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 
@@ -73,6 +74,7 @@ from [pathogen][pat]. But its functionality is still available via `call
 pathogen#helptags()`. [↩](#a1))
 
 [pat]: https://github.com/tpope/vim-pathogen
+[f]:   https://github.com/tpope/vim-fugitive
 
 ### Customization
 

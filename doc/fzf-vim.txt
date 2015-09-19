@@ -1,9 +1,10 @@
-fzf-vim.txt	fzf-vim	Last change: September 1 2015
+fzf-vim.txt	fzf-vim	Last change: September 20 2015
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
   fzf :heart: vim
     Rationale
+    Why you should use fzf on Vim
     Installation
     Commands
       Customization
@@ -16,7 +17,7 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
 FZF :HEART: VIM                                          *fzf-vim-fzf-heart-vim*
 ==============================================================================
 
-A set of {fzf}{1}-based Vim commands and mappings.
+Things you can do with {fzf}{1} and Vim.
 
                                            {1} https://github.com/junegunn/fzf
 
@@ -32,12 +33,27 @@ implementation of the features they can find in the alternative Vim plugins.
 
 This repository is a bundle of fzf-based commands and mappings extracted from
 my {.vimrc}{3} to address such needs. They are not designed to be flexible or
-configurable, nor are not guaranteed to be backward-compatible at the moment,
-so you might want to treat this repository as a reference.
+configurable, and there's no guarantee of backward-compatibility.
 
                     {1} https://github.com/junegunn/fzf
                     {2} https://github.com/junegunn/fzf#usage-as-vim-plugin
                     {3} https://github.com/junegunn/dotfiles/blob/master/vimrc
+
+
+WHY YOU SHOULD USE FZF ON VIM            *fzf-vim-why-you-should-use-fzf-on-vim*
+==============================================================================
+
+Because you can and you love fzf.
+
+fzf runs asynchronously and can be orders of magnitude faster than similar Vim
+plugins. However, the benefit may not be noticeable if the size of the input
+is small, which is the case for many of the commands provided here.
+Nevertheless I wrote them anyway since it's really easy to implement custom
+selector with fzf.
+
+fzf is an independent command-line program and thus requires an external
+terminal emulator when on GVim. You may or may not like the experience. Also
+note that fzf currently does not compile on Windows.
 
 
 INSTALLATION                                              *fzf-vim-installation*
@@ -53,6 +69,7 @@ Using {vim-plug}{4}:
 
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
+
 
  -----------------+---------------------------------------------------------------------
  Command          | List                                                                ~
@@ -72,16 +89,22 @@ COMMANDS                                                      *fzf-vim-commands*
   `History:`        | Command history
   `History/`        | Search history
   `Snippets`        | Snippets ({UltiSnips}{6})
+  `Commits`         | Git commits (requires {fugitive.vim}{7}
   `Commands`        | Commands
-  `Helptags`        | Help tags
+  `Helptags`        | Help tags [1]
  -----------------+---------------------------------------------------------------------
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
    tab, a new split, or in a new vertical split.
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
 
+(1: `Helptags` will shadow the command of the same name from {pathogen}{8}.
+But its functionality is still available via `call pathogen#helptags()`.)
+
                              {5} https://github.com/ggreer/the_silver_searcher
                              {6} https://github.com/SirVer/ultisnips
+                             {7} https://github.com/tpope/vim-fugitive
+                             {8} https://github.com/tpope/vim-pathogen
 
 
 < Customization >_____________________________________________________________~
@@ -145,8 +168,9 @@ following exceptions:
 
  - `reducer` (funcref)
    - Reducer transforms the output lines of fzf into a single string value
- - `prefix` (string; default: `\k*$`)
+ - `prefix` (string or funcref; default: `\k*$`)
    - Regular expression pattern to extract the completion prefix
+   - Or a function to extract completion prefix
  - Both `source` and `options` can be given as funcrefs that take the completion
    prefix as the argument and return the final value
  - `sink` or `sink*` are not allowed

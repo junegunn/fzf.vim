@@ -31,6 +31,10 @@ function! s:strip(str)
   return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfunction
 
+function! s:chomp(str)
+  return substitute(a:str, '\n*$', '', 'g')
+endfunction
+
 function! s:escape(path)
   return escape(a:path, ' %#''"\')
 endfunction
@@ -608,6 +612,57 @@ function! fzf#vim#windows(...)
   \ 'source':  extend(['Tab Win    Name'], lines),
   \ 'sink':    function('s:windows_sink'),
   \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
+" Commits
+" ------------------------------------------------------------------
+function! s:commits_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+
+  let cmd = get(extend({'ctrl-d': ''}, get(g:, 'fzf_action', s:default_action)), a:lines[0], 'e')
+  let buf = bufnr('')
+  for idx in range(1, len(a:lines) - 1)
+    let sha = matchstr(a:lines[idx], '[0-9a-f]\{7}')
+    if !empty(sha)
+      if empty(cmd)
+        if idx > 1
+          execute 'tab sb' buf
+        endif
+        execute 'Gdiff' sha
+      else
+        " Since fugitive buffers are unlisted, we can't keep using 'e'
+        let c = (cmd == 'e' && idx > 1) ? 'tab split' : cmd
+        execute c 'fugitive://'.s:git_root.'/.git//'.sha
+      endif
+    endif
+  endfor
+endfunction
+
+function! fzf#vim#commits(...)
+  let s:git_root = s:chomp(system('git rev-parse --show-toplevel'))
+  if v:shell_error
+    call s:warn('Not in git repository')
+    return
+  endif
+
+  let options = {
+  \ 'source':  'git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"',
+  \ 'sink*':   function('s:commits_sink'),
+  \ 'options': '--ansi --multi --no-sort --reverse --inline-info --prompt "Commits> "'.s:expect()
+  \ }
+
+  let current = expand('%:S')
+  if !empty(current)
+    call system('git show '.current)
+    if !v:shell_error
+      let options.options .= ',ctrl-d --header ":: Press CTRL-D to diff"'
+    endif
+  endif
+
+  call s:fzf(options, a:000)
 endfunction
 
 " ----------------------------------------------------------------------------
