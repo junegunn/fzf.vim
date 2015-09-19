@@ -41,6 +41,8 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': 'yes \| ./install' }
 Plug 'junegunn/fzf.vim'
 ```
 
+Make sure to use the latest version of fzf.
+
 Commands
 --------
 
