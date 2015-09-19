@@ -253,7 +253,7 @@ endfunction
 nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<cr>
 
 function! s:history_sink(type, lines)
-  if empty(a:lines)
+  if len(a:lines) < 2
     return
   endif
 
