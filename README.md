@@ -63,7 +63,7 @@ Commands
 | `History:`       | Command history                                                           |
 | `History/`       | Search history                                                            |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
-| `Commits`        | Git commits (requires [fugitive.vim][f]                                   |
+| `Commits`        | Git commits (requires [fugitive.vim][f])                                  |
 | `Commands`       | Commands                                                                  |
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 
