@@ -615,7 +615,7 @@ function! fzf#vim#windows(...)
 endfunction
 
 " ------------------------------------------------------------------
-" Commits
+" Commits / BCommits
 " ------------------------------------------------------------------
 function! s:commits_sink(lines)
   if len(a:lines) < 2
@@ -641,20 +641,35 @@ function! s:commits_sink(lines)
   endfor
 endfunction
 
-function! fzf#vim#commits(...)
+function! s:commits(buffer_local, args)
   let s:git_root = s:chomp(system('git rev-parse --show-toplevel'))
   if v:shell_error
     call s:warn('Not in git repository')
     return
   endif
 
+  let source = 'git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+  let current = expand('%:S')
+  let managed = 0
+  if !empty(current)
+    call system('git show '.current.' 2> /dev/null')
+    let managed = !v:shell_error
+  endif
+
+  if a:buffer_local
+    if !managed
+      call s:warn('The current buffer is not in the working tree')
+      return
+    endif
+    let source .= ' --follow '.current
+  endif
+
   let options = {
-  \ 'source':  'git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"',
+  \ 'source':  source,
   \ 'sink*':   function('s:commits_sink'),
   \ 'options': '--ansi --multi --no-sort --reverse --inline-info --prompt "Commits> "'.s:expect()
   \ }
 
-  let current = expand('%:S')
   if !empty(current)
     call system('git show '.current)
     if !v:shell_error
@@ -662,7 +677,15 @@ function! fzf#vim#commits(...)
     endif
   endif
 
-  call s:fzf(options, a:000)
+  call s:fzf(options, a:args)
+endfunction
+
+function! fzf#vim#commits(...)
+  return s:commits(0, a:000)
+endfunction
+
+function! fzf#vim#buffer_commits(...)
+  return s:commits(1, a:000)
 endfunction
 
 " ----------------------------------------------------------------------------

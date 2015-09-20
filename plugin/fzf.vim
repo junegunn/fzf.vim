@@ -45,6 +45,7 @@ command! -bang Marks                        call fzf#vim#marks(s:w(<bang>0))
 command! -bang Helptags                     call fzf#vim#helptags(s:w(<bang>0))
 command! -bang Windows                      call fzf#vim#windows(s:w(<bang>0))
 command! -bang Commits                      call fzf#vim#commits(s:w(<bang>0))
+command! -bang BCommits                     call fzf#vim#buffer_commits(s:w(<bang>0))
 
 function! s:history(arg, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'

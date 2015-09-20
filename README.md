@@ -64,6 +64,7 @@ Commands
 | `History/`       | Search history                                                            |
 | `Snippets`       | Snippets ([UltiSnips][us])                                                |
 | `Commits`        | Git commits (requires [fugitive.vim][f])                                  |
+| `BCommits`       | Git commits for the current buffer                                        |
 | `Commands`       | Commands                                                                  |
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 

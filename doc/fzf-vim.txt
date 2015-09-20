@@ -90,6 +90,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `History/`        | Search history
   `Snippets`        | Snippets ({UltiSnips}{6})
   `Commits`         | Git commits (requires {fugitive.vim}{7})
+  `BCommits`        | Git commits for the current buffer
   `Commands`        | Commands
   `Helptags`        | Help tags [1]
  -----------------+---------------------------------------------------------------------
