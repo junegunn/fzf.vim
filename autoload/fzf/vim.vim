@@ -246,7 +246,7 @@ function! s:history_source(type)
   let max  = histnr(a:type)
   let fmt  = '%'.len(string(max)).'d'
   let list = filter(map(range(1, max), 'histget(a:type, - v:val)'), '!empty(v:val)')
-  return extend([' :: Press CTRL-E to edit'],
+  return extend([' :: Press '.s:magenta('CTRL-E').' to edit'],
     \ map(list, 's:yellow(printf(fmt, len(list) - v:key)).": ".v:val'))
 endfunction
 
@@ -675,7 +675,7 @@ function! s:commits(buffer_local, args)
   if a:buffer_local
     let options.options .= ',ctrl-d --header ":: Press '.s:magenta('CTRL-S').' to toggle sort, '.s:magenta('CTRL-D').' to diff"'
   else
-    let options.options .= ' --header ":: '.s:magenta('CTRL-S').' to toggle sort"'
+    let options.options .=        ' --header ":: Press '.s:magenta('CTRL-S').' to toggle sort"'
   endif
 
   call s:fzf(options, a:args)
