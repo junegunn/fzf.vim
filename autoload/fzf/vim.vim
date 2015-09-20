@@ -664,17 +664,18 @@ function! s:commits(buffer_local, args)
     let source .= ' --follow '.current
   endif
 
+  let command = a:buffer_local ? 'BCommits' : 'Commits'
   let options = {
   \ 'source':  source,
   \ 'sink*':   function('s:commits_sink'),
-  \ 'options': '--ansi --multi --no-sort --reverse --inline-info --prompt "Commits> "'.s:expect()
+  \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
+  \   '--inline-info --prompt "'.command.'> " --bind=ctrl-s:toggle-sort'.s:expect()
   \ }
 
-  if !empty(current)
-    call system('git show '.current)
-    if !v:shell_error
-      let options.options .= ',ctrl-d --header ":: Press CTRL-D to diff"'
-    endif
+  if a:buffer_local
+    let options.options .= ',ctrl-d --header ":: Press '.s:magenta('CTRL-S').' to toggle sort, '.s:magenta('CTRL-D').' to diff"'
+  else
+    let options.options .= ' --header ":: '.s:magenta('CTRL-S').' to toggle sort"'
   endif
 
   call s:fzf(options, a:args)
