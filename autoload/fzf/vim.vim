@@ -379,7 +379,7 @@ function! s:btags_source()
     \ 'ctags -f - --sort=no --excmd=number --language-force=%s %s',
     \ &filetype, expand('%:S'))), "\n"), 'split(v:val, "\t")')
   if v:shell_error
-    throw 'failed to extract tags'
+    throw 'Failed to extract tags'
   endif
   return map(s:align_lists(lines), 'join(v:val, "\t")')
 endfunction
