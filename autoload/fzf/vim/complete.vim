@@ -24,8 +24,18 @@
 let s:cpo_save = &cpo
 set cpo&vim
 
+function! s:extend(base, extra)
+  let base = copy(a:base)
+  if has_key(a:extra, 'options')
+    let extra = copy(a:extra)
+    let extra.extra_options = remove(extra, 'options')
+    return extend(base, extra)
+  endif
+  return extend(base, a:extra)
+endfunction
+
 function! fzf#vim#complete#word(...)
-  return fzf#vim#complete(extend({
+  return fzf#vim#complete(s:extend({
     \ 'source': 'cat /usr/share/dict/words'},
     \ get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
@@ -104,7 +114,7 @@ endfunction
 
 function! fzf#vim#complete#path(command, ...)
   let s:file_cmd = a:command
-  return fzf#vim#complete(extend({
+  return fzf#vim#complete(s:extend({
   \ 'prefix':  function('s:fname_prefix'),
   \ 'source':  function('s:file_source'),
   \ 'options': function('s:file_options')}, get(a:000, 0, g:fzf#vim#default_layout)))
@@ -119,7 +129,7 @@ function! s:reduce_line(lines)
 endfunction
 
 function! fzf#vim#complete#line(...)
-  return fzf#vim#complete(extend({
+  return fzf#vim#complete(s:extend({
   \ 'prefix':  '^.*$',
   \ 'source':  fzf#vim#_lines(0),
   \ 'options': '--tiebreak=index --ansi --nth 3..',
@@ -127,7 +137,7 @@ function! fzf#vim#complete#line(...)
 endfunction
 
 function! fzf#vim#complete#buffer_line(...)
-  call fzf#vim#complete(extend({
+  call fzf#vim#complete(s:extend({
   \ 'prefix': '^.*$',
   \ 'source': s:uniq(getline(1, '$'))}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction

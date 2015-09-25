@@ -778,6 +778,11 @@ function! fzf#vim#complete(...)
   endif
   let s:opts = s:eval(s:opts, 'source', s:query)
   let s:opts = s:eval(s:opts, 'options', s:query)
+  let s:opts = s:eval(s:opts, 'extra_options', s:query)
+  if has_key(s:opts, 'extra_options')
+    let s:opts.options =
+      \ join(filter([get(s:opts, 'options', ''), remove(s:opts, 'extra_options')], '!empty(v:val)'))
+  endif
 
   call feedkeys("\<Plug>(-fzf-complete-trigger)")
   return ''
