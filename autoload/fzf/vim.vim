@@ -54,7 +54,11 @@ function! s:buflisted()
 endfunction
 
 function! s:fzf(opts, extra)
-  return fzf#run(extend(a:opts, get(a:extra, 0, {})))
+  let extra  = copy(get(a:extra, 0, {}))
+  let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
+  let merged = extend(copy(a:opts), extra)
+  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  return fzf#run(merged)
 endfunction
 
 let s:default_action = {
@@ -782,5 +786,4 @@ endfunction
 " ------------------------------------------------------------------
 let &cpo = s:cpo_save
 unlet s:cpo_save
-
 
