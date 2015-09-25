@@ -92,7 +92,8 @@ let g:fzf_action = {
 let g:fzf_layout = { 'down': '40%' }
 
 " Advanced customization using autoload functions
-autocmd VimEnter * command! Colors call fzf#vim#colors({'left': '15%'})
+autocmd VimEnter * command! Colors
+  \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'})
 ```
 
 Mappings
