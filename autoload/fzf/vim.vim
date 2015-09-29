@@ -379,11 +379,22 @@ endfunction
 " BTags
 " ------------------------------------------------------------------
 function! s:btags_source()
-  let lines = map(split(system(printf(
-    \ 'ctags -f - --sort=no --excmd=number %s',
-    \ expand('%:S'))), "\n"), 'split(v:val, "\t")')
+  if !filereadable(expand('%'))
+    throw 'Save the file first'
+  endif
+
+  for cmd in [
+    \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
+    \ printf('ctags -f - --sort=no --excmd=number %s', expand('%:S'))]
+    let lines = map(split(system(cmd), "\n"), 'split(v:val, "\t")')
+    if !v:shell_error
+      break
+    endif
+  endfor
   if v:shell_error
-    throw 'Failed to extract tags'
+    throw get(lines, 0, 'Failed to extract tags')
+  elseif empty(lines)
+    throw 'No tags found'
   endif
   return map(s:align_lists(lines), 'join(v:val, "\t")')
 endfunction
