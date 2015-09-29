@@ -380,8 +380,8 @@ endfunction
 " ------------------------------------------------------------------
 function! s:btags_source()
   let lines = map(split(system(printf(
-    \ 'ctags -f - --sort=no --excmd=number --language-force=%s %s',
-    \ &filetype, expand('%:S'))), "\n"), 'split(v:val, "\t")')
+    \ 'ctags -f - --sort=no --excmd=number %s',
+    \ expand('%:S'))), "\n"), 'split(v:val, "\t")')
   if v:shell_error
     throw 'Failed to extract tags'
   endif
