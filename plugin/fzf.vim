@@ -57,7 +57,8 @@ call s:defs([
 \'command! -bang Helptags                     call fzf#vim#helptags(s:w(<bang>0))',
 \'command! -bang Windows                      call fzf#vim#windows(s:w(<bang>0))',
 \'command! -bang Commits                      call fzf#vim#commits(s:w(<bang>0))',
-\'command! -bang BCommits                     call fzf#vim#buffer_commits(s:w(<bang>0))'])
+\'command! -bang BCommits                     call fzf#vim#buffer_commits(s:w(<bang>0))',
+\'command! -bang -nargs=* History             call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'
@@ -70,7 +71,6 @@ function! s:history(arg, bang)
     call fzf#vim#history(ext)
   endif
 endfunction
-call s:defs(['command! -bang -nargs=* History call s:history(<q-args>, <bang>0)'])
 
 function! fzf#complete(...)
   return call('fzf#vim#complete', a:000)
