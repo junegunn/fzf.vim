@@ -70,7 +70,7 @@ function! s:history(arg, bang)
     call fzf#vim#history(ext)
   endif
 endfunction
-command! -bang -nargs=* History call s:history(<q-args>, <bang>0)
+call s:defs(['command! -bang -nargs=* History call s:history(<q-args>, <bang>0)'])
 
 function! fzf#complete(...)
   return call('fzf#vim#complete', a:000)
