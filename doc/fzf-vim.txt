@@ -96,8 +96,10 @@ COMMANDS                                                      *fzf-vim-commands*
  -----------------+---------------------------------------------------------------------
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
-   tab, a new split, or in a new vertical split.
+   tab, a new split, or in a new vertical split
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
+ - You can set `g:fzf_command_prefix` to give the same prefix to the commands
+     - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
 (1: `Helptags` will shadow the command of the same name from {pathogen}{8}.
 But its functionality is still available via `call pathogen#helptags()`.)

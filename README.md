@@ -69,8 +69,10 @@ Commands
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
-  bindings to open in a new tab, a new split, or in a new vertical split.
+  bindings to open in a new tab, a new split, or in a new vertical split
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
+- You can set `g:fzf_command_prefix` to give the same prefix to the commands
+    - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
 (<a name="helptags">1</a>: `Helptags` will shadow the command of the same name
 from [pathogen][pat]. But its functionality is still available via `call
