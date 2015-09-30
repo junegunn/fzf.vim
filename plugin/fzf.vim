@@ -76,6 +76,35 @@ function! fzf#complete(...)
   return call('fzf#vim#complete', a:000)
 endfunction
 
+if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
+  function! s:fzf_restore_colors()
+    if $TERM !~ "256color"
+      highlight fzf1 ctermfg=1 ctermbg=8
+      highlight fzf2 ctermfg=2 ctermbg=8
+      highlight fzf3 ctermfg=7 ctermbg=8
+    else
+      highlight fzf1 ctermfg=161 ctermbg=238
+      highlight fzf2 ctermfg=151 ctermbg=238
+      highlight fzf3 ctermfg=252 ctermbg=238
+    endif
+  endfunction
+
+  function! s:fzf_nvim_term()
+    if get(w:, 'airline_active', 0)
+      let w:airline_disabled = 1
+    endif
+
+    setlocal nospell
+    setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
+  endfunction
+
+  augroup fzf_statusline
+    autocmd!
+    autocmd TermOpen *bin/fzf* call s:fzf_nvim_term() | autocmd WinEnter <buffer> call s:fzf_nvim_term()
+    autocmd VimEnter,ColorScheme * call s:fzf_restore_colors()
+  augroup END
+endif
+
 inoremap <expr> <plug>(fzf-complete-word)        fzf#vim#complete#word()
 inoremap <expr> <plug>(fzf-complete-path)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'")
 inoremap <expr> <plug>(fzf-complete-file)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed '1d;s:^..::'")
