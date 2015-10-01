@@ -711,6 +711,55 @@ function! fzf#vim#buffer_commits(...)
   return s:commits(1, a:000)
 endfunction
 
+" ------------------------------------------------------------------
+" fzf#vim#maps(mode, opts[with count and op])
+" ------------------------------------------------------------------
+function! s:align_pairs(list)
+  let maxlen = 0
+  let pairs = []
+  for elem in a:list
+    let match = matchlist(elem, '^\(\S*\)\s*\(.*\)$')
+    let [_, k, v] = match[0:2]
+    let maxlen = max([maxlen, len(k)])
+    call add(pairs, [k, v])
+  endfor
+  return map(pairs, "printf('%-'.maxlen.'s', v:val[0]).' '.v:val[1]")
+endfunction
+
+function! s:highlight_keys(str)
+  return substitute(
+        \ substitute(a:str, '<[^ >]\+>', "\x1b[33m\\0\x1b[m", 'g'),
+        \ "\x1b[33m<Plug>\x1b[m", "\x1b[34m<Plug>\x1b[m", 'g')
+endfunction
+
+function! s:key_sink(line)
+  let key = matchstr(a:line, '^\S*')
+  redraw
+  call feedkeys(s:map_gv.s:map_cnt.s:map_reg.s:map_op.
+        \ substitute(key, '<[^ >]\+>', '\=eval("\"\\".submatch(0)."\"")', 'g'))
+endfunction
+
+" To avoid conflict with other plugins also using feedkeys (peekaboo)
+noremap <plug>(-fzf-vim-dq) "
+
+function! fzf#vim#maps(mode, ...)
+  let s:map_gv  = a:mode == 'x' ? 'gv' : ''
+  let s:map_cnt = v:count == 0 ? '' : v:count
+  let s:map_reg = empty(v:register) ? '' : ("\<plug>(-fzf-vim-dq)".v:register)
+  let s:map_op  = a:mode == 'o' ? v:operator : ''
+  redir => cout
+  silent execute a:mode.'map'
+  redir END
+  let list = map(split(cout, "\n"), 'v:val[3:]')
+  let aligned = s:align_pairs(map(split(cout, "\n"), 'v:val[3:]'))
+  let sorted  = sort(aligned)
+  let colored = map(sorted, 's:highlight_keys(v:val)')
+  call s:fzf({
+  \ 'source':  colored,
+  \ 'sink':    function('s:key_sink'),
+  \ 'options': '--ansi --no-hscroll --nth 1,..'}, a:000)
+endfunction
+
 " ----------------------------------------------------------------------------
 " fzf#vim#complete - completion helper
 " ----------------------------------------------------------------------------

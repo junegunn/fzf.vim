@@ -66,6 +66,7 @@ Commands
 | `Commits`        | Git commits (requires [fugitive.vim][f])                                  |
 | `BCommits`       | Git commits for the current buffer                                        |
 | `Commands`       | Commands                                                                  |
+| `Maps`           | Normal mode mappings                                                      |
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
@@ -103,6 +104,10 @@ Mappings
 
 | Mapping                            | Description                               |
 | ---                                | ---                                       |
+| `<plug>(fzf-maps-n)`               | Normal mode mappings                      |
+| `<plug>(fzf-maps-i)`               | Insert mode mappings                      |
+| `<plug>(fzf-maps-x)`               | Visual mode mappings                      |
+| `<plug>(fzf-maps-o)`               | Operator-pending mappings                 |
 | `<plug>(fzf-complete-word)`        | `cat /usr/share/dict/words`               |
 | `<plug>(fzf-complete-path)`        | Path completion using `find` (file + dir) |
 | `<plug>(fzf-complete-file)`        | File completion using `find`              |
@@ -113,6 +118,12 @@ Mappings
 ### Usage
 
 ```vim
+" Mapping selecting mappings
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+
+" Insert mode completion
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)

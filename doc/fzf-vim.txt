@@ -92,6 +92,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `Commits`         | Git commits (requires {fugitive.vim}{7})
   `BCommits`        | Git commits for the current buffer
   `Commands`        | Commands
+  `Maps`            | Normal mode mappings
   `Helptags`        | Help tags [1]
  -----------------+---------------------------------------------------------------------
 
@@ -135,6 +136,10 @@ MAPPINGS                                                      *fzf-vim-mappings*
  ---------------------------------+------------------------------------------
  Mapping                          | Description                              ~
  ---------------------------------+------------------------------------------
+ <plug>(fzf-maps-n)               | Normal mode mappings
+ <plug>(fzf-maps-i)               | Insert mode mappings
+ <plug>(fzf-maps-x)               | Visual mode mappings
+ <plug>(fzf-maps-o)               | Operator-pending mappings
  <plug>(fzf-complete-word)        |  `cat /usr/share/dict/words`
  <plug>(fzf-complete-path)        | Path completion using  `find`  (file + dir)
  <plug>(fzf-complete-file)        | File completion using  `find`
@@ -147,6 +152,12 @@ MAPPINGS                                                      *fzf-vim-mappings*
 < Usage >_____________________________________________________________________~
                                                                  *fzf-vim-usage*
 >
+    " Mapping selecting mappings
+    nmap <leader><tab> <plug>(fzf-maps-n)
+    xmap <leader><tab> <plug>(fzf-maps-x)
+    omap <leader><tab> <plug>(fzf-maps-o)
+
+    " Insert mode completion
     imap <c-x><c-k> <plug>(fzf-complete-word)
     imap <c-x><c-f> <plug>(fzf-complete-path)
     imap <c-x><c-j> <plug>(fzf-complete-file-ag)
