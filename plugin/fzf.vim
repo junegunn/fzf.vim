@@ -58,6 +58,7 @@ call s:defs([
 \'command! -bang Windows                      call fzf#vim#windows(s:w(<bang>0))',
 \'command! -bang Commits                      call fzf#vim#commits(s:w(<bang>0))',
 \'command! -bang BCommits                     call fzf#vim#buffer_commits(s:w(<bang>0))',
+\'command! -bang Maps                         call fzf#vim#maps("n", s:w(<bang>0))',
 \'command! -bang -nargs=* History             call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
@@ -111,6 +112,11 @@ inoremap <expr> <plug>(fzf-complete-file)        fzf#vim#complete#path("find . -
 inoremap <expr> <plug>(fzf-complete-file-ag)     fzf#vim#complete#path("ag -l -g ''")
 inoremap <expr> <plug>(fzf-complete-line)        fzf#vim#complete#line()
 inoremap <expr> <plug>(fzf-complete-buffer-line) fzf#vim#complete#buffer_line()
+
+nnoremap <silent> <plug>(fzf-maps-n) :<c-u>call fzf#vim#maps('n', <sid>w(0))<cr>
+inoremap <silent> <plug>(fzf-maps-i) <c-o>:call fzf#vim#maps('i', <sid>w(0))<cr>
+xnoremap <silent> <plug>(fzf-maps-x) :<c-u>call fzf#vim#maps('x', <sid>w(0))<cr>
+onoremap <silent> <plug>(fzf-maps-o) <c-c>:<c-u>call fzf#vim#maps('o', <sid>w(0))<cr>
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
