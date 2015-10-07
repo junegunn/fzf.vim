@@ -721,7 +721,7 @@ function! s:align_pairs(list)
     let match = matchlist(elem, '^\(\S*\)\s*\(.*\)$')
     let [_, k, v] = match[0:2]
     let maxlen = max([maxlen, len(k)])
-    call add(pairs, [k, substitute(v, '^[@* ]*', '', '')])
+    call add(pairs, [k, substitute(v, '^\*\?[@ ]\?', '', '')])
   endfor
   let maxlen = min([maxlen, 35])
   return map(pairs, "printf('%-'.maxlen.'s', v:val[0]).' '.v:val[1]")
