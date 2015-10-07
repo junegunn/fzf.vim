@@ -43,7 +43,7 @@ function! s:ansi(str, col, bold)
   return printf("\x1b[%s%sm%s\x1b[m", a:col, a:bold ? ';1' : '', a:str)
 endfunction
 
-for [s:c, s:a] in items({'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36})
+for [s:c, s:a] in items({'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36})
   execute "function! s:".s:c."(str, ...)\n"
         \ "  return s:ansi(a:str, ".s:a.", get(a:, 1, 0))\n"
         \ "endfunction"
@@ -721,8 +721,9 @@ function! s:align_pairs(list)
     let match = matchlist(elem, '^\(\S*\)\s*\(.*\)$')
     let [_, k, v] = match[0:2]
     let maxlen = max([maxlen, len(k)])
-    call add(pairs, [k, v])
+    call add(pairs, [k, substitute(v, '^[@* ]*', '', '')])
   endfor
+  let maxlen = min([maxlen, 35])
   return map(pairs, "printf('%-'.maxlen.'s', v:val[0]).' '.v:val[1]")
 endfunction
 
@@ -747,17 +748,32 @@ function! fzf#vim#maps(mode, ...)
   let s:map_cnt = v:count == 0 ? '' : v:count
   let s:map_reg = empty(v:register) ? '' : ("\<plug>(-fzf-vim-dq)".v:register)
   let s:map_op  = a:mode == 'o' ? v:operator : ''
+
   redir => cout
-  silent execute a:mode.'map'
+  silent execute 'verbose' a:mode.'map'
   redir END
-  let list = map(split(cout, "\n"), 'v:val[3:]')
-  let aligned = s:align_pairs(map(split(cout, "\n"), 'v:val[3:]'))
+  let list = []
+  let curr = ''
+  for line in split(cout, "\n")
+    let src = matchstr(line, 'Last set from \zs.*')
+    if empty(src)
+      let curr = line[3:]
+    else
+      let src = '  '.join(reverse(reverse(split(src, '/'))[0:2]), '/')
+      call add(list, printf('%s %s', curr, s:black(src)))
+      let curr = ''
+    endif
+  endfor
+  if !empty(curr)
+    call add(list, curr)
+  endif
+  let aligned = s:align_pairs(list)
   let sorted  = sort(aligned)
   let colored = map(sorted, 's:highlight_keys(v:val)')
   call s:fzf({
   \ 'source':  colored,
   \ 'sink':    function('s:key_sink'),
-  \ 'options': '--ansi --no-hscroll --nth 1,..'}, a:000)
+  \ 'options': '--prompt "Maps> " --ansi --no-hscroll --nth 1,..'}, a:000)
 endfunction
 
 " ----------------------------------------------------------------------------
