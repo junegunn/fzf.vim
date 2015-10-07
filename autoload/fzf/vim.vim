@@ -773,7 +773,7 @@ function! fzf#vim#maps(mode, ...)
   call s:fzf({
   \ 'source':  colored,
   \ 'sink':    function('s:key_sink'),
-  \ 'options': '--prompt "Maps> " --ansi --no-hscroll --nth 1,..'}, a:000)
+  \ 'options': '--prompt "Maps ('.a:mode.')> " --ansi --no-hscroll --nth 1,..'}, a:000)
 endfunction
 
 " ----------------------------------------------------------------------------
