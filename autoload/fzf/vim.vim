@@ -770,10 +770,11 @@ function! fzf#vim#maps(mode, ...)
   let aligned = s:align_pairs(list)
   let sorted  = sort(aligned)
   let colored = map(sorted, 's:highlight_keys(v:val)')
+  let pcolor  = a:mode == 'x' ? 9 : a:mode == 'o' ? 10 : 12
   call s:fzf({
   \ 'source':  colored,
   \ 'sink':    function('s:key_sink'),
-  \ 'options': '--prompt "Maps ('.a:mode.')> " --ansi --no-hscroll --nth 1,..'}, a:000)
+  \ 'options': '--prompt "Maps ('.a:mode.')> " --ansi --no-hscroll --nth 1,.. --color prompt:'.pcolor}, a:000)
 endfunction
 
 " ----------------------------------------------------------------------------
