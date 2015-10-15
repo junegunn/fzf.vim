@@ -92,7 +92,9 @@ let g:fzf_action = {
   \ 'ctrl-v': 'vsplit' }
 
 " Default fzf layout
-let g:fzf_layout = { 'down': '40%' }
+" - down / up / left / right
+" - window (nvim only)
+let g:fzf_layout = { 'down': '~40%' }
 
 " Advanced customization using autoload functions
 autocmd VimEnter * command! Colors
