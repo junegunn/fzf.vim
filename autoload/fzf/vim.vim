@@ -391,7 +391,7 @@ function! fzf#vim#ag(query, ...)
   \ 'source':  printf('ag --nogroup --column --color "%s"',
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')),
   \ 'sink*':    s:function('s:ag_handler'),
-  \ 'options': '--ansi --delimiter : --nth 4.. --prompt "Ag> " '.
+  \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "Ag> " '.
   \            '--multi --bind ctrl-a:select-all,ctrl-d:deselect-all '.
   \            '--color hl:68,hl+:110'.s:expect()}, a:000)
 endfunction
