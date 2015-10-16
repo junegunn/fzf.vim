@@ -34,6 +34,17 @@ function! s:extend(base, extra)
   return extend(base, a:extra)
 endfunction
 
+if v:version >= 704
+  function! s:function(name)
+    return function(a:name)
+  endfunction
+else
+  function! s:function(name)
+    " By Ingo Karkat
+    return function(substitute(a:name, '^s:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'), ''))
+  endfunction
+endif
+
 function! fzf#vim#complete#word(...)
   return fzf#vim#complete(s:extend({
     \ 'source': 'cat /usr/share/dict/words'},
@@ -115,9 +126,9 @@ endfunction
 function! fzf#vim#complete#path(command, ...)
   let s:file_cmd = a:command
   return fzf#vim#complete(s:extend({
-  \ 'prefix':  function('s:fname_prefix'),
-  \ 'source':  function('s:file_source'),
-  \ 'options': function('s:file_options')}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'prefix':  s:function('s:fname_prefix'),
+  \ 'source':  s:function('s:file_source'),
+  \ 'options': s:function('s:file_options')}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
 
 " ----------------------------------------------------------------------------
@@ -133,7 +144,7 @@ function! fzf#vim#complete#line(...)
   \ 'prefix':  '^.*$',
   \ 'source':  fzf#vim#_lines(0),
   \ 'options': '--tiebreak=index --ansi --nth 3..',
-  \ 'reducer': function('s:reduce_line')}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'reducer': s:function('s:reduce_line')}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
 
 function! fzf#vim#complete#buffer_line(...)

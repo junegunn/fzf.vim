@@ -39,6 +39,17 @@ function! s:escape(path)
   return escape(a:path, ' %#''"\')
 endfunction
 
+if v:version >= 704
+  function! s:function(name)
+    return function(a:name)
+  endfunction
+else
+  function! s:function(name)
+    " By Ingo Karkat
+    return function(substitute(a:name, '^s:', matchstr(expand('<sfile>'), '<SNR>\d\+_\zefunction$'), ''))
+  endfunction
+endif
+
 function! s:ansi(str, col, bold)
   return printf("\x1b[%s%sm%s\x1b[m", a:col, a:bold ? ';1' : '', a:str)
 endfunction
@@ -135,7 +146,7 @@ endfunction
 " ------------------------------------------------------------------
 function! fzf#vim#files(dir, ...)
   let args = {
-  \ 'sink*':   function('s:common_sink'),
+  \ 'sink*':   s:function('s:common_sink'),
   \ 'options': '-m'.s:expect()
   \}
 
@@ -189,7 +200,7 @@ endfunction
 function! fzf#vim#lines(...)
   call s:fzf({
   \ 'source':  fzf#vim#_lines(1),
-  \ 'sink*':   function('s:line_handler'),
+  \ 'sink*':   s:function('s:line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3..'.s:expect()
   \}, a:000)
 endfunction
@@ -218,7 +229,7 @@ endfunction
 function! fzf#vim#buffer_lines(...)
   call s:fzf({
   \ 'source':  s:buffer_lines(),
-  \ 'sink*':   function('s:buffer_line_handler'),
+  \ 'sink*':   s:function('s:buffer_line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2..'.s:expect()
   \}, a:000)
 endfunction
@@ -241,7 +252,7 @@ endfunction
 function! fzf#vim#locate(query, ...)
   call s:fzf({
   \ 'source':  'locate '.a:query,
-  \ 'sink*':   function('s:common_sink'),
+  \ 'sink*':   s:function('s:common_sink'),
   \ 'options': '-m --prompt "Locate> "' . s:expect()
   \}, a:000)
 endfunction
@@ -289,7 +300,7 @@ endfunction
 function! fzf#vim#command_history(...)
   call s:fzf({
   \ 'source':  s:history_source(':'),
-  \ 'sink*':   function('s:cmd_history_sink'),
+  \ 'sink*':   s:function('s:cmd_history_sink'),
   \ 'options': '+m --ansi --prompt="Hist:> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:000)
 endfunction
 
@@ -300,14 +311,14 @@ endfunction
 function! fzf#vim#search_history(...)
   call s:fzf({
   \ 'source':  s:history_source('/'),
-  \ 'sink*':   function('s:search_history_sink'),
+  \ 'sink*':   s:function('s:search_history_sink'),
   \ 'options': '+m --ansi --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:000)
 endfunction
 
 function! fzf#vim#history(...)
   call s:fzf({
   \ 'source':  reverse(s:all_files()),
-  \ 'sink*':   function('s:common_sink'),
+  \ 'sink*':   s:function('s:common_sink'),
   \ 'options': '--prompt "Hist> " -m' . s:expect(),
   \}, a:000)
 endfunction
@@ -341,7 +352,7 @@ function! fzf#vim#buffers(...)
   let bufs = map(s:buflisted(), 's:format_buffer(v:val)')
   call s:fzf({
   \ 'source':  reverse(bufs),
-  \ 'sink*':   function('s:bufopen'),
+  \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:expect(),
   \}, a:000)
 endfunction
@@ -379,7 +390,7 @@ function! fzf#vim#ag(query, ...)
   call s:fzf({
   \ 'source':  printf('ag --nogroup --column --color "%s"',
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\')),
-  \ 'sink*':    function('s:ag_handler'),
+  \ 'sink*':    s:function('s:ag_handler'),
   \ 'options': '--ansi --delimiter : --nth 4.. --prompt "Ag> " '.
   \            '--multi --bind ctrl-a:select-all,ctrl-d:deselect-all '.
   \            '--color hl:68,hl+:110'.s:expect()}, a:000)
@@ -426,7 +437,7 @@ function! fzf#vim#buffer_tags(...)
     call s:fzf({
     \ 'source':  s:btags_source(),
     \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:expect(),
-    \ 'sink*':   function('s:btags_sink')}, a:000)
+    \ 'sink*':   s:function('s:btags_sink')}, a:000)
   catch
     call s:warn(v:exception)
   endtry
@@ -469,7 +480,7 @@ function! fzf#vim#tags(...)
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'dir':     fnamemodify(tagfile, ':h'),
   \ 'options': copt.'+m --tiebreak=begin --prompt "Tags> "'.s:expect(),
-  \ 'sink*':   function('s:tags_sink')}, a:000)
+  \ 'sink*':   s:function('s:tags_sink')}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -493,7 +504,7 @@ function! fzf#vim#snippets(...)
   call s:fzf({
   \ 'source':  colored,
   \ 'options': '--ansi --tiebreak=index +m -n 1 -d "\t"',
-  \ 'sink':    function('s:inject_snippet')}, a:000)
+  \ 'sink':    s:function('s:inject_snippet')}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -549,7 +560,7 @@ function! fzf#vim#commands(...)
   let list = split(cout, "\n")
   call s:fzf({
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
-  \ 'sink':    function('s:command_sink'),
+  \ 'sink':    s:function('s:command_sink'),
   \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
 endfunction
 
@@ -578,7 +589,7 @@ function! fzf#vim#marks(...)
   let list = split(cout, "\n")
   call s:fzf({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
-  \ 'sink*':   function('s:mark_sink'),
+  \ 'sink*':   s:function('s:mark_sink'),
   \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'.s:expect()}, a:000)
 endfunction
 
@@ -600,7 +611,7 @@ function! fzf#vim#helptags(...)
   call s:fzf({
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
     \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(\x1b[33m%-40s\x1b[m\t%s\t%s\n), $2, $3, $1)' | sort",
-  \ 'sink':    function('s:helptag_sink'),
+  \ 'sink':    s:function('s:helptag_sink'),
   \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:000)
 endfunction
 
@@ -635,7 +646,7 @@ function! fzf#vim#windows(...)
   endfor
   call s:fzf({
   \ 'source':  extend(['Tab Win    Name'], lines),
-  \ 'sink':    function('s:windows_sink'),
+  \ 'sink':    s:function('s:windows_sink'),
   \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:000)
 endfunction
 
@@ -692,7 +703,7 @@ function! s:commits(buffer_local, args)
   let command = a:buffer_local ? 'BCommits' : 'Commits'
   let options = {
   \ 'source':  source,
-  \ 'sink*':   function('s:commits_sink'),
+  \ 'sink*':   s:function('s:commits_sink'),
   \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
   \   '--inline-info --prompt "'.command.'> " --bind=ctrl-s:toggle-sort'.s:expect()
   \ }
@@ -776,7 +787,7 @@ function! fzf#vim#maps(mode, ...)
   let pcolor  = a:mode == 'x' ? 9 : a:mode == 'o' ? 10 : 12
   call s:fzf({
   \ 'source':  colored,
-  \ 'sink':    function('s:key_sink'),
+  \ 'sink':    s:function('s:key_sink'),
   \ 'options': '--prompt "Maps ('.a:mode.')> " --ansi --no-hscroll --nth 1,.. --color prompt:'.pcolor}, a:000)
 endfunction
 
@@ -792,8 +803,8 @@ endfunction
 function! s:complete_trigger()
   let opts = copy(s:opts)
   let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
-  let opts['sink*'] = function('s:complete_insert')
-  let s:reducer = s:pluck(opts, 'reducer', function('s:first_line'))
+  let opts['sink*'] = s:function('s:complete_insert')
+  let s:reducer = s:pluck(opts, 'reducer', s:function('s:first_line'))
   call fzf#run(opts)
 endfunction
 
