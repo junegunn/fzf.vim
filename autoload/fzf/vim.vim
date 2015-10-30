@@ -324,6 +324,18 @@ function! fzf#vim#history(...)
 endfunction
 
 " ------------------------------------------------------------------
+" GitFiles
+" ------------------------------------------------------------------
+
+function! fzf#vim#gitfiles(...)
+  call s:fzf({
+  \ 'source':  'git ls-tree --name-only -r HEAD',
+  \ 'sink*':   s:function('s:common_sink'),
+  \ 'options': '--prompt "GitFiles> " -m'.s:expect(),
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
 function! s:bufopen(lines)
