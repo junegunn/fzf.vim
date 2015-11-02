@@ -49,6 +49,7 @@ Commands
 | Command          | List                                                                      |
 | ---              | ---                                                                       |
 | `Files [PATH]`   | Files (similar to `:FZF`)                                                 |
+| `GitFiles`       | Git files
 | `Buffers`        | Open buffers                                                              |
 | `Colors`         | Color schemes                                                             |
 | `Ag [PATTERN]`   | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
@@ -171,6 +172,21 @@ inoremap <expr> <c-x><c-s> fzf#complete({
   \ 'reducer': function('<sid>make_sentence'),
   \ 'options': '--multi --reverse --margin 15%,0',
   \ 'left':    20})
+```
+
+Status line (neovim)
+--------------------
+
+```vim
+function! s:fzf_statusline()
+  " Override statusline as you like
+  highlight fzf1 ctermfg=161 ctermbg=251
+  highlight fzf2 ctermfg=23 ctermbg=251
+  highlight fzf3 ctermfg=237 ctermbg=251
+  setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
+endfunction
+
+autocmd! User FzfStatusLine call <SID>fzf_statusline()
 ```
 
 License

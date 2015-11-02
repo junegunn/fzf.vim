@@ -43,6 +43,7 @@ endfunction
 
 call s:defs([
 \'command! -bang -nargs=? -complete=dir Files call fzf#vim#files(<q-args>, s:w(<bang>0))',
+\'command! -bang GitFiles                     call fzf#vim#gitfiles(s:w(<bang>0))',
 \'command! -bang Buffers                      call fzf#vim#buffers(s:w(<bang>0))',
 \'command! -bang Lines                        call fzf#vim#lines(s:w(<bang>0))',
 \'command! -bang BLines                       call fzf#vim#buffer_lines(s:w(<bang>0))',
@@ -79,14 +80,19 @@ endfunction
 
 if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
   function! s:fzf_restore_colors()
-    if $TERM !~ "256color"
-      highlight fzf1 ctermfg=1 ctermbg=8
-      highlight fzf2 ctermfg=2 ctermbg=8
-      highlight fzf3 ctermfg=7 ctermbg=8
+    if exists('#User#FzfStatusLine')
+      doautocmd User FzfStatusLine
     else
-      highlight fzf1 ctermfg=161 ctermbg=238
-      highlight fzf2 ctermfg=151 ctermbg=238
-      highlight fzf3 ctermfg=252 ctermbg=238
+      if $TERM !~ "256color"
+        highlight fzf1 ctermfg=1 ctermbg=8
+        highlight fzf2 ctermfg=2 ctermbg=8
+        highlight fzf3 ctermfg=7 ctermbg=8
+      else
+        highlight fzf1 ctermfg=161 ctermbg=238
+        highlight fzf2 ctermfg=151 ctermbg=238
+        highlight fzf3 ctermfg=252 ctermbg=238
+      endif
+      setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
     endif
   endfunction
 
@@ -96,13 +102,13 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
     endif
 
     setlocal nospell
-    setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
+    call s:fzf_restore_colors()
   endfunction
 
-  augroup fzf_statusline
+  augroup _fzf_statusline
     autocmd!
-    autocmd TermOpen *bin/fzf* call s:fzf_nvim_term() | autocmd WinEnter <buffer> call s:fzf_nvim_term()
-    autocmd VimEnter,ColorScheme * call s:fzf_restore_colors()
+    autocmd FileType fzf call s:fzf_nvim_term()
+          \| autocmd WinEnter,ColorScheme <buffer> call s:fzf_restore_colors()
   augroup END
 endif
 

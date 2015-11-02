@@ -75,6 +75,7 @@ COMMANDS                                                      *fzf-vim-commands*
  Command          | List                                                                ~
  -----------------+---------------------------------------------------------------------
   `Files [PATH]`    | Files (similar to  `:FZF` )
+  `GitFiles`        | Git files
   `Buffers`         | Open buffers
   `Colors`          | Color schemes
   `Ag [PATTERN]`    | {ag}{5} search result (CTRL-A to select all, CTRL-D to deselect all)

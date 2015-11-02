@@ -324,6 +324,24 @@ function! fzf#vim#history(...)
 endfunction
 
 " ------------------------------------------------------------------
+" GitFiles
+" ------------------------------------------------------------------
+
+function! fzf#vim#gitfiles(...)
+  let root = systemlist('git rev-parse --show-toplevel')[0]
+  if v:shell_error
+    call s:warn('Not in git repo')
+    return
+  endif
+  call s:fzf({
+  \ 'source':  'git ls-tree --name-only -r HEAD',
+  \ 'dir':     root,
+  \ 'sink*':   s:function('s:common_sink'),
+  \ 'options': '--prompt "GitFiles> " -m'.s:expect(),
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
 function! s:bufopen(lines)
