@@ -376,6 +376,46 @@ function! fzf#vim#buffers(...)
 endfunction
 
 " ------------------------------------------------------------------
+" GitGrep
+" ------------------------------------------------------------------
+function! s:gitgrep_to_qf(line)
+  let parts = split(a:line, ':')
+  return {'filename': parts[0], 'lnum': parts[1], 'col': 0,
+        \ 'text': join(parts[2:], ':')}
+endfunction
+
+function! s:gitgrep_handler(lines)
+  if len(a:lines) < 2
+    return
+  endif
+
+  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
+  let list = map(a:lines[1:], 's:gitgrep_to_qf(v:val)')
+
+  let first = list[0]
+  execute cmd s:escape(first.filename)
+  execute first.lnum
+  execute 'normal!' first.col.'|zz'
+
+  if len(list) > 1
+    call setqflist(list)
+    copen
+    wincmd p
+  endif
+endfunction
+
+function! fzf#vim#gitgrep(query, ...)
+  call s:fzf({
+  \ 'source':  printf('git grep --line-number "%s"',
+  \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')),
+  \ 'sink*':    s:function('s:gitgrep_handler'),
+  \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "GitGrep> " '.
+  \            '--multi --bind ctrl-a:select-all,ctrl-d:deselect-all '.
+  \            '--color hl:68,hl+:110'.s:expect(),
+  \ }, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Ag
 " ------------------------------------------------------------------
 function! s:ag_to_qf(line)
