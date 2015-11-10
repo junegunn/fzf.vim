@@ -442,7 +442,17 @@ function! s:btags_sink(lines)
   if !empty(cmd)
     execute 'silent' cmd '%'
   endif
-  execute split(a:lines[1], "\t")[2]
+  let qfl = []
+  for line in a:lines[1:]
+    execute split(line, "\t")[2]
+    call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+  endfor
+  if len(qfl) > 1
+    call setqflist(qfl)
+    copen
+    wincmd p
+    cfirst
+  endif
   normal! zz
 endfunction
 
@@ -451,7 +461,7 @@ function! fzf#vim#buffer_tags(...)
     call s:fzf(fzf#vim#wrap({
     \ 'source':  s:btags_source(),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), a:000)
+    \ 'options': '-m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), a:000)
   catch
     call s:warn(v:exception)
   endtry
@@ -464,13 +474,23 @@ function! s:tags_sink(lines)
   if len(a:lines) < 2
     return
   endif
+  let qfl = []
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
-  let parts = split(a:lines[1], '\t\zs')
-  let excmd = matchstr(join(parts[2:], ''), '^.*\ze;"\t')
-  execute cmd s:escape(parts[1][:-2])
   let [magic, &magic] = [&magic, 0]
-  execute excmd
+  for line in a:lines[1:]
+    let parts = split(line, '\t\zs')
+    let excmd = matchstr(join(parts[2:], ''), '^.*\ze;"\t')
+    execute cmd s:escape(parts[1][:-2])
+    execute excmd
+    call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+  endfor
   let &magic = magic
+  if len(qfl) > 1
+    call setqflist(qfl)
+    copen
+    wincmd p
+    clast
+  endif
   normal! zz
 endfunction
 
@@ -494,7 +514,7 @@ function! fzf#vim#tags(...)
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': copt.'+m --tiebreak=begin --prompt "Tags> "'}), a:000)
+  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'}), a:000)
 endfunction
 
 " ------------------------------------------------------------------
