@@ -329,12 +329,11 @@ function! fzf#vim#gitfiles(...)
     call s:warn('Not in git repo')
     return
   endif
-  call s:fzf({
+  call s:fzf(fzf#vim#wrap({
   \ 'source':  'git ls-tree --name-only -r HEAD',
   \ 'dir':     root,
-  \ 'sink*':   s:function('s:common_sink'),
-  \ 'options': '--prompt "GitFiles> " -m'.s:expect(),
-  \}, a:000)
+  \ 'options': '-m --prompt "GitFiles> "'
+  \}), a:000)
 endfunction
 
 " ------------------------------------------------------------------
