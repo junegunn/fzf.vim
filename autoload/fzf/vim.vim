@@ -420,7 +420,7 @@ function! s:btags_source()
   for cmd in [
     \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
     \ printf('ctags -f - --sort=no --excmd=number %s', expand('%:S'))]
-    let lines = map(split(system(cmd), "\n"), 'split(v:val, "\t")')
+    let lines = split(system(cmd), "\n")
     if !v:shell_error
       break
     endif
@@ -430,7 +430,7 @@ function! s:btags_source()
   elseif empty(lines)
     throw 'No tags found'
   endif
-  return map(s:align_lists(lines), 'join(v:val, "\t")')
+  return map(s:align_lists(map(lines, 'split(v:val, "\t")')), 'join(v:val, "\t")')
 endfunction
 
 function! s:btags_sink(lines)
