@@ -75,7 +75,8 @@ function! s:fzf(opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
-  return fzf#run(merged)
+  call fzf#run(merged)
+  return 1
 endfunction
 
 let s:default_action = {
@@ -129,6 +130,7 @@ function! s:warn(message)
   echohl WarningMsg
   echom a:message
   echohl None
+  return 0
 endfunction
 
 function! s:uniq(list)
@@ -150,8 +152,7 @@ function! fzf#vim#files(dir, ...)
   let args = {'options': '-m'}
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
-      call s:warn('Invalid directory')
-      return
+      return s:warn('Invalid directory')
     endif
     let dir = substitute(a:dir, '/*$', '/', '')
     let args.dir = dir
@@ -160,7 +161,7 @@ function! fzf#vim#files(dir, ...)
     let args.options .= ' --prompt '.shellescape(pathshorten(getcwd())).'/'
   endif
 
-  call s:fzf(fzf#vim#wrap(args), a:000)
+  return s:fzf(fzf#vim#wrap(args), a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -196,7 +197,7 @@ function! fzf#vim#_lines(all)
 endfunction
 
 function! fzf#vim#lines(...)
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  fzf#vim#_lines(1),
   \ 'sink*':   s:function('s:line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3..'
@@ -225,7 +226,7 @@ function! s:buffer_lines()
 endfunction
 
 function! fzf#vim#buffer_lines(...)
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2..'
@@ -236,7 +237,7 @@ endfunction
 " Colors
 " ------------------------------------------------------------------
 function! fzf#vim#colors(...)
-  call s:fzf({
+  return s:fzf({
   \ 'source':  map(split(globpath(&rtp, "colors/*.vim"), "\n"),
   \               "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')"),
   \ 'sink':    'colo',
@@ -248,7 +249,7 @@ endfunction
 " Locate
 " ------------------------------------------------------------------
 function! fzf#vim#locate(query, ...)
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  'locate '.a:query,
   \ 'options': '-m --prompt "Locate> "'
   \}), a:000)
@@ -295,7 +296,7 @@ function! s:cmd_history_sink(lines)
 endfunction
 
 function! fzf#vim#command_history(...)
-  call s:fzf({
+  return s:fzf({
   \ 'source':  s:history_source(':'),
   \ 'sink*':   s:function('s:cmd_history_sink'),
   \ 'options': '+m --ansi --prompt="Hist:> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:000)
@@ -306,14 +307,14 @@ function! s:search_history_sink(lines)
 endfunction
 
 function! fzf#vim#search_history(...)
-  call s:fzf({
+  return s:fzf({
   \ 'source':  s:history_source('/'),
   \ 'sink*':   s:function('s:search_history_sink'),
   \ 'options': '+m --ansi --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:000)
 endfunction
 
 function! fzf#vim#history(...)
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  reverse(s:all_files()),
   \ 'options': '-m --prompt "Hist> "'
   \}), a:000)
@@ -326,10 +327,9 @@ endfunction
 function! fzf#vim#gitfiles(...)
   let root = systemlist('git rev-parse --show-toplevel')[0]
   if v:shell_error
-    call s:warn('Not in git repo')
-    return
+    return s:warn('Not in git repo')
   endif
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  'git ls-tree --name-only -r HEAD',
   \ 'dir':     root,
   \ 'options': '-m --prompt "GitFiles> "'
@@ -363,7 +363,7 @@ endfunction
 
 function! fzf#vim#buffers(...)
   let bufs = map(s:buflisted(), 's:format_buffer(v:val)')
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "',
@@ -400,7 +400,7 @@ function! s:ag_handler(lines)
 endfunction
 
 function! fzf#vim#ag(query, ...)
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  printf('ag --nogroup --column --color "%s"',
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')),
   \ 'sink*':    s:function('s:ag_handler'),
@@ -457,12 +457,12 @@ endfunction
 
 function! fzf#vim#buffer_tags(...)
   try
-    call s:fzf(fzf#vim#wrap({
+    return s:fzf(fzf#vim#wrap({
     \ 'source':  s:btags_source(),
     \ 'sink*':   s:function('s:btags_sink'),
     \ 'options': '-m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), a:000)
   catch
-    call s:warn(v:exception)
+    return s:warn(v:exception)
   endtry
 endfunction
 
@@ -509,7 +509,7 @@ function! fzf#vim#tags(...)
     let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/\x1b[33m\1\x1b[m\t\x1b[34m\2\x1b[m\t/; print }'' '
     let copt = '--ansi '
   endif
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
@@ -534,7 +534,7 @@ function! fzf#vim#snippets(...)
   endif
   let aligned = sort(s:align_lists(items(list)))
   let colored = map(aligned, 's:yellow(v:val[0])."\t".v:val[1]')
-  call s:fzf({
+  return s:fzf({
   \ 'source':  colored,
   \ 'options': '--ansi --tiebreak=index +m -n 1 -d "\t"',
   \ 'sink':    s:function('s:inject_snippet')}, a:000)
@@ -591,7 +591,7 @@ function! fzf#vim#commands(...)
   silent command
   redir END
   let list = split(cout, "\n")
-  call s:fzf({
+  return s:fzf({
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
   \ 'sink':    s:function('s:command_sink'),
   \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
@@ -620,7 +620,7 @@ function! fzf#vim#marks(...)
   silent marks
   redir END
   let list = split(cout, "\n")
-  call s:fzf(fzf#vim#wrap({
+  return s:fzf(fzf#vim#wrap({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
   \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}), a:000)
@@ -641,7 +641,7 @@ endfunction
 function! fzf#vim#helptags(...)
   let tags = uniq(sort(split(globpath(&runtimepath, '**/doc/tags'), '\n')))
 
-  call s:fzf({
+  return s:fzf({
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
     \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(\x1b[33m%-40s\x1b[m\t%s\t%s\n), $2, $3, $1)' | sort",
   \ 'sink':    s:function('s:helptag_sink'),
@@ -677,7 +677,7 @@ function! fzf#vim#windows(...)
             \ s:format_win(t, w, buffers[w-1])))
     endfor
   endfor
-  call s:fzf({
+  return s:fzf({
   \ 'source':  extend(['Tab Win    Name'], lines),
   \ 'sink':    s:function('s:windows_sink'),
   \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:000)
@@ -713,8 +713,7 @@ endfunction
 function! s:commits(buffer_local, args)
   let s:git_root = s:chomp(system('git rev-parse --show-toplevel'))
   if v:shell_error
-    call s:warn('Not in git repository')
-    return
+    return s:warn('Not in git repository')
   endif
 
   let source = 'git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
@@ -727,8 +726,7 @@ function! s:commits(buffer_local, args)
 
   if a:buffer_local
     if !managed
-      call s:warn('The current buffer is not in the working tree')
-      return
+      return s:warn('The current buffer is not in the working tree')
     endif
     let source .= ' --follow '.current
   endif
@@ -747,7 +745,7 @@ function! s:commits(buffer_local, args)
     let options.options .=        ' --header ":: Press '.s:magenta('CTRL-S').' to toggle sort"'
   endif
 
-  call s:fzf(options, a:args)
+  return s:fzf(options, a:args)
 endfunction
 
 function! fzf#vim#commits(...)
@@ -818,7 +816,7 @@ function! fzf#vim#maps(mode, ...)
   let sorted  = sort(aligned)
   let colored = map(sorted, 's:highlight_keys(v:val)')
   let pcolor  = a:mode == 'x' ? 9 : a:mode == 'o' ? 10 : 12
-  call s:fzf({
+  return s:fzf({
   \ 'source':  colored,
   \ 'sink':    s:function('s:key_sink'),
   \ 'options': '--prompt "Maps ('.a:mode.')> " --ansi --no-hscroll --nth 1,.. --color prompt:'.pcolor}, a:000)
