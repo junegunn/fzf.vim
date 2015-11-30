@@ -200,7 +200,7 @@ function! fzf#vim#lines(...)
   return s:fzf(fzf#vim#wrap({
   \ 'source':  fzf#vim#_lines(1),
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3..'
+  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3.. --reverse --tabstop='.&tabstop
   \}), a:000)
 endfunction
 
@@ -229,7 +229,7 @@ function! fzf#vim#buffer_lines(...)
   return s:fzf(fzf#vim#wrap({
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2..'
+  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop='.&tabstop
   \}), a:000)
 endfunction
 
