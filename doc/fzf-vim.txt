@@ -71,14 +71,14 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
 
- -----------------+---------------------------------------------------------------------
+ -----------------+-------------------------------------------------------------------
  Command          | List                                                                ~
- -----------------+---------------------------------------------------------------------
+ -----------------+-------------------------------------------------------------------
   `Files [PATH]`    | Files (similar to  `:FZF` )
   `GitFiles`        | Git files
   `Buffers`         | Open buffers
   `Colors`          | Color schemes
-  `Ag [PATTERN]`    | {ag}{5} search result (CTRL-A to select all, CTRL-D to deselect all)
+  `Ag [PATTERN]`    | {ag}{5} search result (ALT-A to select all, ALT-D to deselect all)
   `Lines`           | Lines in loaded buffers
   `BLines`          | Lines in the current buffer
   `Tags`            | Tags in the project ( `ctags -R` )
@@ -95,7 +95,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `Commands`        | Commands
   `Maps`            | Normal mode mappings
   `Helptags`        | Help tags [1]
- -----------------+---------------------------------------------------------------------
+ -----------------+-------------------------------------------------------------------
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
    tab, a new split, or in a new vertical split

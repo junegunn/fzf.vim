@@ -52,7 +52,7 @@ Commands
 | `GitFiles`       | Git files
 | `Buffers`        | Open buffers                                                              |
 | `Colors`         | Color schemes                                                             |
-| `Ag [PATTERN]`   | [ag][ag] search result (`CTRL-A` to select all, `CTRL-D` to deselect all) |
+| `Ag [PATTERN]`   | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)   |
 | `Lines`          | Lines in loaded buffers                                                   |
 | `BLines`         | Lines in the current buffer                                               |
 | `Tags`           | Tags in the project (`ctags -R`)                                          |
