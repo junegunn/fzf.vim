@@ -409,7 +409,7 @@ function! fzf#vim#ag(query, ...)
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')),
   \ 'sink*':    s:function('s:ag_handler'),
   \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "Ag> " '.
-  \            '--multi --bind ctrl-a:select-all,ctrl-d:deselect-all '.
+  \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
   \            '--color hl:68,hl+:110'}), args)
 endfunction
 
