@@ -394,9 +394,12 @@ function! s:ag_handler(lines)
   let list = map(a:lines[1:], 's:ag_to_qf(v:val)')
 
   let first = list[0]
-  execute cmd s:escape(first.filename)
-  execute first.lnum
-  execute 'normal!' first.col.'|zz'
+  try
+    execute cmd s:escape(first.filename)
+    execute first.lnum
+    execute 'normal!' first.col.'|zz'
+  catch
+  endtry
 
   if len(list) > 1
     call setqflist(list)
