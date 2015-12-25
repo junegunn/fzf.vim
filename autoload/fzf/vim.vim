@@ -264,11 +264,9 @@ endfunction
 " ------------------------------------------------------------------
 " History[:/]
 " ------------------------------------------------------------------
-function! s:all_files()
-  return extend(
-  \ filter(reverse(copy(v:oldfiles)),
-  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|.git/'"),
-  \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
+function! s:history_files()
+  return filter(reverse(copy(v:oldfiles)),
+  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|.git/'")
 endfunction
 
 function! s:history_source(type)
@@ -321,7 +319,7 @@ endfunction
 
 function! fzf#vim#history(...)
   return s:fzf(fzf#vim#wrap({
-  \ 'source':  reverse(s:all_files()),
+  \ 'source':  reverse(s:history_files()),
   \ 'options': '-m --prompt "Hist> "'
   \}), a:000)
 endfunction
