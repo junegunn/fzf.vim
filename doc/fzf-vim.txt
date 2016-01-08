@@ -115,7 +115,7 @@ But its functionality is still available via `call pathogen#helptags()`.)
 < Customization >_____________________________________________________________~
                                                          *fzf-vim-customization*
 
-                                                     *g:fzf_action* *g:fzf_layout*
+                           *g:fzf_action* *g:fzf_layout* *g:fzf_commits_log_options*
 >
     " This is the default extra key bindings
     let g:fzf_action = {
@@ -125,6 +125,10 @@ But its functionality is still available via `call pathogen#helptags()`.)
 
     " Default fzf layout
     let g:fzf_layout = { 'down': '40%' }
+
+    " For Commits and BCommits to customize the options used by 'git log':
+    let g:fzf_commits_log_options = \
+        '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
     " Advanced customization using autoload functions
     autocmd VimEnter * command! Colors

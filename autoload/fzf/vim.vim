@@ -729,7 +729,7 @@ function! s:commits(buffer_local, args)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"')
   let current = expand('%:S')
   let managed = 0
   if !empty(current)
