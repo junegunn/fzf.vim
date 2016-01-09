@@ -177,6 +177,7 @@ function! s:line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+  normal! m'
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
   if !empty(cmd)
     execute 'silent' cmd
@@ -185,7 +186,7 @@ function! s:line_handler(lines)
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0][1:-2]
   execute keys[1][0:-2]
-  normal! ^m'zz
+  normal! ^zz
 endfunction
 
 function! fzf#vim#_lines(all)
@@ -217,13 +218,14 @@ function! s:buffer_line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+  normal! m'
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
   if !empty(cmd)
     execute 'silent' cmd
   endif
 
   execute split(a:lines[1], '\t')[0][0:-2]
-  normal! ^m'zz
+  normal! ^zz
 endfunction
 
 function! s:buffer_lines()
@@ -450,6 +452,7 @@ function! s:btags_sink(lines)
   if len(a:lines) < 2
     return
   endif
+  normal! m'
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
   if !empty(cmd)
     execute 'silent' cmd '%'
@@ -465,7 +468,7 @@ function! s:btags_sink(lines)
     wincmd p
     cfirst
   endif
-  normal! m'zz
+  normal! zz
 endfunction
 
 function! fzf#vim#buffer_tags(...)
@@ -486,6 +489,7 @@ function! s:tags_sink(lines)
   if len(a:lines) < 2
     return
   endif
+  normal! m'
   let qfl = []
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
   let [magic, &magic] = [&magic, 0]
@@ -503,7 +507,7 @@ function! s:tags_sink(lines)
     wincmd p
     clast
   endif
-  normal! m'zz
+  normal! zz
 endfunction
 
 function! fzf#vim#tags(...)
