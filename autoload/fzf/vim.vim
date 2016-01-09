@@ -185,7 +185,7 @@ function! s:line_handler(lines)
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0][1:-2]
   execute keys[1][0:-2]
-  normal! ^zz
+  normal! ^m'zz
 endfunction
 
 function! fzf#vim#_lines(all)
@@ -223,7 +223,7 @@ function! s:buffer_line_handler(lines)
   endif
 
   execute split(a:lines[1], '\t')[0][0:-2]
-  normal! ^zz
+  normal! ^m'zz
 endfunction
 
 function! s:buffer_lines()
@@ -465,7 +465,7 @@ function! s:btags_sink(lines)
     wincmd p
     cfirst
   endif
-  normal! zz
+  normal! m'zz
 endfunction
 
 function! fzf#vim#buffer_tags(...)
@@ -503,7 +503,7 @@ function! s:tags_sink(lines)
     wincmd p
     clast
   endif
-  normal! zz
+  normal! m'zz
 endfunction
 
 function! fzf#vim#tags(...)
