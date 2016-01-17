@@ -476,7 +476,7 @@ function! fzf#vim#buffer_tags(...)
     return s:fzf(fzf#vim#wrap({
     \ 'source':  s:btags_source(),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '-m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), a:000)
+    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), a:000)
   catch
     return s:warn(v:exception)
   endtry
