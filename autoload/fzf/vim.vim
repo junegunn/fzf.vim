@@ -873,7 +873,7 @@ function! s:complete_insert(lines)
   endif
 
   let data = call(s:reducer, [a:lines])
-  execute 'normal!' (s:eol ? '' : 'h').del.(s:eol ? 'a': 'i').data
+  execute 'normal!' ((s:eol || empty(chars)) ? '' : 'h').del.(s:eol ? 'a': 'i').data
   if has('nvim')
     call feedkeys('a')
   else
