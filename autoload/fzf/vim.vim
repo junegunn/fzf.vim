@@ -194,9 +194,14 @@ function! fzf#vim#_lines(all)
   let rest = []
   let buf = bufnr('')
   for b in s:buflisted()
+    let lines = getbufline(b, 1, "$")
+    if empty(lines)
+      let path = fnamemodify(bufname(b), ':p')
+      let lines = filereadable(path) ? readfile(path) : []
+    endif
     call extend(b == buf ? cur : rest,
     \ filter(
-    \   map(getbufline(b, 1, "$"),
+    \   map(lines,
     \       '(!a:all && empty(v:val)) ? "" : printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
@@ -413,7 +418,7 @@ endfunction
 " query, [[ag options], options]
 function! fzf#vim#ag(query, ...)
   let args = copy(a:000)
-  let ag_opts = len(args) > 1 ? remove(args, 0) : ''
+  let ag_opts = len(args) > 1 ? remove(args, 0) : get(g:, 'fzf_ag_options', '')
   return s:fzf(fzf#vim#wrap({
   \ 'source':  printf('ag --nogroup --column --color %s "%s"',
   \                   ag_opts,
