@@ -194,9 +194,14 @@ function! fzf#vim#_lines(all)
   let rest = []
   let buf = bufnr('')
   for b in s:buflisted()
+    let lines = getbufline(b, 1, "$")
+    if empty(lines)
+      let path = fnamemodify(bufname(b), ':p')
+      let lines = filereadable(path) ? readfile(path) : []
+    endif
     call extend(b == buf ? cur : rest,
     \ filter(
-    \   map(getbufline(b, 1, "$"),
+    \   map(lines,
     \       '(!a:all && empty(v:val)) ? "" : printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
