@@ -269,6 +269,17 @@ function! fzf#vim#locate(query, ...)
 endfunction
 
 " ------------------------------------------------------------------
+" Sessions
+" ------------------------------------------------------------------
+function! fzf#vim#sessions(...)
+  call s:fzf({
+  \ 'source':  'ls -1 ~/.vim/session',
+  \ 'sink':  'SLoad',
+  \ 'options': '+m --prompt="Sessions> "'
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " History[:/]
 " ------------------------------------------------------------------
 function! s:all_files()
