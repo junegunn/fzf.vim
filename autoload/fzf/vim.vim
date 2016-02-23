@@ -474,8 +474,12 @@ function! s:btags_sink(lines)
   normal! zz
 endfunction
 
-" [tag commands], options
-function! fzf#vim#buffer_tags(...)
+function! s:q(query)
+  return ' --query "'.escape(a:query, '"').'"'
+endfunction
+
+" query, [[tag commands], options]
+function! fzf#vim#buffer_tags(query, ...)
   let args = copy(a:000)
   let tag_cmds = len(args) > 1 ? remove(args, 0) : [
     \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
@@ -484,7 +488,7 @@ function! fzf#vim#buffer_tags(...)
     return s:fzf(fzf#vim#wrap({
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'}), args)
+    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}), a:000)
   catch
     return s:warn(v:exception)
   endtry
@@ -518,7 +522,7 @@ function! s:tags_sink(lines)
   normal! zz
 endfunction
 
-function! fzf#vim#tags(...)
+function! fzf#vim#tags(query, ...)
   if empty(tagfiles())
     call s:warn('Preparing tags')
     call system('ctags -R')
@@ -541,7 +545,7 @@ function! fzf#vim#tags(...)
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'}), a:000)
+  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}), a:000)
 endfunction
 
 " ------------------------------------------------------------------

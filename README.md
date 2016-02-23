@@ -49,14 +49,14 @@ Commands
 | Command          | List                                                                      |
 | ---              | ---                                                                       |
 | `Files [PATH]`   | Files (similar to `:FZF`)                                                 |
-| `GitFiles`       | Git files
+| `GitFiles`       | Git files                                                                 |
 | `Buffers`        | Open buffers                                                              |
 | `Colors`         | Color schemes                                                             |
 | `Ag [PATTERN]`   | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)   |
 | `Lines`          | Lines in loaded buffers                                                   |
 | `BLines`         | Lines in the current buffer                                               |
-| `Tags`           | Tags in the project (`ctags -R`)                                          |
-| `BTags`          | Tags in the current buffer                                                |
+| `Tags [QUERY]`   | Tags in the project (`ctags -R`)                                          |
+| `BTags [QUERY]`  | Tags in the current buffer                                                |
 | `Marks`          | Marks                                                                     |
 | `Windows`        | Windows                                                                   |
 | `Locate PATTERN` | `locate` command output                                                   |
