@@ -522,6 +522,9 @@ function! fzf#vim#tags(...)
   if empty(tagfiles())
     call s:warn('Preparing tags')
     call system('ctags -R')
+    if empty(tagfiles())
+      return s:warn('Failed to create tags')
+    endif
   endif
 
   let tagfile = tagfiles()[0]
