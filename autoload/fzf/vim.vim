@@ -274,7 +274,7 @@ endfunction
 function! s:all_files()
   return extend(
   \ filter(reverse(copy(v:oldfiles)),
-  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|.git/'"),
+  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|\\.git/'"),
   \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
 endfunction
 
