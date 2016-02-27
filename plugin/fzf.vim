@@ -60,6 +60,7 @@ call s:defs([
 \'command! -bang Commits                       call fzf#vim#commits(s:w(<bang>0))',
 \'command! -bang BCommits                      call fzf#vim#buffer_commits(s:w(<bang>0))',
 \'command! -bang Maps                          call fzf#vim#maps("n", s:w(<bang>0))',
+\'command! -bang Sessions                      call fzf#vim#sessions(s:w(<bang>0))',
 \'command! -bang -nargs=* History              call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
