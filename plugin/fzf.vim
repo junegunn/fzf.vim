@@ -23,8 +23,6 @@
 
 let s:default_height = '40%'
 let s:fzf_go = expand('<sfile>:h:h').'/bin/fzf'
-let s:install = expand('<sfile>:h:h').'/install'
-let s:installed = 0
 let s:fzf_tmux = expand('<sfile>:h:h').'/bin/fzf-tmux'
 
 let s:cpo_save = &cpo
@@ -38,14 +36,6 @@ function! s:fzf_exec()
       let s:exec = s:fzf_go
     elseif executable('fzf')
       let s:exec = 'fzf'
-    elseif !s:installed && executable(s:install) &&
-          \ input('fzf executable not found. Download binary? (y/n) ') =~? '^y'
-      redraw
-      echo
-      call s:warn('Downloading fzf binary. Please wait ...')
-      let s:installed = 1
-      call system(s:install.' --bin')
-      return s:fzf_exec()
     else
       redraw
       throw 'fzf executable not found'
@@ -55,10 +45,6 @@ function! s:fzf_exec()
 endfunction
 
 function! s:tmux_enabled()
-  if has('gui_running')
-    return 0
-  endif
-
   if exists('s:tmux')
     return s:tmux
   endif
@@ -216,18 +202,6 @@ function! s:popd(dict, lines)
   endif
 endfunction
 
-function! s:xterm_launcher()
-  let fmt = 'xterm -T "[fzf]" -bg "\%s" -fg "\%s" -geometry %dx%d+%d+%d -e bash -ic %%s'
-  if has('gui_macvim')
-    let fmt .= '&& osascript -e "tell application \"MacVim\" to activate"'
-  endif
-  return printf(fmt,
-    \ synIDattr(hlID("Normal"), "bg"), synIDattr(hlID("Normal"), "fg"),
-    \ &columns, &lines/2, getwinposx(), getwinposy())
-endfunction
-unlet! s:launcher
-let s:launcher = function('s:xterm_launcher')
-
 function! s:exit_handler(code, command, ...)
   if a:code == 130
     return 0
@@ -244,14 +218,7 @@ endfunction
 function! s:execute(dict, command, temps) abort
   call s:pushd(a:dict)
   silent! !clear 2> /dev/null
-  let escaped = escape(substitute(a:command, '\n', '\\n', 'g'), '%#')
-  if has('gui_running')
-    let Launcher = get(a:dict, 'launcher', get(g:, 'Fzf_launcher', get(g:, 'fzf_launcher', s:launcher)))
-    let fmt = type(Launcher) == 2 ? call(Launcher, []) : Launcher
-    let command = printf(fmt, "'".substitute(escaped, "'", "'\"'\"'", 'g')."'")
-  else
-    let command = escaped
-  endif
+  let command = escape(substitute(a:command, '\n', '\\n', 'g'), '%#')
   execute 'silent !'.command
   redraw!
   return s:exit_handler(v:shell_error, command) ? s:callback(a:dict, a:temps) : []
