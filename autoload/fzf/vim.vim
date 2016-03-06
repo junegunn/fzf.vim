@@ -488,7 +488,7 @@ function! fzf#vim#buffer_tags(query, ...)
     return s:fzf(fzf#vim#wrap({
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}), a:000)
+    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}), args)
   catch
     return s:warn(v:exception)
   endtry
