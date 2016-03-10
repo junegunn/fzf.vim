@@ -97,7 +97,10 @@ let g:fzf_action = {
 " - window (nvim only)
 let g:fzf_layout = { 'down': '~40%' }
 
-" For Commits and BCommits to customize the options used by 'git log':
+" [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
+
+" [[B]Commits] to customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
 " Advanced customization using autoload functions
