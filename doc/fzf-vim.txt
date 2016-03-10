@@ -124,9 +124,14 @@ But its functionality is still available via `call pathogen#helptags()`.)
       \ 'ctrl-v': 'vsplit' }
 
     " Default fzf layout
-    let g:fzf_layout = { 'down': '40%' }
+    " - down / up / left / right
+    " - window (nvim only)
+    let g:fzf_layout = { 'down': '~40%' }
 
-    " For Commits and BCommits to customize the options used by 'git log':
+    " [Buffers] Jump to the existing window if possible
+    let g:fzf_buffers_jump = 1
+
+    " [[B]Commits] to customize the options used by 'git log':
     let g:fzf_commits_log_options = \
         '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
