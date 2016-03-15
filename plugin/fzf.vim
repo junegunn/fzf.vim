@@ -112,6 +112,13 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
   augroup END
 endif
 
+let g:fzf#vim#buffers = {}
+augroup fzf_buffers
+  autocmd!
+  autocmd BufWinEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = localtime()
+  autocmd BufDelete * silent! call remove(g:fzf#vim#buffers, expand('<abuf>'))
+augroup END
+
 inoremap <expr> <plug>(fzf-complete-word)        fzf#vim#complete#word()
 inoremap <expr> <plug>(fzf-complete-path)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'")
 inoremap <expr> <plug>(fzf-complete-file)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed 's:^..::'")

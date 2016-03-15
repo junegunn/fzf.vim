@@ -402,8 +402,13 @@ function! s:format_buffer(b)
   return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b), flag, name, extra))
 endfunction
 
+function! s:sort_buffers(...)
+  let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
+  return b1 - b2
+endfunction
+
 function! fzf#vim#buffers(...)
-  let bufs = map(s:buflisted(), 's:format_buffer(v:val)')
+  let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
   return s:fzf(fzf#vim#wrap({
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
