@@ -95,6 +95,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `Commands`        | Commands
   `Maps`            | Normal mode mappings
   `Helptags`        | Help tags [1]
+  `Filetypes`       | File types
  -----------------+-------------------------------------------------------------------
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new

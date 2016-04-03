@@ -714,6 +714,18 @@ function! fzf#vim#helptags(...)
 endfunction
 
 " ------------------------------------------------------------------
+" File types
+" ------------------------------------------------------------------
+function! fzf#vim#filetypes(...)
+  return s:fzf({
+  \ 'source':  sort(map(split(globpath(&rtp, 'syntax/*.vim'), '\n'),
+  \            'fnamemodify(v:val, ":t:r")')),
+  \ 'sink':    'setf',
+  \ 'options': '+m --prompt="File types> "'
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Windows
 " ------------------------------------------------------------------
 function! s:format_win(tab, win, buf)

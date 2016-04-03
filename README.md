@@ -69,6 +69,7 @@ Commands
 | `Commands`       | Commands                                                                  |
 | `Maps`           | Normal mode mappings                                                      |
 | `Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                               |
+| `Filetypes`      | File types
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split
