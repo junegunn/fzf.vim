@@ -41,7 +41,8 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 ```
 
-Make sure to use the latest version of fzf and Vim 7.4 or above.
+- Use `./install --bin` instead if you don't need fzf outside of Vim
+- Make sure to use Vim 7.4 or above
 
 Commands
 --------
