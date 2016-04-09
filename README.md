@@ -87,6 +87,8 @@ pathogen#helptags()`. [↩](#a1))
 
 ### Customization
 
+#### Global options
+
 ```vim
 " This is the default extra key bindings
 let g:fzf_action = {
@@ -99,13 +101,37 @@ let g:fzf_action = {
 " - window (nvim only)
 let g:fzf_layout = { 'down': '~40%' }
 
+" Customize fzf colors to match your color scheme
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+```
+
+#### Command-local options
+
+```vim
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
 
 " [[B]Commits] to customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+```
 
-" Advanced customization using autoload functions
+#### Advanced customization using autoload functions
+
+You can use autoload functions to define your own commands.
+
+```vim
 autocmd VimEnter * command! Colors
   \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'})
 ```

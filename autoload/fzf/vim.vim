@@ -56,13 +56,29 @@ else
   endfunction
 endif
 
-function! s:ansi(str, col, bold)
-  return printf("\x1b[%s%sm%s\x1b[m", a:col, a:bold ? ';1' : '', a:str)
+function! s:get_color(attr, ...)
+  for group in a:000
+    let code = synIDattr(synIDtrans(hlID(group)), a:attr)
+    if code =~ '^[0-9]\+$'
+      return code
+    endif
+  endfor
+  return ''
 endfunction
 
-for [s:c, s:a] in items({'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36})
-  execute "function! s:".s:c."(str, ...)\n"
-        \ "  return s:ansi(a:str, ".s:a.", get(a:, 1, 0))\n"
+let s:ansi = {'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36}
+
+function! s:ansi(str, group, default, ...)
+  let fg = s:get_color('fg', a:group)
+  let bg = s:get_color('bg', a:group)
+  let color = (empty(fg) ? s:ansi[a:default] : ('38;5;'.fg)) .
+            \ (empty(bg) ? '' : (';48;5;'.bg))
+  return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
+endfunction
+
+for s:color_name in keys(s:ansi)
+  execute "function! s:".s:color_name."(str, ...)\n"
+        \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
         \ "endfunction"
 endfor
 
@@ -70,11 +86,17 @@ function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val)')
 endfunction
 
+function! s:defaults()
+  let rules = copy(get(g:, 'fzf_colors', {}))
+  let colors = join(map(items(filter(map(rules, 'call("s:get_color", v:val)'), '!empty(v:val)')), 'join(v:val, ":")'), ',')
+  return empty(colors) ? '' : ('--color='.colors)
+endfunction
+
 function! s:fzf(opts, extra)
   let extra  = copy(get(a:extra, 0, {}))
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
-  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
   call fzf#run(merged)
   return 1
 endfunction
@@ -202,7 +224,7 @@ function! fzf#vim#_lines(all)
     call extend(b == buf ? cur : rest,
     \ filter(
     \   map(lines,
-    \       '(!a:all && empty(v:val)) ? "" : printf("[%s]\t%s:\t%s", s:blue(b), s:yellow(v:key + 1), v:val)'),
+    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine").s:yellow(" %4d ", "LineNr")."\t%s", b, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
   return extend(cur, rest)
@@ -235,7 +257,7 @@ endfunction
 
 function! s:buffer_lines()
   return map(getline(1, "$"),
-    \ 'printf("%s:\t%s", s:yellow(v:key + 1), v:val)')
+    \ 'printf(s:yellow(" %4d ", "LineNr")."\t%s", v:key + 1, v:val)')
 endfunction
 
 function! fzf#vim#buffer_lines(...)
@@ -280,10 +302,10 @@ endfunction
 
 function! s:history_source(type)
   let max  = histnr(a:type)
-  let fmt  = '%'.len(string(max)).'d'
+  let fmt  = ' %'.len(string(max)).'d '
   let list = filter(map(range(1, max), 'histget(a:type, - v:val)'), '!empty(v:val)')
-  return extend([' :: Press '.s:magenta('CTRL-E').' to edit'],
-    \ map(list, 's:yellow(printf(fmt, len(list) - v:key)).": ".v:val'))
+  return extend([' :: Press '.s:magenta('CTRL-E', 'Special').' to edit'],
+    \ map(list, 's:yellow(printf(fmt, len(list) - v:key), "Number")." ".v:val'))
 endfunction
 
 nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<cr>
@@ -394,12 +416,12 @@ endfunction
 function! s:format_buffer(b)
   let name = bufname(a:b)
   let name = empty(name) ? '[No Name]' : name
-  let flag = a:b == bufnr('')  ? s:blue('%') :
-          \ (a:b == bufnr('#') ? s:magenta('#') : ' ')
-  let modified = getbufvar(a:b, '&modified') ? s:red(' [+]') : ''
-  let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]')
+  let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
+          \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
+  let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
+  let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b), flag, name, extra))
+  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
 function! s:sort_buffers(...)
@@ -571,7 +593,7 @@ function! fzf#vim#tags(query, ...)
     let proc = 'grep -v ''^\!'' '
     let copt = ''
   else
-    let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/\x1b[33m\1\x1b[m\t\x1b[34m\2\x1b[m\t/; print }'' '
+    let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/'.s:yellow('\1', 'Function').'\t'.s:blue('\2', 'String').'\t/; print }'' '
     let copt = '--ansi '
   endif
   return s:fzf(fzf#vim#wrap({
@@ -612,7 +634,7 @@ let s:nbs = nr2char(0x2007)
 
 function! s:format_cmd(line)
   return substitute(a:line, '\C \([A-Z]\S*\) ',
-        \ '\=s:nbs.s:yellow(submatch(1)).s:nbs', '')
+        \ '\=s:nbs.s:yellow(submatch(1), "Function").s:nbs', '')
 endfunction
 
 function! s:command_sink(cmd)
@@ -622,7 +644,7 @@ endfunction
 
 function! s:format_excmd(ex)
   let match = matchlist(a:ex, '^|:\(\S\+\)|\s*\S*\(.*\)')
-  return printf("   \x1b[34m%-38s\x1b[m%s", s:nbs.match[1].s:nbs, s:strip(match[2]))
+  return printf('   '.s:blue('%-38s', 'Statement').'%s', s:nbs.match[1].s:nbs, s:strip(match[2]))
 endfunction
 
 function! s:excmds()
@@ -708,7 +730,7 @@ function! fzf#vim#helptags(...)
 
   return s:fzf({
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
-    \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(\x1b[33m%-40s\x1b[m\t%s\t%s\n), $2, $3, $1)' | sort",
+    \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(".s:green('%-40s', 'Label')."\t%s\t%s\n), $2, $3, $1)' | sort",
   \ 'sink':    s:function('s:helptag_sink'),
   \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:000)
 endfunction
@@ -733,7 +755,7 @@ function! s:format_win(tab, win, buf)
   let name = bufname(a:buf)
   let name = empty(name) ? '[No Name]' : name
   let active = tabpagewinnr(a:tab) == a:win
-  return (active? s:blue('> ') : '  ') . name . (modified? s:red(' [+]') : '')
+  return (active? s:blue('> ', 'Operator') : '  ') . name . (modified? s:red(' [+]', 'Exception') : '')
 endfunction
 
 function! s:windows_sink(line)
@@ -747,9 +769,9 @@ function! fzf#vim#windows(...)
     let buffers = tabpagebuflist(t)
     for w in range(1, len(buffers))
       call add(lines,
-        \ printf('%s:%s: %s',
-            \ s:yellow(printf('%3d', t)),
-            \ s:cyan(printf('%3d', w)),
+        \ printf('%s %s  %s',
+            \ s:yellow(printf('%3d', t), 'Number'),
+            \ s:cyan(printf('%3d', w), 'String'),
             \ s:format_win(t, w, buffers[w-1])))
     endfor
   endfor
@@ -816,9 +838,9 @@ function! s:commits(buffer_local, args)
   \ })
 
   if a:buffer_local
-    let options.options .= ',ctrl-d --header ":: Press '.s:magenta('CTRL-S').' to toggle sort, '.s:magenta('CTRL-D').' to diff"'
+    let options.options .= ',ctrl-d --header ":: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort, '.s:magenta('CTRL-D', 'Special').' to diff"'
   else
-    let options.options .=        ' --header ":: Press '.s:magenta('CTRL-S').' to toggle sort"'
+    let options.options .=        ' --header ":: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort"'
   endif
 
   return s:fzf(options, a:args)
@@ -850,8 +872,8 @@ endfunction
 
 function! s:highlight_keys(str)
   return substitute(
-        \ substitute(a:str, '<[^ >]\+>', "\x1b[33m\\0\x1b[m", 'g'),
-        \ "\x1b[33m<Plug>\x1b[m", "\x1b[34m<Plug>\x1b[m", 'g')
+        \ substitute(a:str, '<[^ >]\+>', s:yellow('\0', 'Special'), 'g'),
+        \ '<Plug>', s:blue('<Plug>', 'SpecialKey'), 'g')
 endfunction
 
 function! s:key_sink(line)
@@ -881,7 +903,7 @@ function! fzf#vim#maps(mode, ...)
       let curr = line[3:]
     else
       let src = '  '.join(reverse(reverse(split(src, '/'))[0:2]), '/')
-      call add(list, printf('%s %s', curr, s:black(src)))
+      call add(list, printf('%s %s', curr, s:black(src, 'Comment')))
       let curr = ''
     endif
   endfor
