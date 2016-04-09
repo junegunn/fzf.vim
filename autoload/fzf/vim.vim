@@ -42,7 +42,7 @@ function! s:chomp(str)
 endfunction
 
 function! s:escape(path)
-  return escape(a:path, ' %#''"\')
+  return escape(a:path, ' $%#''"\')
 endfunction
 
 if v:version >= 704
