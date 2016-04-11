@@ -759,7 +759,7 @@ function! s:format_win(tab, win, buf)
 endfunction
 
 function! s:windows_sink(line)
-  let list = matchlist(a:line, '\([ 0-9]*\):\([ 0-9]*\)')
+  let list = matchlist(a:line, '^ *\([0-9]\+\) *\([0-9]\+\)')
   call s:jump(list[1], list[2])
 endfunction
 
