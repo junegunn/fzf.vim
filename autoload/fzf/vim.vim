@@ -58,7 +58,7 @@ endif
 
 function! s:get_color(attr, ...)
   for group in a:000
-    let code = synIDattr(synIDtrans(hlID(group)), a:attr)
+    let code = synIDattr(synIDtrans(hlID(group)), a:attr, 'cterm')
     if code =~ '^[0-9]\+$'
       return code
     endif
