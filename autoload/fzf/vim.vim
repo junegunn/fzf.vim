@@ -281,6 +281,17 @@ function! fzf#vim#colors(...)
 endfunction
 
 " ------------------------------------------------------------------
+" AirlineThemes
+" ------------------------------------------------------------------
+function! fzf#vim#AirlineTheme(...)
+  return s:fzf({
+  \ 'source':  map(split(globpath(&rtp, "autoload/airline/themes/*.vim"), "\n"),
+  \               "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')"),
+  \ 'sink':    'AirlineTheme',
+  \ 'options': '+m --prompt="Airline Themes> "'
+  \}, a:000)
+endfunction
+" ------------------------------------------------------------------
 " Locate
 " ------------------------------------------------------------------
 function! fzf#vim#locate(query, ...)
