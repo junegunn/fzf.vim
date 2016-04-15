@@ -316,7 +316,7 @@ function! s:history_sink(type, lines)
   endif
 
   let key  = a:lines[0]
-  let item = matchstr(a:lines[1], ': \zs.*')
+  let item = matchstr(a:lines[1], ' *[0-9]\+ *\zs.*')
   if key == 'ctrl-e'
     call histadd(a:type, item)
     call feedkeys(a:type."\<up>")
