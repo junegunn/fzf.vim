@@ -319,6 +319,7 @@ function! s:history_sink(type, lines)
   let item = matchstr(a:lines[1], ' *[0-9]\+ *\zs.*')
   if key == 'ctrl-e'
     call histadd(a:type, item)
+    redraw
     call feedkeys(a:type."\<up>")
   else
     let g:__fzf_command = "normal ".a:type.item."\<cr>"
