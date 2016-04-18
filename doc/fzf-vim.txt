@@ -156,6 +156,9 @@ Command-local options~
     " [[B]Commits] to customize the options used by 'git log':
     let g:fzf_commits_log_options = \
         '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+
+    " [Tags] Prevent tag generation if no tagfiles found.
+    let g:fzf_generate_tags = 0
 <
 
 Advanced customization using autoload functions~
