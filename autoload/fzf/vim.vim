@@ -580,10 +580,20 @@ endfunction
 
 function! fzf#vim#tags(query, ...)
   if empty(tagfiles())
-    call s:warn('Preparing tags')
-    call system('ctags -R')
-    if empty(tagfiles())
-      return s:warn('Failed to create tags')
+    call inputsave()
+    echohl WarningMsg
+    let gen = input('tags not found. Generate? (y/N) ')
+    echohl None
+    call inputrestore()
+    redraw
+    if gen =~ '^y'
+      call s:warn('Preparing tags')
+      call system('ctags -R')
+      if empty(tagfiles())
+        return s:warn('Failed to create tags')
+      endif
+    else
+      return s:warn('No tags found')
     endif
   endif
 
