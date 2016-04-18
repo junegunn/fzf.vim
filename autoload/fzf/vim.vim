@@ -579,11 +579,16 @@ function! s:tags_sink(lines)
 endfunction
 
 function! fzf#vim#tags(query, ...)
+  let generate_tags = get(g:, 'fzf_generate_tags', 1)
   if empty(tagfiles())
-    call s:warn('Preparing tags')
-    call system('ctags -R')
-    if empty(tagfiles())
-      return s:warn('Failed to create tags')
+    if generate_tags
+      call s:warn('Preparing tags')
+      call system('ctags -R')
+      if empty(tagfiles())
+        return s:warn('Failed to create tags')
+      endif
+    else
+      return s:warn('No tags found')
     endif
   endif
 
