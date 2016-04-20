@@ -51,6 +51,7 @@ Commands
 | ---              | ---                                                                       |
 | `Files [PATH]`   | Files (similar to `:FZF`)                                                 |
 | `GitFiles`       | Git files                                                                 |
+| `GitChanged`     | Staged and unstaged files tracked by git                                  |
 | `Buffers`        | Open buffers                                                              |
 | `Colors`         | Color schemes                                                             |
 | `Ag [PATTERN]`   | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)   |
