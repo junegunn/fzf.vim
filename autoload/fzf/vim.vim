@@ -373,6 +373,22 @@ function! fzf#vim#gitfiles(...)
 endfunction
 
 " ------------------------------------------------------------------
+" GitChanged
+" ------------------------------------------------------------------
+
+function! fzf#vim#gitchanged(...)
+  let root = systemlist('git rev-parse --show-toplevel')[0]
+  if v:shell_error
+    return s:warn('Not in git repo')
+  endif
+  return s:fzf(fzf#vim#wrap({
+  \ 'source':  '{ git diff --name-only --staged; git diff --name-only ; } | sort | uniq',
+  \ 'dir':     root,
+  \ 'options': '-m --prompt "GitChanged> "'
+  \}), a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
 function! s:find_open_window(b)
