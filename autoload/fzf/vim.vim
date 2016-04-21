@@ -206,7 +206,7 @@ function! s:line_handler(lines)
   endif
 
   let keys = split(a:lines[1], '\t')
-  execute 'buffer' keys[0][1:-2]
+  execute 'buffer' keys[0]
   execute keys[1][0:-2]
   normal! ^zz
 endfunction
