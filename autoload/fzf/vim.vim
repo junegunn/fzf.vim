@@ -207,7 +207,7 @@ function! s:line_handler(lines)
 
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0]
-  execute keys[1][0:-2]
+  execute keys[1]
   normal! ^zz
 endfunction
 
@@ -251,7 +251,7 @@ function! s:buffer_line_handler(lines)
     execute 'silent' cmd
   endif
 
-  execute split(a:lines[1], '\t')[0][0:-2]
+  execute split(a:lines[1], '\t')[0]
   normal! ^zz
 endfunction
 
