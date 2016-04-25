@@ -106,6 +106,13 @@ let s:default_action = {
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
 
+function! s:open(cmd, target)
+  if stridx('edit', a:cmd) == 0 && fnamemodify(a:target, ':p') ==# expand('%:p')
+    return
+  endif
+  execute a:cmd s:escape(a:target)
+endfunction
+
 function! s:common_sink(lines) abort
   if len(a:lines) < 2
     return
@@ -127,7 +134,7 @@ function! s:common_sink(lines) abort
         execute 'e' s:escape(item)
         let empty = 0
       else
-        execute cmd s:escape(item)
+        call s:open(cmd, item)
       endif
       if exists('#BufEnter') && isdirectory(item)
         doautocmd BufEnter
@@ -201,7 +208,7 @@ function! s:line_handler(lines)
   endif
   normal! m'
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
-  if !empty(cmd)
+  if !empty(cmd) && stridx('edit', cmd) < 0
     execute 'silent' cmd
   endif
 
@@ -474,7 +481,7 @@ function! s:ag_handler(lines)
 
   let first = list[0]
   try
-    execute cmd s:escape(first.filename)
+    call s:open(cmd, first.filename)
     execute first.lnum
     execute 'normal!' first.col.'|zz'
   catch
@@ -580,7 +587,7 @@ function! s:tags_sink(lines)
   for line in a:lines[1:]
     let parts = split(line, '\t\zs')
     let excmd = matchstr(join(parts[2:], ''), '^.*\ze;"\t')
-    execute cmd s:escape(parts[1][:-2])
+    call s:open(cmd, parts[1][:-2])
     execute excmd
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
