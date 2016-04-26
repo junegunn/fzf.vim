@@ -214,7 +214,7 @@ function! s:line_handler(lines)
 
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0]
-  execute keys[1]
+  execute keys[2]
   normal! ^zz
 endfunction
 
@@ -222,16 +222,35 @@ function! fzf#vim#_lines(all)
   let cur = []
   let rest = []
   let buf = bufnr('')
+  let longest_name = 0
+  let display_bufnames = &columns > 100
+  if display_bufnames
+    let bufnames = {}
+    for b in s:buflisted()
+      let bufnames[b] = pathshorten(fnamemodify(bufname(b), ":~:."))
+      let longest_name = max([longest_name, len(bufnames[b])])
+    endfor
+  endif
+  let len_bufnames = min([15, longest_name])
   for b in s:buflisted()
     let lines = getbufline(b, 1, "$")
     if empty(lines)
       let path = fnamemodify(bufname(b), ':p')
       let lines = filereadable(path) ? readfile(path) : []
     endif
+    if display_bufnames
+      let bufname = bufnames[b]
+      if len(bufname) > len_bufnames + 1
+        let bufname = '…' . bufname[-(len_bufnames+1):]
+      endif
+      let bufname = printf(s:green("%".len_bufnames."s", "Directory"), bufname)
+    else
+      let bufname = ''
+    endif
     call extend(b == buf ? cur : rest,
     \ filter(
     \   map(lines,
-    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine").s:yellow(" %4d ", "LineNr")."\t%s", b, v:key + 1, v:val)'),
+    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s\t", b, bufname, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
   return extend(cur, rest)
@@ -241,7 +260,7 @@ function! fzf#vim#lines(...)
   return s:fzf(fzf#vim#wrap({
   \ 'source':  fzf#vim#_lines(1),
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3.. --reverse --tabstop='.&tabstop
+  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3.. --reverse --tabstop=1'
   \}), a:000)
 endfunction
 
@@ -271,7 +290,7 @@ function! fzf#vim#buffer_lines(...)
   return s:fzf(fzf#vim#wrap({
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop='.&tabstop
+  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'
   \}), a:000)
 endfunction
 
