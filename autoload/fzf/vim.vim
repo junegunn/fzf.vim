@@ -218,11 +218,17 @@ function! s:line_handler(lines)
   normal! ^zz
 endfunction
 
+let s:lines_cache = []
+
 function! fzf#vim#_lines(all)
+  let buf = bufnr('')
+  let buflisted = s:buflisted()
+  if len(s:lines_cache) && s:lines_cache[0:1] == [buf, buflisted]
+    return s:lines_cache[2]
+  endif
   let cur = []
   let rest = []
-  let buf = bufnr('')
-  for b in s:buflisted()
+  for b in buflisted
     let lines = getbufline(b, 1, "$")
     if empty(lines)
       let path = fnamemodify(bufname(b), ':p')
@@ -234,7 +240,8 @@ function! fzf#vim#_lines(all)
     \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine").s:yellow(" %4d ", "LineNr")."\t%s", b, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
-  return extend(cur, rest)
+  let s:lines_cache = [buf, buflisted, extend(cur, rest)]
+  return s:lines_cache[2]
 endfunction
 
 function! fzf#vim#lines(...)
