@@ -250,7 +250,7 @@ function! fzf#vim#_lines(all)
     call extend(b == buf ? cur : rest,
     \ filter(
     \   map(lines,
-    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s\t", b, bufname, v:key + 1, v:val)'),
+    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s", b, bufname, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
   return extend(cur, rest)
