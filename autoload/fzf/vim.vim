@@ -253,14 +253,16 @@ function! fzf#vim#_lines(all)
     \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s", b, bufname, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
-  return extend(cur, rest)
+  return [display_bufnames, extend(cur, rest)]
 endfunction
 
 function! fzf#vim#lines(...)
+  let [display_bufnames, lines] = fzf#vim#_lines(1)
+  let nth = display_bufnames ? 3 : 2
   return s:fzf(fzf#vim#wrap({
-  \ 'source':  fzf#vim#_lines(1),
+  \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth=3.. --reverse --tabstop=1'
+  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'
   \}), a:000)
 endfunction
 
