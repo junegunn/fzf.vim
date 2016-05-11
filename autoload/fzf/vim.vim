@@ -632,7 +632,7 @@ function! fzf#vim#tags(query, ...)
     redraw
     if gen =~ '^y'
       call s:warn('Preparing tags')
-      call system('ctags -R')
+      call system(get(g:, 'fzf_tags_command', 'ctags -R'))
       if empty(tagfiles())
         return s:warn('Failed to create tags')
       endif
