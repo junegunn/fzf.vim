@@ -130,6 +130,10 @@ let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %
 
 " [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R'
+
+" [Ag] Command to use raw input, although --nogroup --column --color is still
+applied
+let g:fzf_ag_raw = 1
 ```
 
 #### Advanced customization using autoload functions

@@ -515,18 +515,20 @@ function! s:ag_handler(lines)
   endif
 endfunction
 
-" query, [[ag options], options]
+function! s:ag_cmd(query)
+  let raw = get(g:, "fzf_ag_raw", 0)
+  return 'ag --nogroup --column --color ' .
+        \ (raw ? a:query : printf('"%s"', escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')))
+endfunction
+
+" query, options
 function! fzf#vim#ag(query, ...)
-  let args = copy(a:000)
-  let ag_opts = len(args) > 1 ? remove(args, 0) : ''
   return s:fzf(fzf#vim#wrap({
-  \ 'source':  printf('ag --nogroup --column --color %s "%s"',
-  \                   ag_opts,
-  \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')),
+  \ 'source': s:ag_cmd(a:query),
   \ 'sink*':    s:function('s:ag_handler'),
   \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "Ag> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'}), args)
+  \            '--color hl:68,hl+:110'}), a:000)
 endfunction
 
 " ------------------------------------------------------------------
