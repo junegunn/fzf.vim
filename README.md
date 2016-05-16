@@ -56,8 +56,8 @@ Commands
 | `Buffers`        | Open buffers                                                              |
 | `Colors`         | Color schemes                                                             |
 | `Ag [PATTERN]`   | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)   |
-| `Lines`          | Lines in loaded buffers                                                   |
-| `BLines`         | Lines in the current buffer                                               |
+| `Lines [QUERY]`  | Lines in loaded buffers                                                   |
+| `BLines [QUERY]` | Lines in the current buffer                                               |
 | `Tags [QUERY]`   | Tags in the project (`ctags -R`)                                          |
 | `BTags [QUERY]`  | Tags in the current buffer                                                |
 | `Marks`          | Marks                                                                     |

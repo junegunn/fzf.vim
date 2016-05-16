@@ -259,11 +259,13 @@ endfunction
 function! fzf#vim#lines(...)
   let [display_bufnames, lines] = fzf#vim#_lines(1)
   let nth = display_bufnames ? 3 : 2
+  let [query, args] = (a:0 && type(a:1) == type('')) ?
+        \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf(fzf#vim#wrap({
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'
-  \}), a:000)
+  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'.s:q(query)
+  \}), args)
 endfunction
 
 " ------------------------------------------------------------------
@@ -289,11 +291,13 @@ function! s:buffer_lines()
 endfunction
 
 function! fzf#vim#buffer_lines(...)
+  let [query, args] = (a:0 && type(a:1) == type('')) ?
+        \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf(fzf#vim#wrap({
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'
-  \}), a:000)
+  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'.s:q(query)
+  \}), args)
 endfunction
 
 " ------------------------------------------------------------------
@@ -575,7 +579,7 @@ function! s:btags_sink(lines)
 endfunction
 
 function! s:q(query)
-  return ' --query "'.escape(a:query, '"').'"'
+  return ' --query "'.escape(a:query, '"\').'"'
 endfunction
 
 " query, [[tag commands], options]
