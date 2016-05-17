@@ -26,10 +26,6 @@ set cpo&vim
 
 let g:fzf#vim#default_layout = {'down': '~40%'}
 
-function! s:w(bang)
-  return a:bang ? {} : copy(get(g:, 'fzf_layout', g:fzf#vim#default_layout))
-endfunction
-
 function! s:defs(commands)
   let prefix = get(g:, 'fzf_command_prefix', '')
   if prefix =~# '^[^A-Z]'
@@ -42,30 +38,30 @@ function! s:defs(commands)
 endfunction
 
 call s:defs([
-\'command! -bang -nargs=? -complete=dir Files  call fzf#vim#files(<q-args>, s:w(<bang>0))',
-\'command! -bang -nargs=? GitFiles             call fzf#vim#gitfiles(<q-args>, s:w(<bang>0))',
-\'command! -bang Buffers                       call fzf#vim#buffers(s:w(<bang>0))',
-\'command! -bang -nargs=* Lines                call fzf#vim#lines(<q-args>, s:w(<bang>0))',
-\'command! -bang -nargs=* BLines               call fzf#vim#buffer_lines(<q-args>, s:w(<bang>0))',
-\'command! -bang Colors                        call fzf#vim#colors(s:w(<bang>0))',
-\'command! -bang -nargs=1 -complete=dir Locate call fzf#vim#locate(<q-args>, s:w(<bang>0))',
-\'command! -bang -nargs=* Ag                   call fzf#vim#ag(<q-args>, s:w(<bang>0))',
-\'command! -bang -nargs=* Tags                 call fzf#vim#tags(<q-args>, s:w(<bang>0))',
-\'command! -bang -nargs=* BTags                call fzf#vim#buffer_tags(<q-args>, s:w(<bang>0))',
-\'command! -bang Snippets                      call fzf#vim#snippets(s:w(<bang>0))',
-\'command! -bang Commands                      call fzf#vim#commands(s:w(<bang>0))',
-\'command! -bang Marks                         call fzf#vim#marks(s:w(<bang>0))',
-\'command! -bang Helptags                      call fzf#vim#helptags(s:w(<bang>0))',
-\'command! -bang Windows                       call fzf#vim#windows(s:w(<bang>0))',
-\'command! -bang Commits                       call fzf#vim#commits(s:w(<bang>0))',
-\'command! -bang BCommits                      call fzf#vim#buffer_commits(s:w(<bang>0))',
-\'command! -bang Maps                          call fzf#vim#maps("n", s:w(<bang>0))',
-\'command! -bang Filetypes                     call fzf#vim#filetypes(s:w(<bang>0))',
+\'command! -bang -nargs=? -complete=dir Files  call fzf#vim#files(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=? GitFiles             call fzf#vim#gitfiles(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang Buffers                       call fzf#vim#buffers(fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=* Lines                call fzf#vim#lines(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=* BLines               call fzf#vim#buffer_lines(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang Colors                        call fzf#vim#colors(fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=1 -complete=dir Locate call fzf#vim#locate(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=* Ag                   call fzf#vim#ag(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=* Tags                 call fzf#vim#tags(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=* BTags                call fzf#vim#buffer_tags(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang Snippets                      call fzf#vim#snippets(fzf#vim#layout(<bang>0))',
+\'command! -bang Commands                      call fzf#vim#commands(fzf#vim#layout(<bang>0))',
+\'command! -bang Marks                         call fzf#vim#marks(fzf#vim#layout(<bang>0))',
+\'command! -bang Helptags                      call fzf#vim#helptags(fzf#vim#layout(<bang>0))',
+\'command! -bang Windows                       call fzf#vim#windows(fzf#vim#layout(<bang>0))',
+\'command! -bang Commits                       call fzf#vim#commits(fzf#vim#layout(<bang>0))',
+\'command! -bang BCommits                      call fzf#vim#buffer_commits(fzf#vim#layout(<bang>0))',
+\'command! -bang Maps                          call fzf#vim#maps("n", fzf#vim#layout(<bang>0))',
+\'command! -bang Filetypes                     call fzf#vim#filetypes(fzf#vim#layout(<bang>0))',
 \'command! -bang -nargs=* History              call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'
-  let ext = s:w(bang)
+  let ext = fzf#vim#layout(bang)
   if a:arg[0] == ':'
     call fzf#vim#command_history(ext)
   elseif a:arg[0] == '/'

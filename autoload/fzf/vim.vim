@@ -33,6 +33,10 @@ function! fzf#vim#wrap(opts)
   \ 'sink*':   get(a:opts, 'sink*', s:function('s:common_sink'))})
 endfunction
 
+function! fzf#vim#layout(...)
+  return (a:0 && a:1) ? {} : copy(get(g:, 'fzf_layout', g:fzf#vim#default_layout))
+endfunction
+
 function! s:strip(str)
   return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfunction
@@ -93,7 +97,7 @@ function! s:defaults()
 endfunction
 
 function! s:fzf(opts, extra)
-  let extra  = copy(get(a:extra, 0, {}))
+  let extra  = empty(a:extra) ? fzf#vim#layout() : a:extra[0]
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
