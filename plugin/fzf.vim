@@ -123,10 +123,10 @@ inoremap <expr> <plug>(fzf-complete-file-ag)     fzf#vim#complete#path("ag -l -g
 inoremap <expr> <plug>(fzf-complete-line)        fzf#vim#complete#line()
 inoremap <expr> <plug>(fzf-complete-buffer-line) fzf#vim#complete#buffer_line()
 
-nnoremap <silent> <plug>(fzf-maps-n) :<c-u>call fzf#vim#maps('n', <sid>w(0))<cr>
-inoremap <silent> <plug>(fzf-maps-i) <c-o>:call fzf#vim#maps('i', <sid>w(0))<cr>
-xnoremap <silent> <plug>(fzf-maps-x) :<c-u>call fzf#vim#maps('x', <sid>w(0))<cr>
-onoremap <silent> <plug>(fzf-maps-o) <c-c>:<c-u>call fzf#vim#maps('o', <sid>w(0))<cr>
+nnoremap <silent> <plug>(fzf-maps-n) :<c-u>call fzf#vim#maps('n', fzf#vim#layout(0))<cr>
+inoremap <silent> <plug>(fzf-maps-i) <c-o>:call fzf#vim#maps('i', fzf#vim#layout(0))<cr>
+xnoremap <silent> <plug>(fzf-maps-x) :<c-u>call fzf#vim#maps('x', fzf#vim#layout(0))<cr>
+onoremap <silent> <plug>(fzf-maps-o) <c-c>:<c-u>call fzf#vim#maps('o', fzf#vim#layout(0))<cr>
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
