@@ -393,7 +393,7 @@ function! fzf#vim#history(...)
 endfunction
 
 " ------------------------------------------------------------------
-" GitFiles[?]
+" GitFiles[?/]
 " ------------------------------------------------------------------
 
 function! s:git_status_sink(lines) abort
@@ -409,19 +409,26 @@ function! fzf#vim#gitfiles(args, ...)
   if v:shell_error
     return s:warn('Not in git repo')
   endif
-  if a:args !~ '^?'
+  if a:args =~ '^?'
+    return s:fzf(fzf#vim#wrap({
+    \ 'source':  'git -c color.status=always status --short',
+    \ 'dir':     root,
+    \ 'sink*':   s:function('s:git_status_sink'),
+    \ 'options': '--ansi --multi --nth 2..,.. --prompt "GitFiles?> "'
+    \}), a:000)
+  elseif a:args =~ '^/'
+    return s:fzf(fzf#vim#wrap({
+    \ 'source':  'git ls-files -co --exclude-standard',
+    \ 'dir':     root,
+    \ 'options': '-m --prompt "GitFiles> "'
+    \}), a:000)
+  else
     return s:fzf(fzf#vim#wrap({
     \ 'source':  'git ls-files',
     \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}), a:000)
   endif
-  return s:fzf(fzf#vim#wrap({
-  \ 'source':  'git -c color.status=always status --short',
-  \ 'dir':     root,
-  \ 'sink*':   s:function('s:git_status_sink'),
-  \ 'options': '--ansi --multi --nth 2..,.. --prompt "GitFiles?> "'
-  \}), a:000)
 endfunction
 
 " ------------------------------------------------------------------
