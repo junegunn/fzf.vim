@@ -75,7 +75,7 @@ COMMANDS                                                      *fzf-vim-commands*
  Command          | List                                                                ~
  -----------------+-------------------------------------------------------------------
   `Files [PATH]`    | Files (similar to  `:FZF` )
-  `GitFiles`        | Git files (git ls-files)
+  `GitFiles [OPTS]` | Git files (git ls-files)
   `GitFiles?`       | Git files (git status)
   `Buffers`         | Open buffers
   `Colors`          | Color schemes

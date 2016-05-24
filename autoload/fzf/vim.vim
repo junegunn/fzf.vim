@@ -409,9 +409,9 @@ function! fzf#vim#gitfiles(args, ...)
   if v:shell_error
     return s:warn('Not in git repo')
   endif
-  if a:args !~ '^?'
+  if a:args != '?'
     return s:fzf(fzf#vim#wrap({
-    \ 'source':  'git ls-files',
+    \ 'source':  'git ls-files '.a:args,
     \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}), a:000)
