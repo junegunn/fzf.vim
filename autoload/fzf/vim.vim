@@ -947,17 +947,15 @@ endfunction
 function! s:key_sink(line)
   let key = matchstr(a:line, '^\S*')
   redraw
-  call feedkeys(s:map_gv.s:map_cnt.s:map_reg.s:map_op.
+  call feedkeys(s:map_gv.s:map_cnt.s:map_reg, 'n')
+  call feedkeys(s:map_op.
         \ substitute(key, '<[^ >]\+>', '\=eval("\"\\".submatch(0)."\"")', 'g'))
 endfunction
-
-" To avoid conflict with other plugins also using feedkeys (peekaboo)
-noremap <plug>(-fzf-vim-dq) "
 
 function! fzf#vim#maps(mode, ...)
   let s:map_gv  = a:mode == 'x' ? 'gv' : ''
   let s:map_cnt = v:count == 0 ? '' : v:count
-  let s:map_reg = empty(v:register) ? '' : ("\<plug>(-fzf-vim-dq)".v:register)
+  let s:map_reg = empty(v:register) ? '' : ('"'.v:register)
   let s:map_op  = a:mode == 'o' ? v:operator : ''
 
   redir => cout
