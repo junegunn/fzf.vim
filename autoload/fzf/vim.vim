@@ -405,7 +405,7 @@ function! s:git_status_sink(lines) abort
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
-  let root = systemlist('git rev-parse --show-toplevel')[0]
+  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
   if v:shell_error
     return s:warn('Not in git repo')
   endif
