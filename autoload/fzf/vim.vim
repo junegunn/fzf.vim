@@ -479,7 +479,8 @@ endfunction
 
 function! s:sort_buffers(...)
   let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
-  return b1 - b2
+  " Using minus between a float and a number in a sort function causes an error
+  return b1 > b2 ? 1 : -1
 endfunction
 
 function! fzf#vim#buffers(...)

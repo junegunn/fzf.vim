@@ -112,7 +112,7 @@ endif
 let g:fzf#vim#buffers = {}
 augroup fzf_buffers
   autocmd!
-  autocmd BufWinEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = localtime()
+  autocmd BufWinEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = reltimefloat(reltime())
   autocmd BufDelete * silent! call remove(g:fzf#vim#buffers, expand('<abuf>'))
 augroup END
 
