@@ -40,6 +40,7 @@ endfunction
 call s:defs([
 \'command! -bang -nargs=? -complete=dir Files  call fzf#vim#files(<q-args>, fzf#vim#layout(<bang>0))',
 \'command! -bang -nargs=? GitFiles             call fzf#vim#gitfiles(<q-args>, fzf#vim#layout(<bang>0))',
+\'command! -bang -nargs=? GFiles               call fzf#vim#gitfiles(<q-args>, fzf#vim#layout(<bang>0))',
 \'command! -bang Buffers                       call fzf#vim#buffers(fzf#vim#layout(<bang>0))',
 \'command! -bang -nargs=* Lines                call fzf#vim#lines(<q-args>, fzf#vim#layout(<bang>0))',
 \'command! -bang -nargs=* BLines               call fzf#vim#buffer_lines(<q-args>, fzf#vim#layout(<bang>0))',

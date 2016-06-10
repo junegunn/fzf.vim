@@ -51,8 +51,8 @@ Commands
 | Command           | List                                                                    |
 | ---               | ---                                                                     |
 | `Files [PATH]`    | Files (similar to `:FZF`)                                               |
-| `GitFiles [OPTS]` | Git files (git ls-files)                                                |
-| `GitFiles?`       | Git files (git status)                                                  |
+| `GFiles [OPTS]`   | Git files (`git ls-files`)                                              |
+| `GFiles?`         | Git files (`git status`)                                                |
 | `Buffers`         | Open buffers                                                            |
 | `Colors`          | Color schemes                                                           |
 | `Ag [PATTERN]`    | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
