@@ -49,6 +49,10 @@ function! s:escape(path)
   return escape(a:path, ' $%#''"\')
 endfunction
 
+function! s:q1(str)
+  return "'".substitute(a:str, "'", "'\\\\''", 'g')."'"
+endfunction
+
 if v:version >= 704
   function! s:function(name)
     return function(a:name)
@@ -526,10 +530,10 @@ endfunction
 
 " query, [[ag options], options]
 function! fzf#vim#ag(query, ...)
-  let query = escape(empty(a:query) ? '^(?=.)' : a:query, '"\-')
+  let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
   let ag_opts = len(args) > 1 ? remove(args, 0) : ''
-  let command = printf('%s "%s"', ag_opts, query)
+  let command = ag_opts . ' ' . s:q1(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
@@ -589,7 +593,7 @@ function! s:btags_sink(lines)
 endfunction
 
 function! s:q(query)
-  return ' --query "'.escape(a:query, '"\').'"'
+  return ' --query '.s:q1(a:query)
 endfunction
 
 " query, [[tag commands], options]
