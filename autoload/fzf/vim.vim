@@ -105,8 +105,7 @@ function! s:fzf(opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
-  call fzf#run(merged)
-  return 1
+  return fzf#run(merged)
 endfunction
 
 let s:default_action = {
