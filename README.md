@@ -121,15 +121,20 @@ let g:fzf_colors =
 
 #### Command-local options
 
+The right-hand-side values are the default values for the options.
+
 ```vim
 " [Buffers] Jump to the existing window if possible
-let g:fzf_buffers_jump = 1
+let g:fzf_buffers_jump = 0
 
 " [[B]Commits] Customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
 " [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R'
+
+" [Commands] --expect expression for directly executing the command
+let g:fzf_commands_expect = 'ctrl-x'
 ```
 
 #### Advanced customization using autoload functions
