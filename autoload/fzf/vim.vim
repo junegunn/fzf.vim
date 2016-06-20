@@ -1025,8 +1025,8 @@ function! s:complete_insert(lines)
 
   let data = call(s:reducer, [a:lines])
   execute 'normal!' ((s:eol || empty(chars)) ? '' : 'h').del.(s:eol ? 'a': 'i').data
-  if has('nvim')
-    call feedkeys('a')
+  if mode() =~ 't'
+    call feedkeys('a', 'n')
   else
     execute "normal! \<esc>la"
   endif
