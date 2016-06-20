@@ -1032,7 +1032,10 @@ function! s:complete_insert(lines)
   endif
 
   let data = call(s:reducer, [a:lines])
+  let ve = &ve
+  set ve=
   execute 'normal!' ((s:eol || empty(chars)) ? '' : 'h').del.(s:eol ? 'a': 'i').data
+  let &ve = ve
   if mode() =~ 't'
     call feedkeys('a', 'n')
   else
