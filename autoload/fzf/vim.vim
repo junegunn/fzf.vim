@@ -709,9 +709,16 @@ function! s:format_cmd(line)
         \ '\=s:nbs.s:yellow(submatch(1), "Function").s:nbs', '')
 endfunction
 
-function! s:command_sink(cmd)
-  let cmd = matchstr(a:cmd, s:nbs.'\zs\S*\ze'.s:nbs)
-  call feedkeys(':'.cmd.(a:cmd[0] == '!' ? '' : ' '))
+function! s:command_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = matchstr(a:lines[1], s:nbs.'\zs\S*\ze'.s:nbs)
+  if a:lines[0] == 'ctrl-x'
+    execute cmd
+  else
+    call feedkeys(':'.cmd.(a:lines[1] == '!' ? '' : ' '))
+  endif
 endfunction
 
 function! s:format_excmd(ex)
@@ -752,8 +759,8 @@ function! fzf#vim#commands(...)
   let list = split(cout, "\n")
   return s:fzf({
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
-  \ 'sink':    s:function('s:command_sink'),
-  \ 'options': '--ansi --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
+  \ 'sink*':   s:function('s:command_sink'),
+  \ 'options': '--ansi --expect ctrl-x --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -1025,8 +1032,8 @@ function! s:complete_insert(lines)
 
   let data = call(s:reducer, [a:lines])
   execute 'normal!' ((s:eol || empty(chars)) ? '' : 'h').del.(s:eol ? 'a': 'i').data
-  if has('nvim')
-    call feedkeys('a')
+  if mode() =~ 't'
+    call feedkeys('a', 'n')
   else
     execute "normal! \<esc>la"
   endif
