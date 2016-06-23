@@ -160,6 +160,9 @@ Command-local options~
 
     " [Tags] Command to generate tags file
     let g:fzf_tags_command = 'ctags -R'
+
+    " [Commands] --expect expression for directly executing the command
+    let g:fzf_commands_expect = 'ctrl-x'
 <
 
 Advanced customization using autoload functions~
