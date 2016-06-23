@@ -151,6 +151,11 @@ Global options~
 Command-local options~
 
 >
+    " [Files] Extra options for fzf
+    "         e.g. File preview using coderay (http://coderay.rubychan.de/)
+    let g:fzf_files_options =
+      \ '--preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
+
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
 
@@ -162,7 +167,7 @@ Command-local options~
     let g:fzf_tags_command = 'ctags -R'
 
     " [Commands] --expect expression for directly executing the command
-    let g:fzf_commands_expect = 'ctrl-x'
+    let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 <
 
 Advanced customization using autoload functions~

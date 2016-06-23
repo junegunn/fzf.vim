@@ -191,7 +191,7 @@ endfunction
 " Files
 " ------------------------------------------------------------------
 function! fzf#vim#files(dir, ...)
-  let args = {'options': '-m'}
+  let args = {'options': '-m '.get(g:, 'fzf_files_options', '')}
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
       return s:warn('Invalid directory')
