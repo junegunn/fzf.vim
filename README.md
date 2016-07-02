@@ -41,7 +41,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 ```
 
-- `dir` option is not mandatory
+- `dir` and `do` options are not mandatory
 - Use `./install --bin` instead if you don't need fzf outside of Vim
 - Make sure to use Vim 7.4 or above
 
