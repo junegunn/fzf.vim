@@ -43,6 +43,8 @@ Plug 'junegunn/fzf.vim'
 
 - `dir` and `do` options are not mandatory
 - Use `./install --bin` instead if you don't need fzf outside of Vim
+- If you installed fzf using Homebrew, the following should suffice:
+  `Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'`
 - Make sure to use Vim 7.4 or above
 
 Commands
