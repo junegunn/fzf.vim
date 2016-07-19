@@ -97,7 +97,9 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
   function! s:fzf_nvim_term()
     if get(w:, 'airline_active', 0)
       let w:airline_disabled = 1
+      autocmd BufWinLeave <buffer> let w:airline_disabled = 0
     endif
+    autocmd WinEnter,ColorScheme <buffer> call s:fzf_restore_colors()
 
     setlocal nospell
     call s:fzf_restore_colors()
@@ -106,7 +108,6 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
   augroup _fzf_statusline
     autocmd!
     autocmd FileType fzf call s:fzf_nvim_term()
-          \| autocmd WinEnter,ColorScheme <buffer> call s:fzf_restore_colors()
   augroup END
 endif
 
