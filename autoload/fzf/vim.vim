@@ -901,7 +901,7 @@ function! s:commits(buffer_local, args)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"')
+  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always --format="%C(auto)%h%d %s %C(green)%cr"')
   let current = expand('%:S')
   let managed = 0
   if !empty(current)
@@ -988,7 +988,7 @@ function! fzf#vim#maps(mode, ...)
       let curr = line[3:]
     else
       let src = '  '.join(reverse(reverse(split(src, '/'))[0:2]), '/')
-      call add(list, printf('%s %s', curr, s:black(src, 'Comment')))
+      call add(list, printf('%s %s', curr, s:green(src, 'Comment')))
       let curr = ''
     endif
   endfor
