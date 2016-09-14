@@ -356,6 +356,25 @@ function! fzf#vim#history(...)
 endfunction
 
 " ------------------------------------------------------------------
+" AgHistory
+" ------------------------------------------------------------------
+
+" query, [[ag options], options]
+function! fzf#vim#aghistory(query, ...)
+  let args = copy(a:000)
+  let ag_opts = len(args) > 1 ? remove(args, 0) : ''
+  return s:fzf(fzf#vim#wrap({
+  \ 'source':  printf('ag --nogroup --column --color %s "%s" %s',
+  \                   ag_opts,
+  \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-'),
+  \                   join(s:all_files())),
+  \ 'sink*':    s:function('s:ag_handler'),
+  \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "AgHist> " '.
+  \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
+  \            '--color hl:68,hl+:110'}), args)
+endfunction
+
+" ------------------------------------------------------------------
 " GitFiles
 " ------------------------------------------------------------------
 
