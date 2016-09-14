@@ -136,14 +136,17 @@ endfunction
 " <plug>(fzf-complete-buffer-line)
 " ----------------------------------------------------------------------------
 function! s:reduce_line(lines)
-  return join(split(a:lines[0], '\t\zs')[2:], '')
+  return join(split(a:lines[0], '\t\zs')[3:], '')
 endfunction
 
+
 function! fzf#vim#complete#line(...)
+  let [display_bufnames, lines] = fzf#vim#_lines(0)
+  let nth = display_bufnames ? 4 : 3
   return fzf#vim#complete(s:extend({
   \ 'prefix':  '^.*$',
-  \ 'source':  fzf#vim#_lines(0),
-  \ 'options': '--tiebreak=index --ansi --nth 3..',
+  \ 'source':  lines,
+  \ 'options': '--tiebreak=index --ansi --nth '.nth.'.. --tabstop=1',
   \ 'reducer': s:function('s:reduce_line')}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
 

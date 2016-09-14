@@ -41,7 +41,10 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 ```
 
+- `dir` and `do` options are not mandatory
 - Use `./install --bin` instead if you don't need fzf outside of Vim
+- If you installed fzf using Homebrew, the following should suffice:
+    - `Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'`
 - Make sure to use Vim 7.4 or above
 
 Commands
@@ -50,13 +53,14 @@ Commands
 | Command               | List                                                                    |
 | ---                   | ---                                                                     |
 | `Files [PATH]`        | Files (similar to `:FZF`)                                               |
-| `GitFiles`            | Git files                                                               |
+| `GFiles [OPTS]`       | Git files (`git ls-files`)                                              |
+| `GFiles?`             | Git files (`git status`)                                                |
 | `Buffers`             | Open buffers                                                            |
 | `Colors`              | Color schemes                                                           |
 | `Ag [PATTERN]`        | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
 | `AgHistory [PATTERN]` | Similar to Ag but search in v:oldfiles instead of cwd                   |
-| `Lines`               | Lines in loaded buffers                                                 |
-| `BLines`              | Lines in the current buffer                                             |
+| `Lines [QUERY]`       | Lines in loaded buffers                                                 |
+| `BLines [QUERY]`      | Lines in the current buffer                                             |
 | `Tags [QUERY]`        | Tags in the project (`ctags -R`)                                        |
 | `BTags [QUERY]`       | Tags in the current buffer                                              |
 | `Marks`               | Marks                                                                   |
@@ -99,8 +103,11 @@ let g:fzf_action = {
 
 " Default fzf layout
 " - down / up / left / right
-" - window (nvim only)
 let g:fzf_layout = { 'down': '~40%' }
+
+" In Neovim, you can set up fzf window using a Vim command
+let g:fzf_layout = { 'window': 'enew' }
+let g:fzf_layout = { 'window': '-tabnew' }
 
 " Customize fzf colors to match your color scheme
 let g:fzf_colors =
@@ -116,16 +123,33 @@ let g:fzf_colors =
   \ 'marker':  ['fg', 'Keyword'],
   \ 'spinner': ['fg', 'Label'],
   \ 'header':  ['fg', 'Comment'] }
+
+" Enable per-command history.
+" CTRL-N and CTRL-P will be automatically bound to next-history and
+" previous-history instead of down and up. If you don't like the change,
+" explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
+let g:fzf_history_dir = '~/.fzf-history'
 ```
 
 #### Command-local options
 
 ```vim
+" [Files] Extra options for fzf
+"         e.g. File preview using CodeRay (http://coderay.rubychan.de/)
+let g:fzf_files_options =
+  \ '--preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
+
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
 
-" [[B]Commits] to customize the options used by 'git log':
+" [[B]Commits] Customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+
+" [Tags] Command to generate tags file
+let g:fzf_tags_command = 'ctags -R'
+
+" [Commands] --expect expression for directly executing the command
+let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 ```
 
 #### Advanced customization using autoload functions
