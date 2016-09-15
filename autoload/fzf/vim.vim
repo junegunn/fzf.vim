@@ -406,11 +406,16 @@ endfunction
 " AgHistory
 " ------------------------------------------------------------------
 
+function! s:all_files_no_buffers()
+  return filter(reverse(copy(v:oldfiles)),
+  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|\\.git/\\|term://'")
+endfunction
+
 " query, [[ag options], options]
 function! fzf#vim#aghistory(query, ...)
   let args = copy(a:000)
   let ag_opts = len(args) > 1 ? remove(args, 0) : ''
-  return s:fzf(fzf#vim#wrap({
+  return s:fzf('aghistory', fzf#vim#wrap({
   \ 'source':  printf('ag --nogroup --column --color %s "%s" %s',
   \                   ag_opts,
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-'),
