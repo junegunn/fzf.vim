@@ -419,7 +419,7 @@ function! fzf#vim#aghistory(query, ...)
   \ 'source':  printf('ag --nogroup --column --color %s "%s" %s',
   \                   ag_opts,
   \                   escape(empty(a:query) ? '^(?=.)' : a:query, '"\-'),
-  \                   join(s:all_files())),
+  \                   join(s:all_files_no_buffers())),
   \ 'sink*':    s:function('s:ag_handler'),
   \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "AgHist> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
