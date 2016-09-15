@@ -341,8 +341,7 @@ endfunction
 " ------------------------------------------------------------------
 function! s:all_files()
   return extend(
-  \ filter(reverse(copy(v:oldfiles)),
-  \        "v:val !~ 'fugitive:\\|__Tagbar__\\|NERD_tree\\|^/tmp/\\|\\.git/\\|term://'"),
+  \ filter(reverse(copy(v:oldfiles)), "filereadable(expand(v:val))"),
   \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
 endfunction
 
