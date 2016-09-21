@@ -134,9 +134,10 @@ let g:fzf_history_dir = '~/.fzf-history'
 
 ```vim
 " [Files] Extra options for fzf
-"         e.g. File preview using CodeRay (http://coderay.rubychan.de/)
+"   e.g. File preview using Highlight
+"        (http://www.andre-simon.de/doku/highlight/en/highlight.html)
 let g:fzf_files_options =
-  \ '--preview "(coderay {} || cat {}) 2> /dev/null | head -'.&lines.'"'
+  \ '--preview "(highlight -O ansi {} || cat {}) 2> /dev/null | head -'.&lines.'"'
 
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
