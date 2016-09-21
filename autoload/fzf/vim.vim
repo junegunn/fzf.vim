@@ -497,7 +497,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', fzf#vim#wrap({
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': '+m -x --tiebreak=index --ansi -d "\t" -n 2,1..2 --prompt="Buf> "',
+  \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "',
   \}), a:000)
 endfunction
 
