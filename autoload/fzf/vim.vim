@@ -812,7 +812,8 @@ function! s:helptag_sink(line)
 endfunction
 
 function! fzf#vim#helptags(...)
-  let tags = uniq(sort(split(globpath(&runtimepath, '**/doc/tags'), '\n')))
+  let sorted = sort(split(globpath(&runtimepath, '**/doc/tags'), '\n'))
+  let tags = exists('*uniq') ? uniq(sorted) : s:uniq(sorted)
 
   return s:fzf('helptags', {
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
