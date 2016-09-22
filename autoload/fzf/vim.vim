@@ -627,7 +627,6 @@ function! s:tags_sink(lines)
   normal! m'
   let qfl = []
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
-  let [wrapscan, &wrapscan] = [&wrapscan, 1]
   for line in a:lines[1:]
     let parts = split(line, '\t\zs')
     let excmd = matchstr(join(parts[2:], ''), '\M^.*\ze;"\t')
@@ -635,7 +634,6 @@ function! s:tags_sink(lines)
     execute excmd
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
-  let &wrapscan = wrapscan
   if len(qfl) > 1
     call setqflist(qfl)
     copen
