@@ -487,25 +487,32 @@ endfunction
 " ------------------------------------------------------------------
 " Ag
 " ------------------------------------------------------------------
-function! s:ag_to_qf(line)
+function! s:ag_to_qf(line, with_column)
   let parts = split(a:line, ':')
-  return {'filename': &acd ? fnamemodify(parts[0], ':p') : parts[0], 'lnum': parts[1], 'col': parts[2],
-        \ 'text': join(parts[3:], ':')}
+  let text = join(parts[(a:with_column ? 3 : 2):], ':')
+  let dict = {'filename': &acd ? fnamemodify(parts[0], ':p') : parts[0], 'lnum': parts[1], 'text': text}
+  if a:with_column
+    let dict.col = parts[2]
+  endif
+  return dict
 endfunction
 
-function! s:ag_handler(lines)
+function! s:ag_handler(lines, with_column)
   if len(a:lines) < 2
     return
   endif
 
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
-  let list = map(a:lines[1:], 's:ag_to_qf(v:val)')
+  let list = map(a:lines[1:], 's:ag_to_qf(v:val, a:with_column)')
 
   let first = list[0]
   try
     call s:open(cmd, first.filename)
     execute first.lnum
-    execute 'normal!' first.col.'|zz'
+    if a:with_column
+      execute 'normal!' first.col.'|'
+    endif
+    normal! zz
   catch
   endtry
 
@@ -527,12 +534,34 @@ endfunction
 
 " ag command suffix, [options]
 function! fzf#vim#ag_raw(command_suffix, ...)
-  return s:fzf('ag', s:wrap({
-  \ 'source':  'ag --nogroup --column --color '.a:command_suffix,
-  \ 'sink*':    s:function('s:ag_handler'),
-  \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "Ag> " '.
+  return call('fzf#vim#grep', extend(['ag --nogroup --column --color '.a:command_suffix, 1], a:000))
+endfunction
+
+" command, with_column, [options]
+function! fzf#vim#grep(grep_command, with_column, ...)
+  let words = []
+  for word in split(a:grep_command)
+    if word !~# '^[a-z]'
+      break
+    endif
+    call add(words, word)
+  endfor
+  let words   = empty(words) ? ['grep'] : words
+  let name    = join(words, '-')
+  let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
+  let textcol = a:with_column ? '4..' : '3..'
+  let wrapped = fzf#wrap({
+  \ 'source':  a:grep_command,
+  \ 'column':  a:with_column,
+  \ 'options': '--ansi --delimiter : --nth '.textcol.',.. --prompt "'.capname.'> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'}), a:000)
+  \            '--color hl:68,hl+:110'
+  \})
+  function! wrapped.sink(lines)
+    return s:ag_handler(a:lines, self.column)
+  endfunction
+  let wrapped['sink*'] = remove(wrapped, 'sink')
+  return s:fzf(name, wrapped, a:000)
 endfunction
 
 " ------------------------------------------------------------------
