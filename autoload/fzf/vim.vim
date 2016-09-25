@@ -27,14 +27,24 @@ set cpo&vim
 " ------------------------------------------------------------------
 " Common
 " ------------------------------------------------------------------
+
+" Deprecated: use fzf#wrap instead
 function! fzf#vim#wrap(opts)
-  return extend(copy(a:opts), {
-  \ 'options': get(a:opts, 'options', '').' --expect='.join(keys(get(g:, 'fzf_action', s:default_action)), ','),
-  \ 'sink*':   get(a:opts, 'sink*', s:function('s:common_sink'))})
+  return fzf#wrap(a:opts)
 endfunction
 
+" Deprecated
 function! fzf#vim#layout(...)
   return (a:0 && a:1) ? {} : copy(get(g:, 'fzf_layout', g:fzf#vim#default_layout))
+endfunction
+
+function! s:wrap(opts)
+  " fzf#wrap does not append --expect if sink or sink* is found
+  let opts = copy(a:opts)
+  let Sink = remove(opts, 'sink*')
+  let wrapped = fzf#wrap(opts)
+  let wrapped['sink*'] = Sink
+  return wrapped
 endfunction
 
 function! s:strip(str)
@@ -101,18 +111,24 @@ function! s:defaults()
 endfunction
 
 function! s:fzf(name, opts, extra)
-  let extra  = empty(a:extra) ? fzf#vim#layout() : a:extra[0]
+  let [extra, bang] = [{}, 0]
+  if len(a:extra) == 1
+    let first = a:extra[0]
+    if type(first) == s:TYPE.dict
+      let extra = first
+    else
+      let bang = first
+    endif
+  elseif len(a:extra) == 2
+    let [extra, bang] = a:extra
+  else
+    throw 'invalid number of arguments'
+  endif
+
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
-  if len(get(g:, 'fzf_history_dir', ''))
-    let dir = expand(g:fzf_history_dir)
-    if !isdirectory(dir)
-      call mkdir(dir, 'p')
-    endif
-    let merged.options = join(['--history', s:escape(dir.'/'.a:name), merged.options])
-  endif
-  return fzf#run(merged)
+  return fzf#run(fzf#wrap(a:name, merged, bang))
 endfunction
 
 let s:default_action = {
@@ -125,39 +141,6 @@ function! s:open(cmd, target)
     return
   endif
   execute a:cmd s:escape(a:target)
-endfunction
-
-function! s:common_sink(lines) abort
-  if len(a:lines) < 2
-    return
-  endif
-  let key = remove(a:lines, 0)
-  let cmd = get(get(g:, 'fzf_action', s:default_action), key, 'e')
-  if len(a:lines) > 1
-    augroup fzf_swap
-      autocmd SwapExists * let v:swapchoice='o'
-            \| call s:warn('fzf: E325: swap file exists: '.expand('<afile>'))
-    augroup END
-  endif
-  try
-    let empty = empty(expand('%')) && line('$') == 1 && empty(getline(1)) && !&modified
-    let autochdir = &autochdir
-    set noautochdir
-    for item in a:lines
-      if empty
-        execute 'e' s:escape(item)
-        let empty = 0
-      else
-        call s:open(cmd, item)
-      endif
-      if exists('#BufEnter') && isdirectory(item)
-        doautocmd BufEnter
-      endif
-    endfor
-  finally
-    let &autochdir = autochdir
-    silent! autocmd! fzf_swap
-  endtry
 endfunction
 
 function! s:align_lists(lists)
@@ -210,7 +193,7 @@ function! fzf#vim#files(dir, ...)
     let args.options .= ' --prompt '.shellescape(pathshorten(getcwd())).'/'
   endif
 
-  return s:fzf('files', fzf#vim#wrap(args), a:000)
+  return s:fzf('files', args, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -275,7 +258,7 @@ function! fzf#vim#lines(...)
   let nth = display_bufnames ? 3 : 2
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  return s:fzf('lines', fzf#vim#wrap({
+  return s:fzf('lines', s:wrap({
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'.s:q(query)
@@ -307,7 +290,7 @@ endfunction
 function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  return s:fzf('blines', fzf#vim#wrap({
+  return s:fzf('blines', s:wrap({
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'.s:q(query)
@@ -330,10 +313,10 @@ endfunction
 " Locate
 " ------------------------------------------------------------------
 function! fzf#vim#locate(query, ...)
-  return s:fzf('locate', fzf#vim#wrap({
+  return s:fzf('locate', {
   \ 'source':  'locate '.a:query,
   \ 'options': '-m --prompt "Locate> "'
-  \}), a:000)
+  \}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -395,23 +378,15 @@ function! fzf#vim#search_history(...)
 endfunction
 
 function! fzf#vim#history(...)
-  return s:fzf('history-files', fzf#vim#wrap({
+  return s:fzf('history-files', {
   \ 'source':  reverse(s:all_files()),
   \ 'options': '-m --prompt "Hist> "'
-  \}), a:000)
+  \}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
 " GFiles[?]
 " ------------------------------------------------------------------
-
-function! s:git_status_sink(lines) abort
-  if len(a:lines) < 2
-    return
-  endif
-  let lines = extend(a:lines[0:0], map(a:lines[1:], 'v:val[3:]'))
-  return s:common_sink(lines)
-endfunction
 
 function! fzf#vim#gitfiles(args, ...)
   let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
@@ -419,18 +394,26 @@ function! fzf#vim#gitfiles(args, ...)
     return s:warn('Not in git repo')
   endif
   if a:args != '?'
-    return s:fzf('gfiles', fzf#vim#wrap({
+    return s:fzf('gfiles', {
     \ 'source':  'git ls-files '.a:args,
     \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
-    \}), a:000)
+    \}, a:000)
   endif
-  return s:fzf('gfiles-diff', fzf#vim#wrap({
+
+  " Here be dragons
+  let wrapped = fzf#wrap({
   \ 'source':  'git -c color.status=always status --short',
   \ 'dir':     root,
-  \ 'sink*':   s:function('s:git_status_sink'),
   \ 'options': '--ansi --multi --nth 2..,.. --prompt "GitFiles?> "'
-  \}), a:000)
+  \})
+  let wrapped.common_sink = remove(wrapped, 'sink*')
+  function! wrapped.newsink(lines)
+    let lines = extend(a:lines[0:0], map(a:lines[1:], 'v:val[3:]'))
+    return self.common_sink(lines)
+  endfunction
+  let wrapped['sink*'] = remove(wrapped, 'newsink')
+  return s:fzf('gfiles-diff', wrapped, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -494,7 +477,7 @@ endfunction
 
 function! fzf#vim#buffers(...)
   let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
-  return s:fzf('buffers', fzf#vim#wrap({
+  return s:fzf('buffers', s:wrap({
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "',
@@ -544,7 +527,7 @@ endfunction
 
 " ag command suffix, [options]
 function! fzf#vim#ag_raw(command_suffix, ...)
-  return s:fzf('ag', fzf#vim#wrap({
+  return s:fzf('ag', s:wrap({
   \ 'source':  'ag --nogroup --column --color '.a:command_suffix,
   \ 'sink*':    s:function('s:ag_handler'),
   \ 'options': '--ansi --delimiter : --nth 4..,.. --prompt "Ag> " '.
@@ -608,7 +591,7 @@ function! fzf#vim#buffer_tags(query, ...)
     \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
     \ printf('ctags -f - --sort=no --excmd=number %s', expand('%:S'))]
   try
-    return s:fzf('btags', fzf#vim#wrap({
+    return s:fzf('btags', s:wrap({
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
     \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}), args)
@@ -683,7 +666,7 @@ function! fzf#vim#tags(query, ...)
     let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/'.s:yellow('\1', 'Function').'\t'.s:blue('\2', 'String').'\t/; print }'' '
     let copt = '--ansi '
   endif
-  return s:fzf('tags', fzf#vim#wrap({
+  return s:fzf('tags', s:wrap({
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
@@ -802,7 +785,7 @@ function! fzf#vim#marks(...)
   silent marks
   redir END
   let list = split(cout, "\n")
-  return s:fzf('marks', fzf#vim#wrap({
+  return s:fzf('marks', s:wrap({
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
   \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}), a:000)
@@ -926,7 +909,7 @@ function! s:commits(buffer_local, args)
   endif
 
   let command = a:buffer_local ? 'BCommits' : 'Commits'
-  let options = fzf#vim#wrap({
+  let options = s:wrap({
   \ 'source':  source,
   \ 'sink*':   s:function('s:commits_sink'),
   \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
