@@ -157,6 +157,11 @@ let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 You can use autoload functions to define your own commands.
 
 ```vim
+" git grep
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep('git grep --line-number '.shellescape(<q-args>), 0, <bang>0)
+
+" We use VimEnter event so that the code is run after fzf.vim is loaded
 autocmd VimEnter * command! Colors
   \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'})
 ```
