@@ -28,6 +28,17 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
+
+function s:remove_layout(opts)
+  for key in s:layout_keys
+    if has_key(a:opts, key)
+      call remove(a:opts, key)
+    endif
+  endfor
+  return a:opts
+endfunction
+
 " Deprecated: use fzf#wrap instead
 function! fzf#vim#wrap(opts)
   return fzf#wrap(a:opts)
@@ -38,12 +49,16 @@ function! fzf#vim#layout(...)
   return (a:0 && a:1) ? {} : copy(get(g:, 'fzf_layout', g:fzf#vim#default_layout))
 endfunction
 
-function! s:wrap(opts)
+function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  let Sink = remove(opts, 'sink*')
-  let wrapped = fzf#wrap(opts)
-  let wrapped['sink*'] = Sink
+  if has_key(opts, 'sink*')
+    let Sink = remove(opts, 'sink*')
+    let wrapped = fzf#wrap(a:name, opts, a:bang)
+    let wrapped['sink*'] = Sink
+  else
+    let wrapped = fzf#wrap(a:name, opts, a:bang)
+  endif
   return wrapped
 endfunction
 
@@ -112,8 +127,8 @@ endfunction
 
 function! s:fzf(name, opts, extra)
   let [extra, bang] = [{}, 0]
-  if len(a:extra) == 1
-    let first = a:extra[0]
+  if len(a:extra) <= 1
+    let first = get(a:extra, 0, 0)
     if type(first) == s:TYPE.dict
       let extra = first
     else
@@ -128,7 +143,7 @@ function! s:fzf(name, opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
-  return fzf#run(fzf#wrap(a:name, merged, bang))
+  return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
 let s:default_action = {
@@ -258,11 +273,11 @@ function! fzf#vim#lines(...)
   let nth = display_bufnames ? 3 : 2
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  return s:fzf('lines', s:wrap({
+  return s:fzf('lines', {
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'.s:q(query)
-  \}), args)
+  \}, args)
 endfunction
 
 " ------------------------------------------------------------------
@@ -290,11 +305,11 @@ endfunction
 function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  return s:fzf('blines', s:wrap({
+  return s:fzf('blines', {
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
   \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'.s:q(query)
-  \}), args)
+  \}, args)
 endfunction
 
 " ------------------------------------------------------------------
@@ -401,12 +416,15 @@ function! fzf#vim#gitfiles(args, ...)
     \}, a:000)
   endif
 
-  " Here be dragons
+  " Here be dragons!
+  " We're trying to access the common sink function that fzf#wrap injects to
+  " the options dictionary.
   let wrapped = fzf#wrap({
   \ 'source':  'git -c color.status=always status --short',
   \ 'dir':     root,
   \ 'options': '--ansi --multi --nth 2..,.. --prompt "GitFiles?> "'
   \})
+  call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')
   function! wrapped.newsink(lines)
     let lines = extend(a:lines[0:0], map(a:lines[1:], 'v:val[3:]'))
@@ -477,11 +495,11 @@ endfunction
 
 function! fzf#vim#buffers(...)
   let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
-  return s:fzf('buffers', s:wrap({
+  return s:fzf('buffers', {
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "',
-  \}), a:000)
+  \}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -550,18 +568,18 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
   let textcol = a:with_column ? '4..' : '3..'
-  let wrapped = fzf#wrap({
+  let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
   \ 'options': '--ansi --delimiter : --nth '.textcol.',.. --prompt "'.capname.'> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
   \            '--color hl:68,hl+:110'
-  \})
-  function! wrapped.sink(lines)
+  \}
+  function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
   endfunction
-  let wrapped['sink*'] = remove(wrapped, 'sink')
-  return s:fzf(name, wrapped, a:000)
+  let opts['sink*'] = remove(opts, 'sink')
+  return s:fzf(name, opts, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -620,10 +638,10 @@ function! fzf#vim#buffer_tags(query, ...)
     \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
     \ printf('ctags -f - --sort=no --excmd=number %s', expand('%:S'))]
   try
-    return s:fzf('btags', s:wrap({
+    return s:fzf('btags', {
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}), args)
+    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}, args)
   catch
     return s:warn(v:exception)
   endtry
@@ -695,11 +713,11 @@ function! fzf#vim#tags(query, ...)
     let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/'.s:yellow('\1', 'Function').'\t'.s:blue('\2', 'String').'\t/; print }'' '
     let copt = '--ansi '
   endif
-  return s:fzf('tags', s:wrap({
+  return s:fzf('tags', {
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}), a:000)
+  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -814,10 +832,10 @@ function! fzf#vim#marks(...)
   silent marks
   redir END
   let list = split(cout, "\n")
-  return s:fzf('marks', s:wrap({
+  return s:fzf('marks', {
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
-  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}), a:000)
+  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
