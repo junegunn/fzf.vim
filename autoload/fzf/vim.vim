@@ -521,7 +521,10 @@ function! s:ag_handler(lines, with_column)
   endif
 
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
-  let list = map(a:lines[1:], 's:ag_to_qf(v:val, a:with_column)')
+  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val, a:with_column)')
+  if empty(list)
+    return
+  endif
 
   let first = list[0]
   try
