@@ -427,7 +427,7 @@ function! fzf#vim#gitfiles(args, ...)
   call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')
   function! wrapped.newsink(lines)
-    let lines = extend(a:lines[0:0], map(a:lines[1:], 'v:val[3:]'))
+    let lines = extend(a:lines[0:0], map(a:lines[1:], 'substitute(v:val[3:], ".* -> ", "", "")'))
     return self.common_sink(lines)
   endfunction
   let wrapped['sink*'] = remove(wrapped, 'newsink')
