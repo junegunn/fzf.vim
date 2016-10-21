@@ -571,12 +571,23 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
   let textcol = a:with_column ? '4..' : '3..'
+  let lines        = get(g:, 'fzf_ag_match_context', 5)
+  let preview_opts = get(g:, 'fzf_ag_preview_options', 'right:49%')
+  let preview_cmd  = "' line={2}; dlines=".lines.';'.
+  \                  '  minl=$((line-dlines)); maxl=$((line+dlines));'.
+  \                  '  [[ "${minl}" -lt 1 ]] && minl=1;'.
+  \                  '  cat -n {1} | awk -v min="${minl}" -v max="${maxl}" -v line="${line}" "{'.
+  \                  '    if (NR >= min && NR <= max) {'.
+  \                  '      if (NR == line) { printf \"\033[4m\"; }'.
+  \                  '      print; printf \"\033[0m\";'.
+  \                  '    }'.
+  \                  '  }"'."'"
   let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
   \ 'options': '--ansi --delimiter : --nth '.textcol.',.. --prompt "'.capname.'> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'
+  \            '--color hl:68,hl+:110 --preview-window="'.preview_opts.'" --preview='.preview_cmd
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
