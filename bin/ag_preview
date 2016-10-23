@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+# bash strict mode
+set -euo pipefail
+
+help() {
+  cat << EOF
+Usage: $0 [OPTIONS] FILE LINE
+Display the part of FILE for the LINE.
+
+  -C, --context [LINES]     print lines before and after the LINE, default 5
+  -H, --highlight [FORMAT]  highlight the LINE_NO with following FORMAT:
+                              UNDERLINE, BOLD, BLINK, REVERSE
+                            default REVERSE
+
+  -h, --help                show help
+EOF
+}
+
+
+file=
+line=
+context=5
+format=
+
+# parse options
+argus="$(getopt -u -o C:H:h -l context:,highlight:,help -- $*)"
+set -- ${argus}
+
+while true; do
+  case "$1" in
+    -C|--context)
+      shift; context=$1
+      ;;
+    -H|--highlight)
+      shift; format=$1
+      ;;
+    -h|--help)
+      help; exit
+      ;;
+    --)
+      shift; break
+      ;;
+  esac
+  shift
+done
+
+# setup FILE and LINE
+file=$1
+line=$2
+
+# setup the range
+max_line="$(( line + context ))"
+min_line="$(( line - context ))"
+
+# setup highlight format
+case "${format}" in
+  UNDERLINE)
+    format="\033[4m"
+    ;;
+  BOLD)
+    format="\033[1m"
+    ;;
+  BLINK)
+    format="\033[5m"
+    ;;
+  REVERSE)
+    format="\033[7m"
+    ;;
+  *) # default is reverse
+    format="\033[7m"
+    ;;
+esac
+
+# output
+cat -n "${file}" \
+  | awk -v line="${line}" \
+        -v maxl="${max_line}" \
+        -v minl="${min_line}" \
+        -v fmt="${format}" \
+        ' {
+            if (NR <= maxl && NR >= minl) {
+              if (NR == line) { printf fmt; }
+              print; printf "\033[0m"
+            }
+          }'
