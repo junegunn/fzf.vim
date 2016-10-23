@@ -8,12 +8,12 @@ help() {
 Usage: $0 [OPTIONS] FILE LINE
 Display the part of FILE for the LINE.
 
-  -C, --context [LINES]     print lines before and after the LINE, default 5
-  -H, --highlight [FORMAT]  highlight the LINE_NO with following FORMAT:
-                              UNDERLINE, BOLD, BLINK, REVERSE
-                            default REVERSE
+  -C [LINES]  print lines before and after the LINE, default 5
+  -H [FORMAT] highlight the LINE_NO with following FORMAT:
+                UNDERLINE, BOLD, BLINK, REVERSE
+              default REVERSE
 
-  -h, --help                show help
+  -h          show help
 EOF
 }
 
@@ -24,18 +24,18 @@ context=5
 format=
 
 # parse options
-argus="$(getopt -u -o C:H:h -l context:,highlight:,help -- $*)"
+argus="$(getopt C:H:h $*)"
 set -- ${argus}
 
 while true; do
   case "$1" in
-    -C|--context)
+    -C)
       shift; context=$1
       ;;
-    -H|--highlight)
+    -H)
       shift; format=$1
       ;;
-    -h|--help)
+    -h)
       help; exit
       ;;
     --)
