@@ -505,7 +505,7 @@ endfunction
 " ------------------------------------------------------------------
 " Ag
 " ------------------------------------------------------------------
-let s:fzf_ag_preview = expand('<sfile>:h:h').'/../bin/ag_preview'
+let s:preview_bin = expand('<sfile>:h:h').'/../bin/ag_preview'
 
 function! s:ag_to_qf(line, with_column)
   let parts = split(a:line, ':')
@@ -581,13 +581,21 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   \            '--color hl:68,hl+:110'
   \}
 
-  if executable(s:fzf_ag_preview)
-    let opts.options = opts.options.' --preview-window=right:49% --preview="'.s:fzf_ag_preview.' {1} {2}"'
-  end
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
+  return call('fzf#vim#preview', extend([name, opts], a:000))
+endfunction
+
+" ag preview command name, options, [...]
+function! fzf#vim#preview(name, options, ...)
+  let name = a:name
+  let opts = a:options
+
+  if executable(s:preview_bin)
+    let opts.options = opts.options.' --preview-window=right:50% --preview="'.s:preview_bin.' {1} {2}"'
+  end
   return s:fzf(name, opts, a:000)
 endfunction
 
