@@ -8,11 +8,7 @@ help() {
 Usage: $0 [OPTIONS] FILE LINE
 Display the part of FILE for the LINE.
 
-  -C [LINES]  print lines before and after the LINE, default 5
-  -H [FORMAT] highlight the LINE_NO with following FORMAT:
-                UNDERLINE, BOLD, BLINK, REVERSE
-              default REVERSE
-
+  -b [LINES]  print lines before the LINE, default 5
   -h          show help
 EOF
 }
@@ -20,8 +16,7 @@ EOF
 
 file=
 line=
-context=5
-format=
+before=5
 
 # parse options
 argus="$(getopt C:H:h $*)"
@@ -29,11 +24,8 @@ set -- ${argus}
 
 while true; do
   case "$1" in
-    -C)
+    -b)
       shift; context=$1
-      ;;
-    -H)
-      shift; format=$1
       ;;
     -h)
       help; exit
@@ -49,38 +41,25 @@ done
 file=$1
 line=$2
 
-# setup the range
-max_line="$(( line + context ))"
-min_line="$(( line - context ))"
+# setup min line
+min_line="$(( line - before ))"
+[[ "${min_line}" -lt 1 ]] && min_line=1
 
-# setup highlight format
-case "${format}" in
-  UNDERLINE)
-    format="\033[4m"
-    ;;
-  BOLD)
-    format="\033[1m"
-    ;;
-  BLINK)
-    format="\033[5m"
-    ;;
-  REVERSE)
-    format="\033[7m"
-    ;;
-  *) # default is reverse
-    format="\033[7m"
-    ;;
-esac
+# TODO: max_line should be setup with the size of window
+#
+# For now, the preview window of fzf is not interactive terminal. We don't
+# know what is size of preview window extactly. In order to fill whole
+# window with text, set max_line here.
+# However, we cannot `cat` whole file, like log file, because there is
+# performance issue.
+max_line="$(( line + 500 ))"
 
 # output
 cat -n "${file}" \
   | awk -v line="${line}" \
-        -v maxl="${max_line}" \
         -v minl="${min_line}" \
-        -v fmt="${format}" \
-        ' {
-            if (NR <= maxl && NR >= minl) {
-              if (NR == line) { printf fmt; }
+        -v maxl="${max_line}" \
+        ' NR == minl, NR == maxl {
+              if (NR == line) { printf "\033[7m"; }
               print; printf "\033[0m"
-            }
           }'
