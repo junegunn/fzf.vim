@@ -408,13 +408,14 @@ function! s:get_git_root()
   try
     return fugitive#repo().tree()
   catch
-    return split(system('git rev-parse --show-toplevel'), '\n')[0]
+    let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+    return v:shell_error ? '' : root
   endtry
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
   let root = s:get_git_root()
-  if v:shell_error
+  if empty(root)
     return s:warn('Not in git repo')
   endif
   if a:args != '?'
@@ -948,7 +949,7 @@ endfunction
 
 function! s:commits(buffer_local, args)
   let s:git_root = s:get_git_root()
-  if v:shell_error
+  if empty(s:git_root)
     return s:warn('Not in git repository')
   endif
 
