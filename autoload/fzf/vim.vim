@@ -405,12 +405,14 @@ endfunction
 
 " helper function to get the git root. Uses vim-fugitive if available for EXTRA SPEED!
 function! s:get_git_root()
-  try
-    return fugitive#repo().tree()
-  catch
-    let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
-    return v:shell_error ? '' : root
-  endtry
+  if exists('*fugitive#repo')
+    try
+      return fugitive#repo().tree()
+    catch
+    endtry
+  endif
+  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+  return v:shell_error ? '' : root
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
