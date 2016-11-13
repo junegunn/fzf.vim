@@ -29,6 +29,7 @@ set cpo&vim
 " ------------------------------------------------------------------
 
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
+let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
 
 function s:remove_layout(opts)
   for key in s:layout_keys
@@ -558,9 +559,12 @@ endfunction
 
 " query, [[ag options], options]
 function! fzf#vim#ag(query, ...)
+  if type(a:query) != s:TYPE.string
+    return s:warn('Invalid query argument')
+  endif
   let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
-  let ag_opts = len(args) > 1 ? remove(args, 0) : ''
+  let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
   let command = ag_opts . ' ' . s:q1(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
@@ -1105,8 +1109,6 @@ function! s:complete_insert(lines)
     execute "normal! \<esc>la"
   endif
 endfunction
-
-let s:TYPE = {'dict': type({}), 'funcref': type(function('call'))}
 
 function! s:eval(dict, key, arg)
   if has_key(a:dict, a:key) && type(a:dict[a:key]) == s:TYPE.funcref
