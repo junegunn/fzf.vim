@@ -150,6 +150,11 @@ let g:fzf_tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+" [Ag / fzf#vim#grep] Command to preview the content
+"   - Requires Ruby
+"   - Install Highlight or CodeRay for syntax highlighting
+let g:fzf_grep_preview_window = 'right:50%'
 ```
 
 #### Advanced customization using autoload functions

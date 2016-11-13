@@ -29,6 +29,7 @@ set cpo&vim
 " ------------------------------------------------------------------
 
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
+let s:bin = { 'preview': expand('<sfile>:h:h:h').'/bin/preview.rb' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
 
 function s:remove_layout(opts)
@@ -587,12 +588,18 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
   let textcol = a:with_column ? '4..' : '3..'
+  let preview = ''
+  if executable('ruby') && exists('g:fzf_grep_preview_window')
+    let preview = printf(' --preview-window %s --preview "%s"\ {1}\ {2}\ %d',
+          \ g:fzf_grep_preview_window,
+          \ shellescape(s:bin.preview), g:fzf_grep_preview_window =~ 'up\|down')
+  endif
   let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
   \ 'options': '--ansi --delimiter : --nth '.textcol.',.. --prompt "'.capname.'> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'
+  \            '--color hl:68,hl+:110'.preview
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
