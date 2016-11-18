@@ -83,18 +83,18 @@ function! s:fname_prefix(str)
   let isf = &isfname
   let white = []
   let black = []
-  if isf =~ ',,,'
+  if isf =~# ',,,'
     call add(white, ',')
     let isf = substitute(isf, ',,,', ',', 'g')
   endif
-  if isf =~ ',^,,'
+  if isf =~# ',^,,'
     call add(black, ',')
     let isf = substitute(isf, ',^,,', ',', 'g')
   endif
 
   for token in split(isf, ',')
     let target = white
-    if token[0] == '^'
+    if token[0] ==# '^'
       let target = black
       let token = token[1:]
     endif
@@ -113,7 +113,7 @@ function! s:fname_prefix(str)
   let prefix = a:str
   for offset in range(1, len(a:str))
     let char = a:str[len(a:str) - offset]
-    if (char =~ '\w' || index(white, char) >= 0) && index(black, char) < 0
+    if (char =~? '\w' || index(white, char) >= 0) && index(black, char) < 0
       continue
     endif
     let prefix = strpart(a:str, len(a:str) - offset + 1)

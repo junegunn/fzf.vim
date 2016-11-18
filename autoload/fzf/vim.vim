@@ -53,7 +53,7 @@ endfunction
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  if get(opts, 'options', '') !~ '--expect' && has_key(opts, 'sink*')
+  if get(opts, 'options', '') !~# '--expect' && has_key(opts, 'sink*')
     let Sink = remove(opts, 'sink*')
     let wrapped = fzf#wrap(a:name, opts, a:bang)
     let wrapped['sink*'] = Sink
@@ -93,7 +93,7 @@ endif
 function! s:get_color(attr, ...)
   for group in a:000
     let code = synIDattr(synIDtrans(hlID(group)), a:attr, 'cterm')
-    if code =~ '^[0-9]\+$'
+    if code =~# '^[0-9]\+$'
       return code
     endif
   endfor
@@ -361,7 +361,7 @@ function! s:history_sink(type, lines)
 
   let key  = a:lines[0]
   let item = matchstr(a:lines[1], ' *[0-9]\+ *\zs.*')
-  if key == 'ctrl-e'
+  if key ==# 'ctrl-e'
     call histadd(a:type, item)
     redraw
     call feedkeys(a:type."\<up>")
@@ -421,7 +421,7 @@ function! fzf#vim#gitfiles(args, ...)
   if empty(root)
     return s:warn('Not in git repo')
   endif
-  if a:args != '?'
+  if a:args !=# '?'
     return s:fzf('gfiles', {
     \ 'source':  'git ls-files '.a:args,
     \ 'dir':     root,
@@ -711,7 +711,7 @@ function! fzf#vim#tags(query, ...)
     echohl None
     call inputrestore()
     redraw
-    if gen =~ '^y'
+    if gen =~? '^y'
       call s:warn('Preparing tags')
       call system(get(g:, 'fzf_tags_command', 'ctags -R'))
       if empty(tagfiles())
@@ -779,7 +779,7 @@ function! s:command_sink(lines)
   endif
   let cmd = matchstr(a:lines[1], s:nbs.'\zs\S*\ze'.s:nbs)
   if empty(a:lines[0])
-    call feedkeys(':'.cmd.(a:lines[1][0] == '!' ? '' : ' '))
+    call feedkeys(':'.cmd.(a:lines[1][0] ==# '!' ? '' : ' '))
   else
     execute cmd
   endif
@@ -799,14 +799,14 @@ function! s:excmds()
   let commands = []
   let command = ''
   for line in readfile(help)
-    if line =~ '^|:[^|]'
+    if line =~# '^|:[^|]'
       if !empty(command)
         call add(commands, s:format_excmd(command))
       endif
       let command = line
-    elseif line =~ '^\s\+\S' && !empty(command)
+    elseif line =~# '^\s\+\S' && !empty(command)
       let command .= substitute(line, '^\s*', ' ', '')
-    elseif !empty(commands) && line =~ '^\s*$'
+    elseif !empty(commands) && line =~# '^\s*$'
       break
     endif
   endfor
@@ -946,7 +946,7 @@ function! s:commits_sink(lines)
         execute 'Gdiff' sha
       else
         " Since fugitive buffers are unlisted, we can't keep using 'e'
-        let c = (cmd == 'e' && idx > 1) ? 'tab split' : cmd
+        let c = (cmd ==# 'e' && idx > 1) ? 'tab split' : cmd
         execute c 'fugitive://'.s:git_root.'/.git//'.sha
       endif
     endif
@@ -1032,10 +1032,10 @@ function! s:key_sink(line)
 endfunction
 
 function! fzf#vim#maps(mode, ...)
-  let s:map_gv  = a:mode == 'x' ? 'gv' : ''
+  let s:map_gv  = a:mode ==# 'x' ? 'gv' : ''
   let s:map_cnt = v:count == 0 ? '' : v:count
   let s:map_reg = empty(v:register) ? '' : ('"'.v:register)
-  let s:map_op  = a:mode == 'o' ? v:operator : ''
+  let s:map_op  = a:mode ==# 'o' ? v:operator : ''
 
   redir => cout
   silent execute 'verbose' a:mode.'map'
@@ -1058,7 +1058,7 @@ function! fzf#vim#maps(mode, ...)
   let aligned = s:align_pairs(list)
   let sorted  = sort(aligned)
   let colored = map(sorted, 's:highlight_keys(v:val)')
-  let pcolor  = a:mode == 'x' ? 9 : a:mode == 'o' ? 10 : 12
+  let pcolor  = a:mode ==# 'x' ? 9 : a:mode ==# 'o' ? 10 : 12
   return s:fzf('maps', {
   \ 'source':  colored,
   \ 'sink':    s:function('s:key_sink'),
@@ -1103,7 +1103,7 @@ function! s:complete_insert(lines)
   set ve=
   execute 'normal!' ((s:eol || empty(chars)) ? '' : 'h').del.(s:eol ? 'a': 'i').data
   let &ve = ve
-  if mode() =~ 't'
+  if mode() =~? 't'
     call feedkeys('a', 'n')
   else
     execute "normal! \<esc>la"
