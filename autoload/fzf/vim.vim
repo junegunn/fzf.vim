@@ -711,7 +711,7 @@ function! fzf#vim#tags(query, ...)
     echohl None
     call inputrestore()
     redraw
-    if gen =~ '^y'
+    if gen =~? '^y'
       call s:warn('Preparing tags')
       call system(get(g:, 'fzf_tags_command', 'ctags -R'))
       if empty(tagfiles())
