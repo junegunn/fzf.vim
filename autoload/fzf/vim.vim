@@ -31,13 +31,30 @@ set cpo&vim
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
 
-function s:remove_layout(opts)
+function! s:remove_layout(opts)
   for key in s:layout_keys
     if has_key(a:opts, key)
       call remove(a:opts, key)
     endif
   endfor
   return a:opts
+endfunction
+
+" execute fct(args...) in root dir if autochdir is set
+function! s:execute_in_root_dir(fct, args)
+  if &autochdir
+    " save current dir so we can restore it properly later
+    let cwd = getcwd()
+    cd /
+  endif
+
+  let res = call(a:fct, a:args)
+
+  if &autochdir
+    " restore directory
+    exe "cd " . cwd
+  endif
+  return res
 endfunction
 
 " Deprecated: use fzf#wrap instead
@@ -507,6 +524,10 @@ function! s:sort_buffers(...)
 endfunction
 
 function! fzf#vim#buffers(...)
+	return s:execute_in_root_dir('s:base_buffers', a:000)
+endfunction
+
+function! s:base_buffers(...)
   let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
   return s:fzf('buffers', {
   \ 'source':  reverse(bufs),
@@ -898,7 +919,7 @@ endfunction
 function! s:format_win(tab, win, buf)
   let modified = getbufvar(a:buf, '&modified')
   let name = bufname(a:buf)
-  let name = empty(name) ? '[No Name]' : name
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
   let active = tabpagewinnr(a:tab) == a:win
   return (active? s:blue('> ', 'Operator') : '  ') . name . (modified? s:red(' [+]', 'Exception') : '')
 endfunction
@@ -909,6 +930,10 @@ function! s:windows_sink(line)
 endfunction
 
 function! fzf#vim#windows(...)
+	return s:execute_in_root_dir('s:base_windows', a:000)
+endfunction
+
+function! s:base_windows(...)
   let lines = []
   for t in range(1, tabpagenr('$'))
     let buffers = tabpagebuflist(t)
