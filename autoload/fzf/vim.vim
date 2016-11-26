@@ -29,9 +29,47 @@ set cpo&vim
 " ------------------------------------------------------------------
 
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
+let s:bin = { 'preview': expand('<sfile>:h:h:h').'/bin/preview.rb' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
 
-function s:remove_layout(opts)
+" [[options to wrap], preview window expression, [toggle-preview keys...]]
+function! fzf#vim#with_preview(...)
+  " Default options
+  let options = {}
+  let window = 'right'
+
+  let args = copy(a:000)
+
+  " Options to wrap
+  if len(args) && type(args[0]) == s:TYPE.dict
+    let options = copy(args[0])
+    call remove(args, 0)
+  endif
+
+  " Preview window
+  if len(args) && type(args[0]) == s:TYPE.string
+    if args[0] !~# '^\(up\|down\|left\|right\)'
+      throw 'invalid preview window: '.args[0]
+    endif
+    let window = args[0]
+    call remove(args, 0)
+  endif
+
+  if !executable('ruby')
+    return options
+  endif
+
+  let preview = printf(' --preview-window %s --preview "%s"\ %s\ {}',
+        \ window,
+        \ shellescape(s:bin.preview), window =~ 'up\|down' ? '-v' : '')
+  if len(args)
+    let preview .= ' --bind '.join(map(args, 'v:val.":toggle-preview"'), ',')
+  endif
+  let options.options = get(options, 'options', '').preview
+  return options
+endfunction
+
+function! s:remove_layout(opts)
   for key in s:layout_keys
     if has_key(a:opts, key)
       call remove(a:opts, key)
