@@ -654,8 +654,8 @@ endfunction
 function! fzf#vim#buffer_tags(query, ...)
   let args = copy(a:000)
   let tag_cmds = len(args) > 1 ? remove(args, 0) : [
-    \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s', &filetype, expand('%:S')),
-    \ printf('ctags -f - --sort=no --excmd=number %s', expand('%:S'))]
+    \ printf('ctags -f - --sort=no --excmd=number --language-force=%s %s 2>/dev/null', &filetype, expand('%:S')),
+    \ printf('ctags -f - --sort=no --excmd=number %s 2>/dev/null', expand('%:S'))]
   try
     return s:fzf('btags', {
     \ 'source':  s:btags_source(tag_cmds),
