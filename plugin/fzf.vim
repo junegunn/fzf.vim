@@ -61,10 +61,10 @@ call s:defs([
 \'command! -bang -nargs=* History              call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
-  let bang = a:bang || a:arg[len(a:arg)-1] == '!'
-  if a:arg[0] == ':'
+  let bang = a:bang || a:arg[len(a:arg)-1] ==# '!'
+  if a:arg[0] ==# ':'
     call fzf#vim#command_history(bang)
-  elseif a:arg[0] == '/'
+  elseif a:arg[0] ==# '/'
     call fzf#vim#search_history(bang)
   else
     call fzf#vim#history(bang)
@@ -80,7 +80,7 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
     if exists('#User#FzfStatusLine')
       doautocmd User FzfStatusLine
     else
-      if $TERM !~ "256color"
+      if $TERM !~? "256color"
         highlight fzf1 ctermfg=1 ctermbg=8 guifg=#E12672 guibg=#565656
         highlight fzf2 ctermfg=2 ctermbg=8 guifg=#BCDDBD guibg=#565656
         highlight fzf3 ctermfg=7 ctermbg=8 guifg=#D9D9D9 guibg=#565656
