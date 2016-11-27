@@ -63,7 +63,7 @@ function! fzf#vim#with_preview(...)
         \ window,
         \ shellescape(s:bin.preview), window =~ 'up\|down' ? '-v' : '')
   if len(args)
-    let preview .= ' --bind '.join(map(args, 'v:val.":toggle-preview"'), ',')
+    let preview .= ' --bind '.shellescape(join(map(args, 'v:val.":toggle-preview"'), ','))
   endif
   let options.options = get(options, 'options', '').preview
   return options
