@@ -244,7 +244,7 @@ function! fzf#vim#files(dir, ...)
     let args.dir = dir
     let args.options .= ' --prompt '.shellescape(dir)
   else
-    let args.options .= ' --prompt '.shellescape(pathshorten(getcwd())).'/'
+    let args.options .= ' --prompt '.shellescape(pathshorten(fnamemodify(getcwd(), ':~:.')).'/')
   endif
 
   return s:fzf('files', args, a:000)
