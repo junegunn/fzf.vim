@@ -234,6 +234,11 @@ endfunction
 " ------------------------------------------------------------------
 " Files
 " ------------------------------------------------------------------
+function! s:shortpath()
+  let short = pathshorten(fnamemodify(getcwd(), ':~:.'))
+  return empty(short) ? '~/' : short . (short =~ '/$' ? '' : '/')
+endfunction
+
 function! fzf#vim#files(dir, ...)
   let args = {'options': '-m '.get(g:, 'fzf_files_options', '')}
   if !empty(a:dir)
@@ -244,7 +249,7 @@ function! fzf#vim#files(dir, ...)
     let args.dir = dir
     let args.options .= ' --prompt '.shellescape(dir)
   else
-    let args.options .= ' --prompt '.shellescape(pathshorten(fnamemodify(getcwd(), ':~:.')).'/')
+    let args.options .= ' --prompt '.shellescape(s:shortpath())
   endif
 
   return s:fzf('files', args, a:000)
