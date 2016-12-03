@@ -26,18 +26,19 @@ if [ -z "$CENTER" ]; then
     CENTER=1
 fi
 
-LINES=40
-COLUMNS=80
-
 if [ -r /dev/tty ]; then
-    SIZE=$(stty size < /dev/tty)
-    LINES=$(echo $SIZE | awk '{print $1}')
-    COLUMNS=$(echo $SIZE | awk '{print $2}')
+    LINES=$(stty size < /dev/tty | awk '{print $1}')
+else
+    LINES=40
 fi
 
+if [ -n "$SPLIT" ]; then
+    LINES=$(($LINES/2)) # using horizontal split
+fi
 LINES=$(($LINES-2)) # remove preview border
-FIRST=$(($CENTER-$LINES/2))
-FIRST=$(($FIRST < 1 ? 1 : $FIRST))
-LAST=$((${FIRST}+${LINES}))
 
-awk "NR >= $FIRST && NR <= $LAST {if (NR == $CENTER) printf(\"\x1b[7m%5d %s\n\x1b[m\", NR, \$0); else printf(\"%5d %s\n\", NR, \$0)}" $FILE | cut -c -60
+FIRST=$(($CENTER-$LINES/3))
+FIRST=$(($FIRST < 1 ? 1 : $FIRST))
+LAST=$((${FIRST}+${LINES}-1))
+
+awk "NR >= $FIRST && NR <= $LAST {if (NR == $CENTER) printf(\"\x1b[7m%5d %s\n\x1b[m\", NR, \$0); else printf(\"%5d %s\n\", NR, \$0)}" $FILE
