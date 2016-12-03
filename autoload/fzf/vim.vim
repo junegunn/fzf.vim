@@ -29,7 +29,8 @@ set cpo&vim
 " ------------------------------------------------------------------
 
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
-let s:bin = { 'preview': expand('<sfile>:h:h:h').'/bin/preview.rb' }
+let s:which_bin = executable('ruby') ? '/bin/preview.rb' : '/bin/preview.sh'
+let s:bin = { 'preview': expand('<sfile>:h:h:h') . s:which_bin }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
 
 " [[options to wrap], preview window expression, [toggle-preview keys...]]
@@ -53,10 +54,6 @@ function! fzf#vim#with_preview(...)
     endif
     let window = args[0]
     call remove(args, 0)
-  endif
-
-  if !executable('ruby')
-    return options
   endif
 
   let preview = printf(' --preview-window %s --preview "%s"\ %s\ {}',
