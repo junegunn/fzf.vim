@@ -5,7 +5,7 @@
     - [ ] Suggestion
 - OS
     - [ ] Linux
-    - [ ] Mac OS X
+    - [ ] macOS
     - [ ] Windows
     - [ ] Etc.
 - Vim
