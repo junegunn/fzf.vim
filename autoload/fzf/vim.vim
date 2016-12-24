@@ -358,8 +358,8 @@ endfunction
 " ------------------------------------------------------------------
 function! fzf#vim#colors(...)
   return s:fzf('colors', {
-  \ 'source':  map(split(globpath(&rtp, "colors/*.vim"), "\n"),
-  \               "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')"),
+  \ 'source':  s:uniq(map(split(globpath(&rtp, "colors/*.vim"), "\n"),
+  \               "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
   \ 'sink':    'colo',
   \ 'options': '+m --prompt="Colors> "'
   \}, a:000)
