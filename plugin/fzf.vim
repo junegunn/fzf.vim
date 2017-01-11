@@ -38,27 +38,27 @@ function! s:defs(commands)
 endfunction
 
 call s:defs([
-\'command!      -bang -nargs=? -complete=dir Files  call fzf#vim#files(<q-args>, <bang>0)',
-\'command!      -bang -nargs=? GitFiles             call fzf#vim#gitfiles(<q-args>, <bang>0)',
-\'command!      -bang -nargs=? GFiles               call fzf#vim#gitfiles(<q-args>, <bang>0)',
-\'command! -bar -bang Buffers                       call fzf#vim#buffers(<bang>0)',
-\'command!      -bang -nargs=* Lines                call fzf#vim#lines(<q-args>, <bang>0)',
-\'command!      -bang -nargs=* BLines               call fzf#vim#buffer_lines(<q-args>, <bang>0)',
-\'command! -bar -bang Colors                        call fzf#vim#colors(<bang>0)',
-\'command!      -bang -nargs=+ -complete=dir Locate call fzf#vim#locate(<q-args>, <bang>0)',
-\'command!      -bang -nargs=* Ag                   call fzf#vim#ag(<q-args>, <bang>0)',
-\'command!      -bang -nargs=* Tags                 call fzf#vim#tags(<q-args>, <bang>0)',
-\'command!      -bang -nargs=* BTags                call fzf#vim#buffer_tags(<q-args>, <bang>0)',
-\'command! -bar -bang Snippets                      call fzf#vim#snippets(<bang>0)',
-\'command! -bar -bang Commands                      call fzf#vim#commands(<bang>0)',
-\'command! -bar -bang Marks                         call fzf#vim#marks(<bang>0)',
-\'command! -bar -bang Helptags                      call fzf#vim#helptags(<bang>0)',
-\'command! -bar -bang Windows                       call fzf#vim#windows(<bang>0)',
-\'command! -bar -bang Commits                       call fzf#vim#commits(<bang>0)',
-\'command! -bar -bang BCommits                      call fzf#vim#buffer_commits(<bang>0)',
-\'command! -bar -bang Maps                          call fzf#vim#maps("n", <bang>0)',
-\'command! -bar -bang Filetypes                     call fzf#vim#filetypes(<bang>0)',
-\'command!      -bang -nargs=* History              call s:history(<q-args>, <bang>0)'])
+\'command!      -bang -nargs=? -complete=dir Files       call fzf#vim#files(<q-args>, <bang>0)',
+\'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, <bang>0)',
+\'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, <bang>0)',
+\'command! -bar -bang -nargs=? -complete=buffer Buffers  call fzf#vim#buffers(<q-args>, <bang>0)',
+\'command!      -bang -nargs=* Lines                     call fzf#vim#lines(<q-args>, <bang>0)',
+\'command!      -bang -nargs=* BLines                    call fzf#vim#buffer_lines(<q-args>, <bang>0)',
+\'command! -bar -bang Colors                             call fzf#vim#colors(<bang>0)',
+\'command!      -bang -nargs=+ -complete=dir Locate      call fzf#vim#locate(<q-args>, <bang>0)',
+\'command!      -bang -nargs=* Ag                        call fzf#vim#ag(<q-args>, <bang>0)',
+\'command!      -bang -nargs=* Tags                      call fzf#vim#tags(<q-args>, <bang>0)',
+\'command!      -bang -nargs=* BTags                     call fzf#vim#buffer_tags(<q-args>, <bang>0)',
+\'command! -bar -bang Snippets                           call fzf#vim#snippets(<bang>0)',
+\'command! -bar -bang Commands                           call fzf#vim#commands(<bang>0)',
+\'command! -bar -bang Marks                              call fzf#vim#marks(<bang>0)',
+\'command! -bar -bang Helptags                           call fzf#vim#helptags(<bang>0)',
+\'command! -bar -bang Windows                            call fzf#vim#windows(<bang>0)',
+\'command! -bar -bang Commits                            call fzf#vim#commits(<bang>0)',
+\'command! -bar -bang BCommits                           call fzf#vim#buffer_commits(<bang>0)',
+\'command! -bar -bang Maps                               call fzf#vim#maps("n", <bang>0)',
+\'command! -bar -bang Filetypes                          call fzf#vim#filetypes(<bang>0)',
+\'command!      -bang -nargs=* History                   call s:history(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'
