@@ -1,4 +1,4 @@
-" Copyright (c) 2016 Junegunn Choi
+" Copyright (c) 2017 Junegunn Choi
 "
 " MIT License
 "
@@ -126,9 +126,12 @@ else
 endif
 
 function! s:get_color(attr, ...)
+  let gui = has('termguicolors') && &termguicolors
+  let fam = gui ? 'gui' : 'cterm'
+  let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
   for group in a:000
-    let code = synIDattr(synIDtrans(hlID(group)), a:attr, 'cterm')
-    if code =~ '^[0-9]\+$'
+    let code = synIDattr(synIDtrans(hlID(group)), a:attr, fam)
+    if code =~? pat
       return code
     endif
   endfor
@@ -137,11 +140,19 @@ endfunction
 
 let s:ansi = {'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36}
 
+function! s:csi(color, fg)
+  let prefix = a:fg ? '38;' : '48;'
+  if a:color[0] == '#'
+    return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
+  endif
+  return prefix.'5;'.a:color
+endfunction
+
 function! s:ansi(str, group, default, ...)
   let fg = s:get_color('fg', a:group)
   let bg = s:get_color('bg', a:group)
-  let color = (empty(fg) ? s:ansi[a:default] : ('38;5;'.fg)) .
-            \ (empty(bg) ? '' : (';48;5;'.bg))
+  let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
+        \ (empty(bg) ? '' : s:csi(bg, 0))
   return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
 endfunction
 
@@ -153,12 +164,6 @@ endfor
 
 function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
-endfunction
-
-function! s:defaults()
-  let rules = copy(get(g:, 'fzf_colors', {}))
-  let colors = join(map(items(filter(map(rules, 'call("s:get_color", v:val)'), '!empty(v:val)')), 'join(v:val, ":")'), ',')
-  return empty(colors) ? '' : ('--color='.colors)
 endfunction
 
 function! s:fzf(name, opts, extra)
@@ -178,7 +183,7 @@ function! s:fzf(name, opts, extra)
 
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
-  let merged.options = join(filter([s:defaults(), get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
