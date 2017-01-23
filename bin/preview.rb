@@ -27,6 +27,11 @@ unless File.readable? path
   exit 1
 end
 
+if `file --mime "#{file}"` =~ /binary/
+  puts "#{file} is a binary file"
+  exit 0
+end
+
 center = (center || 0).to_i
 height = File.readable?('/dev/tty') ? `stty size < /dev/tty`.split.first.to_i : 40
 height /= 2 if split
