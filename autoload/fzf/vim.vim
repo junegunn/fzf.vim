@@ -784,7 +784,7 @@ function! fzf#vim#tags(query, ...)
   \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': copt.'-m --nth 1,.. --prompt "Tags> "'.s:q(a:query)}, a:000)
+  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -902,7 +902,7 @@ function! fzf#vim#marks(...)
   return s:fzf('marks', {
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
-  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --nth 1,.. --prompt "Marks> "'}, a:000)
+  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -925,7 +925,7 @@ function! fzf#vim#helptags(...)
   \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
     \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(".s:green('%-40s', 'Label')."\t%s\t%s\n), $2, $3, $1)' | sort",
   \ 'sink':    s:function('s:helptag_sink'),
-  \ 'options': '--ansi +m --with-nth ..-2 --nth 1,..'}, a:000)
+  \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
@@ -971,7 +971,7 @@ function! fzf#vim#windows(...)
   return s:fzf('windows', {
   \ 'source':  extend(['Tab Win    Name'], lines),
   \ 'sink':    s:function('s:windows_sink'),
-  \ 'options': '+m --ansi --nth 1,.. --header-lines=1'}, a:000)
+  \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
