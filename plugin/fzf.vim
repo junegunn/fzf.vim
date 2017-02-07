@@ -33,7 +33,10 @@ function! s:defs(commands)
     return
   endif
   for command in a:commands
-    execute substitute(command, '\ze\C[A-Z]', prefix, '')
+    let name = ':'.prefix.matchstr(command, '\C[A-Z]\S\+')
+    if !exists(name)
+      execute substitute(command, '\ze\C[A-Z]', prefix, '')
+    endif
   endfor
 endfunction
 
