@@ -34,7 +34,7 @@ function! s:defs(commands)
   endif
   for command in a:commands
     let name = ':'.prefix.matchstr(command, '\C[A-Z]\S\+')
-    if !exists(name)
+    if 2 != exists(name)
       execute substitute(command, '\ze\C[A-Z]', prefix, '')
     endif
   endfor
