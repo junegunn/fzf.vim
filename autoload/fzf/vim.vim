@@ -728,7 +728,7 @@ function! s:tags_sink(lines)
   let qfl = []
   let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
   try
-    let [magic, &magic, wrapscan, &wrapscan] = [&magic, 0, &wrapscan, 1]
+    let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
     for line in a:lines[1:]
       try
         let parts = split(line, '\t\zs')
@@ -743,7 +743,7 @@ function! s:tags_sink(lines)
       endtry
     endfor
   finally
-    let [&magic, &wrapscan] = [magic, wrapscan]
+    let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
   endtry
   if len(qfl) > 1
     call setqflist(qfl)
