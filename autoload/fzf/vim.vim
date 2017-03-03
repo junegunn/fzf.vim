@@ -1031,7 +1031,7 @@ function! s:commits(buffer_local, args)
   let options = {
   \ 'source':  source,
   \ 'sink*':   s:function('s:commits_sink'),
-  \ 'options': '--ansi --multi --no-sort --tiebreak=index --reverse '.
+  \ 'options': '--ansi --multi --tiebreak=index --reverse '.
   \   '--inline-info --prompt "'.command.'> " --bind=ctrl-s:toggle-sort '.
   \   '--expect='.expect_keys
   \ }
