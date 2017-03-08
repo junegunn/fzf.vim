@@ -780,11 +780,17 @@ function! fzf#vim#tags(query, ...)
     let proc = 'perl -ne ''unless (/^\!/) { s/^(.*?)\t(.*?)\t/'.s:yellow('\1', 'Function').'\t'.s:blue('\2', 'String').'\t/; print }'' '
     let copt = '--ansi '
   endif
-  return s:fzf('tags', {
-  \ 'source':  proc.shellescape(fnamemodify(tagfile, ':t')),
+  let opts = {
   \ 'sink*':   s:function('s:tags_sink'),
-  \ 'dir':     fnamemodify(tagfile, ':h'),
-  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}, a:000)
+  \ 'options': copt.'-m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)
+  \}
+  if (&tagrelative)
+     let opts['dir'] = fnamemodify(tagfile, ':h')
+     let opts['source'] = proc.shellescape(fnamemodify(tagfile, ':t'))
+  else
+     let opts['source'] = proc.shellescape(tagfile)
+  endif
+  return s:fzf('tags', opts, a:000)
 endfunction
 
 " ------------------------------------------------------------------
