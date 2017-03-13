@@ -23,7 +23,7 @@ Before submitting
 Start Vim with a minimal configuration
 ======================================
 
-vim -Nu <(curl https://gist.githubusercontent.com/junegunn/6936bf79fedd3a079aeb1dd2f3c81ef5/raw/vimrc)
+vim -Nu <(curl https://gist.githubusercontent.com/junegunn/6936bf79fedd3a079aeb1dd2f3c81ef5/raw)
 
 -->
 
