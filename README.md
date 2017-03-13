@@ -133,12 +133,6 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 #### Command-local options
 
 ```vim
-" [Files] Extra options for fzf
-"   e.g. File preview using Highlight
-"        (http://www.andre-simon.de/doku/highlight/en/highlight.html)
-let g:fzf_files_options =
-  \ '--preview "(highlight -O ansi {} || cat {}) 2> /dev/null | head -'.&lines.'"'
-
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
 
@@ -187,6 +181,10 @@ command! -bang -nargs=* Rg
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
+
+" Likewise, Files command with preview window
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 ```
 
 Mappings
