@@ -151,9 +151,9 @@ function! fzf#vim#complete#line(...)
 endfunction
 
 function! fzf#vim#complete#buffer_line(...)
-  call fzf#vim#complete(s:extend({
+  return fzf#vim#complete(s:extend({
   \ 'prefix': '^.*$',
-  \ 'source': s:uniq(getline(1, '$'))}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'source': fzf#vim#_uniq(getline(1, '$'))}, get(a:000, 0, g:fzf#vim#default_layout)))
 endfunction
 
 let &cpo = s:cpo_save
