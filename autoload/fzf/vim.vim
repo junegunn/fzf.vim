@@ -1094,13 +1094,12 @@ function! fzf#vim#maps(mode, ...)
   let list = []
   let curr = ''
   for line in split(cout, "\n")
-    let src = matchstr(line, 'Last set from \zs.*')
-    if empty(src)
-      let curr = line[3:]
-    else
-      let src = '  '.join(reverse(reverse(split(src, '/'))[0:2]), '/')
+    if line =~ "^\t"
+      let src = '  '.join(reverse(reverse(split(split(line)[-1], '/'))[0:2]), '/')
       call add(list, printf('%s %s', curr, s:green(src, 'Comment')))
       let curr = ''
+    else
+      let curr = line[3:]
     endif
   endfor
   if !empty(curr)
