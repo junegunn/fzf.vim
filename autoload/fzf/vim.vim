@@ -28,12 +28,13 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
-let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
+let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 
 " [[options to wrap], preview window expression, [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
@@ -85,7 +86,10 @@ endfunction
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  if get(opts, 'options', '') !~ '--expect' && has_key(opts, 'sink*')
+  let options = get(opts, 'options', '')
+  let has_expect = (type(options) == s:TYPE.string && options !~ '--expect') ||
+              \ (type(options) == s:TYPE.list && join(options) !~ '--expect')
+  if has_expect && has_key(opts, 'sink*')
     let Sink = remove(opts, 'sink*')
     let wrapped = fzf#wrap(a:name, opts, a:bang)
     let wrapped['sink*'] = Sink
@@ -176,7 +180,17 @@ function! s:fzf(name, opts, extra)
 
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
-  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  let options = get(merged, 'options', '')
+  if type(options) == s:TYPE.list
+    if type(eopts) == s:TYPE.list
+      call extend(options, eopts)
+    elseif len(eopts)
+      call add(options, eopts)
+    endif
+  else
+    let options = join(filter([options, eopts], '!empty(v:val)'))
+  endif
+  let merged.options = options
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -231,22 +245,30 @@ endfunction
 " ------------------------------------------------------------------
 function! s:shortpath()
   let short = pathshorten(fnamemodify(getcwd(), ':~:.'))
-  return empty(short) ? '~/' : short . (short =~ '/$' ? '' : '/')
+  let slash = (s:is_win && !&shellslash) ? '\' : '/'
+  return empty(short) ? '~'.slash : short . (short =~ slash.'$' ? '' : slash)
 endfunction
 
 function! fzf#vim#files(dir, ...)
-  let args = {'options': '-m '.get(g:, 'fzf_files_options', '')}
+  let args = {'options': ['-m']}
+  let opts = get(g:, 'fzf_files_options', '')
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
       return s:warn('Invalid directory')
     endif
-    let dir = substitute(a:dir, '/*$', '/', '')
+    let slash = (s:is_win && !&shellslash) ? '\\' : '/'
+    let dir = substitute(a:dir, slash.'*$', slash, '')
     let args.dir = dir
-    let args.options .= ' --prompt '.shellescape(dir)
+    let prompt = dir
   else
-    let args.options .= ' --prompt '.shellescape(s:shortpath())
+    let prompt = s:shortpath()
   endif
-
+  call extend(args.options, ['--prompt', prompt])
+  if type(opts) == s:TYPE.list
+    call extend(args.options, opts)
+  elseif len(opts)
+    call add(args.options, opts)
+  endif
   return s:fzf('files', args, a:000)
 endfunction
 
@@ -344,10 +366,14 @@ endfunction
 function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let opts = ['+m', '--tiebreak=index', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--reverse', '--tabstop=1']
+  if len(query)
+    call extend(opts, ['--query', query])
+  endif
   return s:fzf('blines', {
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "BLines> " --ansi --extended --nth=2.. --reverse --tabstop=1'.s:q(query)
+  \ 'options': opts
   \}, args)
 endfunction
 
@@ -542,10 +568,14 @@ function! fzf#vim#buffers(...)
 
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let opts = ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d','\t', '-n', '2,1..2', '--prompt', 'Buf> ']
+  if len(query)
+    call extend(opts, ['--query', query])
+  endif
   return s:fzf('buffers', {
   \ 'source':  reverse(bufs),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
+  \ 'options': opts
   \}, args)
 endfunction
 
