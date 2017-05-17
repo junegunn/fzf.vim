@@ -334,10 +334,14 @@ function! fzf#vim#lines(...)
   let nth = display_bufnames ? 3 : 2
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let opts = ['+m', '--tiebreak=index', '--prompt', 'Lines> ', '--ansi', '--extended', '--nth='.nth.'..', '--reverse', '--tabstop=1']
+  if len(query)
+    call extend(opts, ['--query', query])
+  endif
   return s:fzf('lines', {
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': '+m --tiebreak=index --prompt "Lines> " --ansi --extended --nth='.nth.'.. --reverse --tabstop=1'.s:q(query)
+  \ 'options': opts
   \}, args)
 endfunction
 
