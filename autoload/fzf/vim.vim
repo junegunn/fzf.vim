@@ -657,7 +657,7 @@ function! s:btags_source(tag_cmds)
 
   for cmd in a:tag_cmds
     let lines = split(system(cmd), "\n")
-    if !v:shell_error
+    if !v:shell_error && len(lines)
       break
     endif
   endfor
