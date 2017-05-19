@@ -396,12 +396,18 @@ endfunction
 " ------------------------------------------------------------------
 " Locate
 " ------------------------------------------------------------------
-function! fzf#vim#locate(query, ...)
-  return s:fzf('locate', {
-  \ 'source':  'locate '.a:query,
-  \ 'options': '-m --prompt "Locate> "'
-  \}, a:000)
-endfunction
+if s:is_win
+  function! fzf#vim#locate(query, ...)
+    return s:warn('Not supported in Windows')
+  endfunction
+else
+  function! fzf#vim#locate(query, ...)
+    return s:fzf('locate', {
+    \ 'source':  'locate '.a:query,
+    \ 'options': '-m --prompt "Locate> "'
+    \}, a:000)
+  endfunction
+endif
 
 " ------------------------------------------------------------------
 " History[:/]
