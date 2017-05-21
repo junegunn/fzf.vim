@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# bash strict mode
+set -euo pipefail
+
+help() {
+  cat << EOF
+Usage: $0 [OPTIONS] FILE LINE
+Display the part of FILE for the LINE.
+
+  -b [LINES]  print lines before the LINE, default 5
+  -h          show help
+EOF
+}
+
+
+file=
+line=
+before=5
+
+# parse options
+argus="$(getopt C:H:h $*)"
+set -- ${argus}
+
+while true; do
+  case "$1" in
+    -b)
+      shift; context=$1
+      ;;
+    -h)
+      help; exit
+      ;;
+    --)
+      shift; break
+      ;;
+  esac
+  shift
+done
+
+# setup FILE and LINE
+file=$1
+line=$2
+
+# setup min line
+min_line="$(( line - before ))"
+[[ "${min_line}" -lt 1 ]] && min_line=1
+
+# TODO: max_line should be setup with the size of window
+#
+# For now, the preview window of fzf is not interactive terminal. We don't
+# know what is size of preview window extactly. In order to fill whole
+# window with text, set max_line here.
+# However, we cannot `cat` whole file, like log file, because there is
+# performance issue.
+max_line="$(( line + 500 ))"
+
+# output
+cat -n "${file}" \
+  | awk -v line="${line}" \
+        -v minl="${min_line}" \
+        -v maxl="${max_line}" \
+        ' NR == minl, NR == maxl {
+              if (NR == line) { printf "\033[7m"; }
+              print; printf "\033[0m"
+          }'
