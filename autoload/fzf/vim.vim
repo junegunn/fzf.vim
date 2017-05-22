@@ -550,6 +550,7 @@ function! s:sort_buffers(...)
 endfunction
 
 function! fzf#vim#buffers(...)
+  cd /
   let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
 
   let [query, args] = (a:0 && type(a:1) == type('')) ?
@@ -949,7 +950,7 @@ endfunction
 function! s:format_win(tab, win, buf)
   let modified = getbufvar(a:buf, '&modified')
   let name = bufname(a:buf)
-  let name = empty(name) ? '[No Name]' : name
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
   let active = tabpagewinnr(a:tab) == a:win
   return (active? s:blue('> ', 'Operator') : '  ') . name . (modified? s:red(' [+]', 'Exception') : '')
 endfunction
@@ -960,6 +961,7 @@ function! s:windows_sink(line)
 endfunction
 
 function! fzf#vim#windows(...)
+  cd /
   let lines = []
   for t in range(1, tabpagenr('$'))
     let buffers = tabpagebuflist(t)
