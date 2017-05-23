@@ -439,7 +439,8 @@ endfunction
 function! fzf#vim#history(...)
   return s:fzf('history-files', {
   \ 'source':  reverse(s:all_files()),
-  \ 'options': '-m --prompt "Hist> "'
+  \ 'options': '-m --prompt "Hist> " --preview  "(highlight --quiet --force --out-format=' . 'ansi' .
+  \ ' --style solarized-dark -l {1} || coderay {1} || cat {1}) 2> /dev/null | head -' . &lines . '"'
   \}, a:000)
 endfunction
 
