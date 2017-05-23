@@ -639,9 +639,16 @@ function! fzf#vim#ag(query, ...)
     return s:warn('Invalid query argument')
   endif
   let query = empty(a:query) ? '^(?=.)' : a:query
+  if s:is_win && &shellslash
+    set noshellslash
+    let query = shellescape(query)
+    set shellslash
+  else
+    let query = shellescape(query)
+  endif
   let args = copy(a:000)
   let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
-  let command = ag_opts . ' ' . shellescape(query)
+  let command = ag_opts . ' ' . query
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
