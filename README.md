@@ -46,6 +46,7 @@ Plug 'junegunn/fzf.vim'
 - If you installed fzf using Homebrew, the following should suffice:
     - `Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'`
 - Make sure to use Vim 7.4 or above
+- See (installation tips)[#installation-tips] for information on installing with different plugin managers
 
 Commands
 --------
@@ -274,6 +275,16 @@ function! s:fzf_statusline()
 endfunction
 
 autocmd! User FzfStatusLine call <SID>fzf_statusline()
+```
+
+Installation Tips
+-----------------
+
+### dein.vim
+
+```
+call dein#add('junegunn/fzf', { 'build': './install', 'merged': 0 })
+call dein#add('junegunn/fzf.vim')
 ```
 
 License
