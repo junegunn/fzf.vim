@@ -491,6 +491,35 @@ function! fzf#vim#gitfiles(args, ...)
 endfunction
 
 " ------------------------------------------------------------------
+" HgFiles
+" ------------------------------------------------------------------
+
+" helper function to get the hg root. Uses lawrencium if available.
+function! s:get_hg_root()
+  if exists('*lawrencium#find_repo_root')
+    try
+      " find_repo_root adds a trailing slash.
+      return lawrencium#stripslash(lawrencium#find_repo_root(getcwd()))
+    catch
+    endtry
+  endif
+  let root = split(system('hg root'), '\n')[0]
+  return v:shell_error ? '' : root
+endfunction
+
+function! fzf#vim#hgfiles(args, ...)
+  let root = s:get_hg_root()
+  if empty(root)
+    return s:warn('Not in hg repo')
+  endif
+  return s:fzf('hgfiles', {
+  \ 'source':  'hg status --no-status --modified --added --clean --unknown '.a:args,
+  \ 'dir':     root,
+  \ 'options': '-m --prompt "HgFiles> "'
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
 function! s:find_open_window(b)
