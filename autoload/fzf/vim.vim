@@ -246,6 +246,9 @@ function! fzf#vim#files(dir, ...)
       return s:warn('Invalid directory')
     endif
     let dir = substitute(a:dir, '/*$', '/', '')
+    if has('win32unix')
+      let dir = fnamemodify(dir, ':p')
+    endif
     let args.dir = dir
     let args.options .= ' --prompt '.shellescape(dir)
   else
@@ -463,6 +466,9 @@ function! fzf#vim#gitfiles(args, ...)
   let root = s:get_git_root()
   if empty(root)
     return s:warn('Not in git repo')
+  endif
+  if has('win32unix')
+    let root = fnamemodify(root, ':p')
   endif
   if a:args != '?'
     return s:fzf('gfiles', {
