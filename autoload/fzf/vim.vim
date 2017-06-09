@@ -988,7 +988,7 @@ function! s:commits_sink(lines)
   let cmd = get(extend({'ctrl-d': ''}, get(g:, 'fzf_action', s:default_action)), a:lines[0], 'e')
   let buf = bufnr('')
   for idx in range(1, len(a:lines) - 1)
-    let sha = matchstr(a:lines[idx], '[0-9a-f]\{7}')
+    let sha = matchstr(a:lines[idx], '[0-9a-f]\{7,9}')
     if !empty(sha)
       if empty(cmd)
         if idx > 1
