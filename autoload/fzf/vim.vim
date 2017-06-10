@@ -1058,20 +1058,37 @@ function! s:commits(buffer_local, args)
   endif
 
   let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always --format="%C(auto)%h%d %s %C(green)%cr"')
-  let current = expand('%:S')
+  let shellslash = &shellslash
+  if s:is_win
+    set shellslash
+  endif
+  let current = expand('%')
   let managed = 0
   if !empty(current)
-    call system('git show '.current.' 2> /dev/null')
+    if s:is_win
+      set noshellslash
+    endif
+    call system('git show '.shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
-
   if a:buffer_local
     if !managed
+      let &shellslash = shellslash
       return s:warn('The current buffer is not in the working tree')
     endif
-    let source .= ' --follow '.current
+    if s:is_win
+      set shellslash
+    endif
+    let source .= ' --follow '.shellescape(current)
   endif
-
+  if s:is_win
+    set shellslash
+    let shellscript = tempname()
+    call writefile([source], shellscript)
+    set noshellslash
+    let source = 'sh -c '.shellescape(shellscript)
+  endif
+  let &shellslash = shellslash
   let command = a:buffer_local ? 'BCommits' : 'Commits'
   let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   let options = {
