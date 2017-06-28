@@ -245,7 +245,7 @@ following exceptions:
     - Or a function to extract completion prefix
 - Both `source` and `options` can be given as funcrefs that take the
   completion prefix as the argument and return the final value
-- `sink` or `sink*` are not allowed
+- `sink` or `sink*` are ignored
 
 #### Reducer example
 

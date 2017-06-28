@@ -48,7 +48,7 @@ endif
 function! fzf#vim#complete#word(...)
   return fzf#vim#complete(s:extend({
     \ 'source': 'cat /usr/share/dict/words'},
-    \ get(a:000, 0, g:fzf#vim#default_layout)))
+    \ get(a:000, 0, fzf#wrap())))
 endfunction
 
 " ----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ function! fzf#vim#complete#path(command, ...)
   return fzf#vim#complete(s:extend({
   \ 'prefix':  s:function('s:fname_prefix'),
   \ 'source':  s:function('s:file_source'),
-  \ 'options': s:function('s:file_options')}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'options': s:function('s:file_options')}, get(a:000, 0, fzf#wrap())))
 endfunction
 
 " ----------------------------------------------------------------------------
@@ -147,13 +147,13 @@ function! fzf#vim#complete#line(...)
   \ 'prefix':  '^.*$',
   \ 'source':  lines,
   \ 'options': '--tiebreak=index --ansi --nth '.nth.'.. --tabstop=1',
-  \ 'reducer': s:function('s:reduce_line')}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'reducer': s:function('s:reduce_line')}, get(a:000, 0, fzf#wrap())))
 endfunction
 
 function! fzf#vim#complete#buffer_line(...)
   return fzf#vim#complete(s:extend({
   \ 'prefix': '^.*$',
-  \ 'source': fzf#vim#_uniq(getline(1, '$'))}, get(a:000, 0, g:fzf#vim#default_layout)))
+  \ 'source': fzf#vim#_uniq(getline(1, '$'))}, get(a:000, 0, fzf#wrap())))
 endfunction
 
 let &cpo = s:cpo_save

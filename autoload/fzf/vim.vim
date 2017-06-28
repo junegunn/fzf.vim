@@ -82,11 +82,6 @@ function! fzf#vim#wrap(opts)
   return fzf#wrap(a:opts)
 endfunction
 
-" Deprecated
-function! fzf#vim#layout(...)
-  return (a:0 && a:1) ? {} : copy(get(g:, 'fzf_layout', g:fzf#vim#default_layout))
-endfunction
-
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
@@ -1164,16 +1159,20 @@ endfunction
 
 function! fzf#vim#complete(...)
   if a:0 == 0
-    let s:opts = g:fzf#vim#default_layout
+    let s:opts = fzf#wrap()
   elseif type(a:1) == s:TYPE.dict
-    if has_key(a:1, 'sink') || has_key(a:1, 'sink*')
-      echoerr 'sink not allowed'
-      return ''
-    endif
     let s:opts = copy(a:1)
+  elseif type(a:1) == s:TYPE.string
+    let s:opts = extend({'source': a:1}, get(a:000, 1, fzf#wrap()))
   else
-    let s:opts = extend({'source': a:1}, g:fzf#vim#default_layout)
+    echoerr 'Invalid argument: '.string(a:000)
+    return ''
   endif
+  for s in ['sink', 'sink*']
+    if has_key(s:opts, s)
+      call remove(s:opts, s)
+    endif
+  endfor
 
   let eol = col('$')
   let ve = &ve
@@ -1198,6 +1197,10 @@ function! fzf#vim#complete(...)
   if has_key(s:opts, 'extra_options')
     let s:opts.options =
       \ join(filter([get(s:opts, 'options', ''), remove(s:opts, 'extra_options')], '!empty(v:val)'))
+  endif
+  if has_key(s:opts, 'options')
+    " FIXME: fzf currently doesn't have --no-expect option
+    let s:opts.options = substitute(s:opts.options, '--expect=[^ ]*', '', 'g')
   endif
 
   call feedkeys("\<Plug>(-fzf-complete-trigger)")

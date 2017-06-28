@@ -24,8 +24,6 @@
 let s:cpo_save = &cpo
 set cpo&vim
 
-let g:fzf#vim#default_layout = {'down': '~40%'}
-
 function! s:defs(commands)
   let prefix = get(g:, 'fzf_command_prefix', '')
   if prefix =~# '^[^A-Z]'
