@@ -744,6 +744,9 @@ function! s:tags_sink(lines)
 endfunction
 
 function! fzf#vim#tags(query, ...)
+  if !executable('perl')
+    return s:warn('Tags command requires perl')
+  endif
   if empty(tagfiles())
     call inputsave()
     echohl WarningMsg
@@ -909,6 +912,9 @@ function! s:helptag_sink(line)
 endfunction
 
 function! fzf#vim#helptags(...)
+  if !executable('perl')
+    return s:warn('Helptags command requires perl')
+  endif
   let sorted = sort(split(globpath(&runtimepath, 'doc/tags'), '\n'))
   let tags = exists('*uniq') ? uniq(sorted) : fzf#vim#_uniq(sorted)
 
