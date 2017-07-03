@@ -994,13 +994,17 @@ function! fzf#vim#helptags(...)
   call map(tags, 'shellescape(v:val)')
   let sh_script = tempname()
   let perl_script = tempname()
-  let &shellslash = shellslash
   let path_regex = s:is_win ? '^[A-Z]:\/.*?[^:]' : '.*?'
   call writefile(['/('.path_regex.'):(.*?)\t(.*?)\t/; printf(qq('.s:green('%-40s', 'Label').
     \ '\t%s\t%s\n), $2, $3, $1)'], perl_script)
-  call writefile(['grep -H ''.*'' '.join(tags).' | perl -n '.perl_script.' | sort'], sh_script)
+  call writefile(['grep -H ''.*'' '.join(tags).' | perl -n '.shellescape(perl_script).' | sort'], sh_script)
+  if s:is_win
+    set noshellslash
+  endif
+  let source = 'sh '.shellescape(sh_script)
+  let &shellslash = shellslash
   return s:fzf('helptags', {
-  \ 'source':  'sh '.sh_script,
+  \ 'source':  source,
   \ 'sink':    s:function('s:helptag_sink'),
   \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:000)
 endfunction
