@@ -108,7 +108,11 @@ function! s:chomp(str)
 endfunction
 
 function! s:escape(path)
-  return escape(a:path, ' $%#''"\')
+  let escaped_chars = '$%#''"'
+  if has('unix')
+    let escaped_chars .= ' \'
+  endif
+  return escape(a:path, escaped_chars)
 endfunction
 
 if v:version >= 704
@@ -785,7 +789,7 @@ function! s:tags_sink(lines)
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ '^/' ? relpath : join([base, relpath], '/')
-        call s:open(cmd, abspath)
+        call s:open(cmd, expand(abspath, 1))
         execute excmd
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
@@ -816,7 +820,7 @@ function! fzf#vim#tags(query, ...)
     redraw
     if gen =~? '^y'
       call s:warn('Preparing tags')
-      call system(get(g:, 'fzf_tags_command', 'ctags -R'))
+      call system(get(g:, 'fzf_tags_command', 'ctags -R'.(s:is_win ? ' --output-format=e-ctags' : '')))
       if empty(tagfiles())
         return s:warn('Failed to create tags')
       endif
@@ -833,12 +837,21 @@ function! fzf#vim#tags(query, ...)
       break
     endif
   endfor
-  let opts = v2_limit < 0 ? '--algo=v1 ' : ''
+  let opts = ['--nth', '1..2', '--with-nth', '..-2', '-m', '--tiebreak=begin', '--prompt', 'Tags> ', '--query', a:query]
 
+  if v2_limit < 0
+    call extend(opts, ['--algo=v1'])
+  endif
+  let shellslash = &shellslash
+  if s:is_win
+    set noshellslash
+  endif
+  let source = shellescape(s:bin.tags).' '.join(map(tagfiles, 'shellescape(fnamemodify(v:val, ":p"))'))
+  let &shellslash = shellslash
   return s:fzf('tags', {
-  \ 'source':  shellescape(s:bin.tags).' '.join(map(tagfiles, 'shellescape(fnamemodify(v:val, ":p"))')),
+  \ 'source':  source,
   \ 'sink*':   s:function('s:tags_sink'),
-  \ 'options': opts.'--nth 1..2 --with-nth ..-2 -m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}, a:000)
+  \ 'options': opts}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
