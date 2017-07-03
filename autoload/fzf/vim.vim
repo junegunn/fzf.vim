@@ -273,6 +273,7 @@ function! fzf#vim#files(dir, ...)
   elseif len(opts)
     call add(args.options, opts)
   endif
+
   return s:fzf('files', args, a:000)
 endfunction
 
@@ -991,6 +992,7 @@ function! fzf#vim#helptags(...)
   endif
   let sorted = sort(split(globpath(&runtimepath, 'doc/tags'), '\n'))
   let tags = exists('*uniq') ? uniq(sorted) : fzf#vim#_uniq(sorted)
+
   call map(tags, 'shellescape(v:val)')
   let sh_script = tempname()
   let perl_script = tempname()
@@ -1102,6 +1104,7 @@ function! s:commits(buffer_local, args)
     call system('git show '.shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
+
   if a:buffer_local
     if !managed
       let &shellslash = shellslash
@@ -1112,6 +1115,7 @@ function! s:commits(buffer_local, args)
     endif
     let source .= ' --follow '.shellescape(current)
   endif
+
   if s:is_win
     set shellslash
     let shellscript = tempname()
