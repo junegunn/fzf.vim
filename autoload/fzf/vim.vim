@@ -734,10 +734,6 @@ function! s:btags_sink(lines)
   normal! zz
 endfunction
 
-function! s:q(query)
-  return ' --query '.shellescape(a:query)
-endfunction
-
 " query, [[tag commands], options]
 function! fzf#vim#buffer_tags(query, ...)
   let args = copy(a:000)
