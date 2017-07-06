@@ -1221,7 +1221,22 @@ endfunction
 
 function! s:complete_trigger()
   let opts = copy(s:opts)
-  let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
+  let options = ['+m', '-q', s:query]
+  if has_key(opts, 'options')
+    if type(opts.options) == s:TYPE.list
+      let opts.options = options + opts.options
+    else
+      let shellslash = &shellslash
+      if s:is_win
+        set noshellslash
+      endif
+      let options[-1] = shellescape(s:query)
+      let &shellslash = shellslash
+      let opts.options = join(options).' '.opts.options
+    endif
+  else
+    let opts.options = options
+  endif
   let opts['sink*'] = s:function('s:complete_insert')
   let s:reducer = s:pluck(opts, 'reducer', s:function('s:first_line'))
   call fzf#run(opts)
