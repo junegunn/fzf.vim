@@ -31,6 +31,9 @@ set cpo&vim
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
+if s:is_win && !&shellslash
+  let s:bin_dir = expand(s:bin_dir, 1)
+endif
 let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
@@ -59,13 +62,24 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  let preview = printf(' --preview-window %s --preview "%s"\ %s\ {}',
-        \ window,
-        \ shellescape(s:bin.preview), window =~ 'up\|down' ? '-v' : '')
+  let preview = ['--preview-window', window, '--preview', s:bin.preview.(window =~ 'up\|down' ? ' -v' : '').' {}']
   if len(args)
-    let preview .= ' --bind '.shellescape(join(map(args, 'v:val.":toggle-preview"'), ','))
+    call extend(preview, ['--bind', join(map(args, 'v:val."toggle-preview"'), ',')])
   endif
-  let options.options = get(options, 'options', '').preview
+  if has_key(options, 'options')
+    if type(options.options) == s:TYPE.list
+      call extend(options.options, preview)
+    else
+      let shellslash = &shellslash
+      if s:is_win
+        set noshellslash
+      endif
+      let options.options .= ' '.join(map(preview, 'shellescape(v:val)'))
+      let &shellslash = shellslash
+    endif
+  else
+    let options.options = preview
+  endif
   return options
 endfunction
 
