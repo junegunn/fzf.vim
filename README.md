@@ -96,6 +96,7 @@ pathogen#helptags()`. [↩](#a1))
 ```vim
 " This is the default extra key bindings
 let g:fzf_action = {
+  \ '': '', " the default (enter) action
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
