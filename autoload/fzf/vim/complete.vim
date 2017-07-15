@@ -25,6 +25,13 @@ let s:cpo_save = &cpo
 set cpo&vim
 let s:is_win = has('win32') || has('win64')
 
+function! s:warn(message)
+  echohl WarningMsg
+  echom a:message
+  echohl None
+  return 0
+endfunction
+
 function! s:extend(base, extra)
   let base = copy(a:base)
   if has_key(a:extra, 'options')
@@ -46,11 +53,18 @@ else
   endfunction
 endif
 
-function! fzf#vim#complete#word(...)
-  return fzf#vim#complete(s:extend({
-    \ 'source': 'cat /usr/share/dict/words'},
-    \ get(a:000, 0, fzf#wrap())))
-endfunction
+if s:is_win
+  function! fzf#vim#complete#word(...)
+    call s:warn('Not supported in Windows')
+    return ''
+  endfunction
+else
+  function! fzf#vim#complete#word(...)
+    return fzf#vim#complete(s:extend({
+          \ 'source': 'cat /usr/share/dict/words'},
+          \ get(a:000, 0, fzf#wrap())))
+  endfunction
+endif
 
 " ----------------------------------------------------------------------------
 " <plug>(fzf-complete-path)
