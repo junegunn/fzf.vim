@@ -620,11 +620,10 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let words   = empty(words) ? ['grep'] : words
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
-  let textcol = a:with_column ? '4..' : '3..'
   let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
-  \ 'options': '--ansi --delimiter : --nth '.textcol.',.. --prompt "'.capname.'> " '.
+  \ 'options': '--ansi --prompt "'.capname.'> " '.
   \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
   \            '--color hl:68,hl+:110'
   \}
