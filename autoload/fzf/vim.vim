@@ -29,27 +29,6 @@ set cpo&vim
 " ------------------------------------------------------------------
 
 let s:is_win = has('win32') || has('win64')
-if s:is_win
-  function! s:fzf_call(fn, ...)
-    let shellslash = &shellslash
-    try
-      set noshellslash
-      return call(a:fn, a:000)
-    finally
-      let &shellslash = shellslash
-    endtry
-  endfunction
-else
-  function! s:fzf_call(fn, ...)
-    return call(a:fn, a:000)
-  endfunction
-endif
-
-function! s:fzf_shellescape(str)
-  let escaped =  s:fzf_call('shellescape', a:str)
-  return s:is_win ? substitute(escaped, '[^\\]\zs\\$', '\\\\', '') : escaped
-endfunction
-
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
 let s:bin = {
@@ -65,7 +44,7 @@ function! s:merge_opts(dict, eopts)
   if type(opts) == s:TYPE.list && type(a:eopts) == s:TYPE.list
     call extend(a:dict.options, eopts)
   else
-    let a:dict.options = join(map([opts, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(v:val, "s:fzf_shellescape(v:val)")) : v:val'))
+    let a:dict.options = join(map([opts, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
   endif
 endfunction
 
