@@ -28,12 +28,46 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:is_win = has('win32') || has('win64')
+if s:is_win
+  function! s:fzf_call(fn, ...)
+    let shellslash = &shellslash
+    try
+      set noshellslash
+      return call(a:fn, a:000)
+    finally
+      let &shellslash = shellslash
+    endtry
+  endfunction
+else
+  function! s:fzf_call(fn, ...)
+    return call(a:fn, a:000)
+  endfunction
+endif
+
+function! s:fzf_shellescape(str)
+  let escaped =  s:fzf_call('shellescape', a:str)
+  return s:is_win ? substitute(escaped, '[^\\]\zs\\$', '\\\\', '') : escaped
+endfunction
+
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
-let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
+let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+
+function! s:merge_opts(dict, eopts)
+  if empty(a:eopts)
+    return
+  endif
+  let opts = get(a:dict, 'options', [])
+  if type(opts) == s:TYPE.list && type(a:eopts) == s:TYPE.list
+    call extend(a:dict.options, eopts)
+  else
+    let a:dict.options = join(map([opts, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(v:val, "s:fzf_shellescape(v:val)")) : v:val'))
+  endif
+endfunction
 
 " [[options to wrap], preview window expression, [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
@@ -85,7 +119,11 @@ endfunction
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  if get(opts, 'options', '') !~ '--expect' && has_key(opts, 'sink*')
+  let options = get(opts, 'options', '')
+  if type(options) == s:TYPE.list
+    let options = join(options)
+  endif
+  if options !~ '--expect' && has_key(opts, 'sink*')
     let Sink = remove(opts, 'sink*')
     let wrapped = fzf#wrap(a:name, opts, a:bang)
     let wrapped['sink*'] = Sink
@@ -176,7 +214,7 @@ function! s:fzf(name, opts, extra)
 
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
-  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  call s:merge_opts(merged, eopts)
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -231,22 +269,25 @@ endfunction
 " ------------------------------------------------------------------
 function! s:shortpath()
   let short = pathshorten(fnamemodify(getcwd(), ':~:.'))
-  return empty(short) ? '~/' : short . (short =~ '/$' ? '' : '/')
+  let slash = (s:is_win && !&shellslash) ? '\' : '/'
+  return empty(short) ? '~'.slash : short . (short =~ escape(slash, '\').'$' ? '' : slash)
 endfunction
 
 function! fzf#vim#files(dir, ...)
-  let args = {'options': '-m '.get(g:, 'fzf_files_options', '')}
+  let args = {}
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
       return s:warn('Invalid directory')
     endif
-    let dir = substitute(a:dir, '/*$', '/', '')
+    let slash = (s:is_win && !&shellslash) ? '\\' : '/'
+    let dir = substitute(a:dir, '[/\\]*$', slash, '')
     let args.dir = dir
-    let args.options .= ' --prompt '.shellescape(dir)
   else
-    let args.options .= ' --prompt '.shellescape(s:shortpath())
+    let dir = s:shortpath()
   endif
 
+  let args.options = ['-m', '--prompt', dir]
+  call s:merge_opts(args, get(g:, 'fzf_files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
 
