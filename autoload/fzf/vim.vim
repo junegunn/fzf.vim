@@ -185,6 +185,12 @@ let s:default_action = {
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
 
+function! s:action_for(key, ...)
+  let default = a:0 ? a:1 : ''
+  let Cmd = get(get(g:, 'fzf_action', s:default_action), a:key, default)
+  return type(Cmd) == s:TYPE.string ? Cmd : default
+endfunction
+
 function! s:open(cmd, target)
   if stridx('edit', a:cmd) == 0 && fnamemodify(a:target, ':p') ==# expand('%:p')
     return
@@ -258,7 +264,7 @@ function! s:line_handler(lines)
     return
   endif
   normal! m'
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = s:action_for(a:lines[0])
   if !empty(cmd) && stridx('edit', cmd) < 0
     execute 'silent' cmd
   endif
@@ -327,7 +333,7 @@ function! s:buffer_line_handler(lines)
     return
   endif
   normal! m'
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
     execute 'silent' cmd
   endif
@@ -513,7 +519,7 @@ function! s:bufopen(lines)
       return
     endif
   endif
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
     execute 'silent' cmd
   endif
@@ -567,7 +573,7 @@ function! s:ag_handler(lines, with_column)
     return
   endif
 
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
+  let cmd = s:action_for(a:lines[0], 'e')
   let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val, a:with_column)')
   if empty(list)
     return
@@ -661,7 +667,7 @@ function! s:btags_sink(lines)
     return
   endif
   normal! m'
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
     execute 'silent' cmd '%'
   endif
@@ -711,7 +717,7 @@ function! s:tags_sink(lines)
   endif
   normal! m'
   let qfl = []
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], 'e')
+  let cmd = s:action_for(a:lines[0], 'e')
   try
     let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
     for line in a:lines[1:]
@@ -880,7 +886,7 @@ function! s:mark_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  let cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
     execute 'silent' cmd
   endif
@@ -978,12 +984,13 @@ function! s:commits_sink(lines)
     return
   endif
 
-  let cmd = get(extend({'ctrl-d': ''}, get(g:, 'fzf_action', s:default_action)), a:lines[0], 'e')
+  let diff = a:lines[0] == 'ctrl-d'
+  let cmd = s:action_for(a:lines[0], 'e')
   let buf = bufnr('')
   for idx in range(1, len(a:lines) - 1)
     let sha = matchstr(a:lines[idx], '[0-9a-f]\{7,9}')
     if !empty(sha)
-      if empty(cmd)
+      if diff
         if idx > 1
           execute 'tab sb' buf
         endif
