@@ -55,6 +55,9 @@ endfunction
 function! fzf#vim#with_preview(...)
   " Default options
   let options = {}
+  if s:is_win
+    return options
+  endif
   let window = 'right'
 
   let args = copy(a:000)
