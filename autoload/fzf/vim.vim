@@ -40,11 +40,14 @@ function! s:merge_opts(dict, eopts)
   if empty(a:eopts)
     return
   endif
-  let opts = get(a:dict, 'options', [])
-  if type(opts) == s:TYPE.list && type(a:eopts) == s:TYPE.list
-    call extend(a:dict.options, eopts)
+  if has_key(a:dict, 'options')
+    if type(a:dict.options) == s:TYPE.list && type(a:eopts) == s:TYPE.list
+      call extend(a:dict.options, a:eopts)
+    else
+      let a:dict.options = join(map([a:dict.options, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
+    endif
   else
-    let a:dict.options = join(map([opts, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
+    let a:dict.options = a:eopts
   endif
 endfunction
 
@@ -71,13 +74,12 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  let preview = printf(' --preview-window %s --preview "%s"\ %s\ {}',
-        \ window,
-        \ shellescape(s:bin.preview), window =~ 'up\|down' ? '-v' : '')
+  let preview = ['--preview-window', window, '--preview', s:bin.preview.' '.(window =~ 'up\|down' ? '-v' : '').' {}']
+
   if len(args)
-    let preview .= ' --bind '.shellescape(join(map(args, 'v:val.":toggle-preview"'), ','))
+    call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
   endif
-  let options.options = get(options, 'options', '').preview
+  call s:merge_opts(options, preview)
   return options
 endfunction
 
