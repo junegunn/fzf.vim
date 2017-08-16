@@ -55,9 +55,6 @@ endfunction
 function! fzf#vim#with_preview(...)
   " Default options
   let options = {}
-  if s:is_win
-    return options
-  endif
   let window = 'right'
 
   let args = copy(a:000)
@@ -66,6 +63,9 @@ function! fzf#vim#with_preview(...)
   if len(args) && type(args[0]) == s:TYPE.dict
     let options = copy(args[0])
     call remove(args, 0)
+  endif
+  if s:is_win
+    return options
   endif
 
   " Preview window
