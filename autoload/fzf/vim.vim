@@ -28,12 +28,28 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
-let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type('')}
+let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+
+function! s:merge_opts(dict, eopts)
+  if empty(a:eopts)
+    return
+  endif
+  if has_key(a:dict, 'options')
+    if type(a:dict.options) == s:TYPE.list && type(a:eopts) == s:TYPE.list
+      call extend(a:dict.options, a:eopts)
+    else
+      let a:dict.options = join(map([a:dict.options, a:eopts], 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
+    endif
+  else
+    let a:dict.options = a:eopts
+  endif
+endfunction
 
 " [[options to wrap], preview window expression, [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
@@ -48,6 +64,9 @@ function! fzf#vim#with_preview(...)
     let options = copy(args[0])
     call remove(args, 0)
   endif
+  if s:is_win
+    return options
+  endif
 
   " Preview window
   if len(args) && type(args[0]) == s:TYPE.string
@@ -58,13 +77,12 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  let preview = printf(' --preview-window %s --preview "%s"\ %s\ {}',
-        \ window,
-        \ shellescape(s:bin.preview), window =~ 'up\|down' ? '-v' : '')
+  let preview = ['--preview-window', window, '--preview', s:bin.preview.' '.(window =~ 'up\|down' ? '-v' : '').' {}']
+
   if len(args)
-    let preview .= ' --bind '.shellescape(join(map(args, 'v:val.":toggle-preview"'), ','))
+    call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
   endif
-  let options.options = get(options, 'options', '').preview
+  call s:merge_opts(options, preview)
   return options
 endfunction
 
@@ -85,7 +103,11 @@ endfunction
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  if get(opts, 'options', '') !~ '--expect' && has_key(opts, 'sink*')
+  let options = get(opts, 'options', '')
+  if type(options) == s:TYPE.list
+    let options = join(options)
+  endif
+  if options !~ '--expect' && has_key(opts, 'sink*')
     let Sink = remove(opts, 'sink*')
     let wrapped = fzf#wrap(a:name, opts, a:bang)
     let wrapped['sink*'] = Sink
@@ -176,7 +198,7 @@ function! s:fzf(name, opts, extra)
 
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
-  let merged.options = join(filter([get(merged, 'options', ''), eopts], '!empty(v:val)'))
+  call s:merge_opts(merged, eopts)
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -237,22 +259,25 @@ endfunction
 " ------------------------------------------------------------------
 function! s:shortpath()
   let short = pathshorten(fnamemodify(getcwd(), ':~:.'))
-  return empty(short) ? '~/' : short . (short =~ '/$' ? '' : '/')
+  let slash = (s:is_win && !&shellslash) ? '\' : '/'
+  return empty(short) ? '~'.slash : short . (short =~ escape(slash, '\').'$' ? '' : slash)
 endfunction
 
 function! fzf#vim#files(dir, ...)
-  let args = {'options': '-m '.get(g:, 'fzf_files_options', '')}
+  let args = {}
   if !empty(a:dir)
     if !isdirectory(expand(a:dir))
       return s:warn('Invalid directory')
     endif
-    let dir = substitute(a:dir, '/*$', '/', '')
+    let slash = (s:is_win && !&shellslash) ? '\\' : '/'
+    let dir = substitute(a:dir, '[/\\]*$', slash, '')
     let args.dir = dir
-    let args.options .= ' --prompt '.shellescape(dir)
   else
-    let args.options .= ' --prompt '.shellescape(s:shortpath())
+    let dir = s:shortpath()
   endif
 
+  let args.options = ['-m', '--prompt', dir]
+  call s:merge_opts(args, get(g:, 'fzf_files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
 
