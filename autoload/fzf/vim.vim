@@ -464,7 +464,7 @@ endfunction
 
 function! fzf#vim#history(...)
   return s:fzf('history-files', {
-  \ 'source':  reverse(s:all_files()),
+  \ 'source':  filter(reverse(s:all_files()), 'v:val != expand("%")'),
   \ 'options': '-m --prompt "Hist> "'
   \}, a:000)
 endfunction
