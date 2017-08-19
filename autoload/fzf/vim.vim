@@ -942,17 +942,19 @@ function! s:helptag_sink(line)
 endfunction
 
 function! fzf#vim#helptags(...)
-  if !executable('perl')
-    return s:warn('Helptags command requires perl')
+  if !executable('grep') || !executable('perl')
+    return s:warn('Helptags command requires grep and perl')
   endif
   let sorted = sort(split(globpath(&runtimepath, 'doc/tags'), '\n'))
   let tags = exists('*uniq') ? uniq(sorted) : fzf#vim#_uniq(sorted)
 
+  let perlscript = tempname()
+  call writefile(['/('.(s:is_win ? '^[A-Z]:\/.*?[^:]' : '.*?').'):(.*?)\t(.*?)\t/; printf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\n), $2, $3, $1)'], perlscript)
   return s:fzf('helptags', {
-  \ 'source':  "grep -H '.*' ".join(map(tags, 'shellescape(v:val)')).
-    \ "| perl -ne '/(.*?):(.*?)\t(.*?)\t/; printf(qq(".s:green('%-40s', 'Label')."\t%s\t%s\n), $2, $3, $1)' | sort",
+  \ 'source':  'grep -H ".*" '.join(map(tags, 'fzf#shellescape(v:val)')).
+    \ ' | perl -n '.fzf#shellescape(perlscript).' | sort',
   \ 'sink':    s:function('s:helptag_sink'),
-  \ 'options': '--ansi +m --tiebreak=begin --with-nth ..-2'}, a:000)
+  \ 'options': ['--ansi', '+m', '--tiebreak=begin', '--with-nth', '..-2']}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
