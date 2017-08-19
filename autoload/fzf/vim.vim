@@ -941,12 +941,6 @@ function! s:helptag_sink(line)
   execute 'help' tag
 endfunction
 
-if exists('s:helptags_script')
-  silent! call delete(s:helptags_script)
-endif
-let s:helptags_script = tempname()
-call writefile(['/('.(s:is_win ? '^[A-Z]:\/.*?[^:]' : '.*?').'):(.*?)\t(.*?)\t/; printf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\n), $2, $3, $1)'], s:helptags_script)
-
 function! fzf#vim#helptags(...)
   if !executable('grep') || !executable('perl')
     return s:warn('Helptags command requires grep and perl')
@@ -954,6 +948,11 @@ function! fzf#vim#helptags(...)
   let sorted = sort(split(globpath(&runtimepath, 'doc/tags'), '\n'))
   let tags = exists('*uniq') ? uniq(sorted) : fzf#vim#_uniq(sorted)
 
+  if exists('s:helptags_script')
+    silent! call delete(s:helptags_script)
+  endif
+  let s:helptags_script = tempname()
+  call writefile(['/('.(s:is_win ? '^[A-Z]:\/.*?[^:]' : '.*?').'):(.*?)\t(.*?)\t/; printf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\n), $2, $3, $1)'], s:helptags_script)
   return s:fzf('helptags', {
   \ 'source':  'grep -H ".*" '.join(map(tags, 'fzf#shellescape(v:val)')).
     \ ' | perl -n '.fzf#shellescape(s:helptags_script).' | sort',
