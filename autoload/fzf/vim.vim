@@ -711,7 +711,7 @@ function! s:btags_sink(lines)
 endfunction
 
 function! s:q(query)
-  return ' --query '.shellescape(a:query)
+  return ' --query '.fzf#shellescape(a:query)
 endfunction
 
 " query, [[tag commands], options]
