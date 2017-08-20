@@ -630,7 +630,7 @@ function! fzf#vim#ag(query, ...)
   let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
   let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
-  let command = ag_opts . ' ' . shellescape(query)
+  let command = ag_opts . ' ' . fzf#shellescape(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
@@ -654,9 +654,9 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
-  \ 'options': '--ansi --prompt "'.capname.'> " '.
-  \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'
+  \ 'options': ['--ansi', '--prompt', capname.'> ',
+  \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
+  \             '--color', 'hl:68,hl+:110']
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
