@@ -436,7 +436,9 @@ function! s:history_sink(type, lines)
     call feedkeys(a:type."\<up>")
   else
     let g:__fzf_command = "normal ".a:type.item."\<cr>"
-    call feedkeys("\<plug>(-fzf-vim-do)")
+    " add by tenfy(tenfyzhong@qq.com) 
+    " If `/` remapped, this called will block vim. 
+    call feedkeys(a:type.item."\<cr>", 'n')
   endif
 endfunction
 
