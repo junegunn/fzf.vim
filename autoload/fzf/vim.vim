@@ -35,6 +35,15 @@ let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+if s:is_win
+  if &shellslash
+    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+  else
+    set shellslash
+    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+    set noshellslash
+  endif
+endif
 
 function! s:merge_opts(dict, eopts)
   if empty(a:eopts)
@@ -74,17 +83,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if s:is_win
-    if exists('s:preview_script')
-      silent! call delete(s:preview_script)
-    endif
-    let s:preview_script = tempname().'.bat'
-    call writefile(['@echo off', fzf#shellescape(s:bin.preview).' %*'], s:preview_script)
-    let script = s:preview_script
-  else
-    let script = s:bin.preview
-  endif
-  let preview = ['--preview-window', window, '--preview', script.(window =~ 'up\|down' ? ' -v ' : ' ').'{}']
+  let preview = ['--preview-window', window, '--preview', s:bin.preview.' '.(window =~ 'up\|down' ? '-v' : '').' {}']
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
