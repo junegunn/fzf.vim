@@ -205,7 +205,8 @@ function! s:fzf(name, opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   call s:merge_opts(merged, eopts)
-  if s:is_win && empty(get(merged, 'source', '')) && empty($FZF_DEFAULT_COMMAND) && get(merged, 'options', '') =~# s:bin.preview
+  let mopts = get(merged, 'options', '')
+  if s:is_win && empty(get(merged, 'source', '')) && empty($FZF_DEFAULT_COMMAND) && (type(mopts) == s:TYPE.list ? join(mopts) : mopts) =~# s:bin.preview
     return s:warn('preview script is incompatible with the default command in Windows')
   endif
   return fzf#run(s:wrap(a:name, merged, bang))
