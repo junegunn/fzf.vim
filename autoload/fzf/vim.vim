@@ -1042,11 +1042,11 @@ function! s:commits(buffer_local, args)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always --format="%C(auto)%h%d %s %C(green)%cr"')
-  let current = expand('%:S')
+  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--graph --color=always '.fzf#shellescape('--format="%C(auto)%h%d %s %C(green)%cr"'))
+  let current = expand('%')
   let managed = 0
   if !empty(current)
-    call system('git show '.current.' 2> /dev/null')
+    call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
 
@@ -1054,7 +1054,7 @@ function! s:commits(buffer_local, args)
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
-    let source .= ' --follow '.current
+    let source .= ' --follow '.fzf#shellescape(current)
   endif
 
   let command = a:buffer_local ? 'BCommits' : 'Commits'
@@ -1062,15 +1062,15 @@ function! s:commits(buffer_local, args)
   let options = {
   \ 'source':  source,
   \ 'sink*':   s:function('s:commits_sink'),
-  \ 'options': '--ansi --multi --tiebreak=index --reverse '.
-  \   '--inline-info --prompt "'.command.'> " --bind=ctrl-s:toggle-sort '.
-  \   '--expect='.expect_keys
+  \ 'options': ['--ansi', '--multi', '--tiebreak=index', '--reverse',
+  \   '--inline-info', '--prompt', command.'> ', '--bind=ctrl-s:toggle-sort',
+  \   '--header', ':: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort',
+  \   '--expect='.expect_keys]
   \ }
 
   if a:buffer_local
-    let options.options .= ',ctrl-d --header ":: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort, '.s:magenta('CTRL-D', 'Special').' to diff"'
-  else
-    let options.options .=        ' --header ":: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort"'
+    let options.options[-2] .= ', '.s:magenta('CTRL-D', 'Special').' to diff'
+    let options.options[-1] .= ',ctrl-d'
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
