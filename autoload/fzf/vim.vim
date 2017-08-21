@@ -35,6 +35,15 @@ let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+if s:is_win
+  if &shellslash
+    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+  else
+    set shellslash
+    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+    set noshellslash
+  endif
+endif
 
 function! s:merge_opts(dict, eopts)
   if empty(a:eopts)
@@ -63,9 +72,6 @@ function! fzf#vim#with_preview(...)
   if len(args) && type(args[0]) == s:TYPE.dict
     let options = copy(args[0])
     call remove(args, 0)
-  endif
-  if s:is_win
-    return options
   endif
 
   " Preview window
@@ -199,6 +205,9 @@ function! s:fzf(name, opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   call s:merge_opts(merged, eopts)
+  if s:is_win && empty(get(merged, 'source', '')) && empty($FZF_DEFAULT_COMMAND) && get(merged, 'options', '') =~# s:bin.preview
+    return s:warn('preview script is incompatible with the default command in Windows')
+  endif
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
