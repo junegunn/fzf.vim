@@ -36,13 +36,12 @@ let s:bin = {
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 if s:is_win
-  if &shellslash
-    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+  if has('nvim')
+    let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do echo %~sA'), "\n")[1]
   else
-    set shellslash
     let s:bin.preview = fnamemodify(s:bin.preview, ':8')
-    set noshellslash
   endif
+  let s:bin.preview = escape(s:bin.preview, '\')
 endif
 
 function! s:merge_opts(dict, eopts)
