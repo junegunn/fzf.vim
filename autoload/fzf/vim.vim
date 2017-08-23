@@ -407,10 +407,38 @@ endfunction
 " ------------------------------------------------------------------
 " History[:/]
 " ------------------------------------------------------------------
-function! s:all_files()
-  return extend(
-  \ filter(reverse(copy(v:oldfiles)), "filereadable(expand(v:val))"),
-  \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
+function! s:history_files()
+  " Use a dictionary to detect duplicates, between the buffers list and the
+  " oldfiles list. Prepopulate it with the name of the current file, so that
+  " we don't see the current file in our results.
+  let seen_set = {}
+  let current_file = fnamemodify(expand("%"), ":~:.")
+  let seen_set[current_file] = 1
+  " Start with the list of all open buffers, from most-recently-accessed to
+  " least-recently-accessed.
+  let paths = []
+  for bufnum in s:sorted_buffers()
+    let name = bufname(bufnum)
+    " Avoid calling fnamemodify on empty names. It produces a nonempty result.
+    if len(name) > 0
+      let path = fnamemodify(name, ":~:.")
+      if get(seen_set, path) == 0
+        call add(paths, path)
+        let seen_set[path] = 1
+      endif
+    endif
+  endfor
+  " Now append all the readable oldfiles, if we haven't seen them already.
+  for oldfile in filter(v:oldfiles, "filereadable(expand(v:val))")
+    " Do the same transformation we do to the buffer names.
+    let path = fnamemodify(oldfile, ":~:.")
+    " If the path is new, add it to both collections.
+    if get(seen_set, path) == 0
+      call add(paths, path)
+      let seen_set[path] = 1
+    endif
+  endfor
+  return paths
 endfunction
 
 function! s:history_source(type)
@@ -464,7 +492,7 @@ endfunction
 
 function! fzf#vim#history(...)
   return s:fzf('history-files', {
-  \ 'source':  filter(reverse(s:all_files()), 'v:val != expand("%")'),
+  \ 'source':  s:history_files(),
   \ 'options': '-m --prompt "Hist> "'
   \}, a:000)
 endfunction
@@ -562,19 +590,25 @@ function! s:format_buffer(b)
   return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
-function! s:sort_buffers(...)
+" from most-recently-accessed to least-recently-accessed
+function! s:compare_buffers(...)
   let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
   " Using minus between a float and a number in a sort function causes an error
-  return b1 > b2 ? 1 : -1
+  return b1 < b2 ? 1 : -1
+endfunction
+
+" from most-recently-accessed to least-recently-accessed
+function! s:sorted_buffers()
+  return sort(s:buflisted(), 's:compare_buffers')
 endfunction
 
 function! fzf#vim#buffers(...)
-  let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
+  let bufs = map(s:sorted_buffers(), 's:format_buffer(v:val)')
 
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf('buffers', {
-  \ 'source':  reverse(bufs),
+  \ 'source':  bufs,
   \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
   \}, args)
