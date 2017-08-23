@@ -408,9 +408,11 @@ endfunction
 " History[:/]
 " ------------------------------------------------------------------
 function! s:all_files()
-  return extend(
-  \ filter(reverse(copy(v:oldfiles)), "filereadable(expand(v:val))"),
-  \ filter(map(s:buflisted(), 'bufname(v:val)'), '!empty(v:val)'))
+  return fzf#vim#_uniq(map(
+    \ filter([expand('%')], 'len(v:val)')
+    \   + filter(map(s:buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
+    \   + filter(copy(v:oldfiles), "filereadable(expand(v:val))"),
+    \ 'fnamemodify(v:val, ":~:.")'))
 endfunction
 
 function! s:history_source(type)
@@ -464,8 +466,8 @@ endfunction
 
 function! fzf#vim#history(...)
   return s:fzf('history-files', {
-  \ 'source':  filter(reverse(s:all_files()), 'v:val != expand("%")'),
-  \ 'options': '-m --prompt "Hist> "'
+  \ 'source':  s:all_files(),
+  \ 'options': ['-m', '--header-lines', !empty(expand('%')), '--prompt', 'Hist> ']
   \}, a:000)
 endfunction
 
@@ -565,16 +567,18 @@ endfunction
 function! s:sort_buffers(...)
   let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
   " Using minus between a float and a number in a sort function causes an error
-  return b1 > b2 ? 1 : -1
+  return b1 < b2 ? 1 : -1
+endfunction
+
+function! s:buflisted_sorted()
+  return sort(s:buflisted(), 's:sort_buffers')
 endfunction
 
 function! fzf#vim#buffers(...)
-  let bufs = map(sort(s:buflisted(), 's:sort_buffers'), 's:format_buffer(v:val)')
-
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf('buffers', {
-  \ 'source':  reverse(bufs),
+  \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
   \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
   \}, args)
