@@ -1171,7 +1171,7 @@ endfunction
 
 function! s:complete_trigger()
   let opts = copy(s:opts)
-  let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
+  call s:merge_opts(opts, ['+m', '-q', s:query])
   let opts['sink*'] = s:function('s:complete_insert')
   let s:reducer = s:pluck(opts, 'reducer', s:function('s:first_line'))
   call fzf#run(opts)
