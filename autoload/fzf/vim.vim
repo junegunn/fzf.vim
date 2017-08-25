@@ -35,6 +35,14 @@ let s:bin = {
 \ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+if s:is_win
+  if has('nvim')
+    let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do echo %~sA'), "\n")[1]
+  else
+    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
+  endif
+  let s:bin.preview = escape(s:bin.preview, '\')
+endif
 
 function! s:merge_opts(dict, eopts)
   if empty(a:eopts)
@@ -63,9 +71,6 @@ function! fzf#vim#with_preview(...)
   if len(args) && type(args[0]) == s:TYPE.dict
     let options = copy(args[0])
     call remove(args, 0)
-  endif
-  if s:is_win
-    return options
   endif
 
   " Preview window
@@ -199,6 +204,10 @@ function! s:fzf(name, opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   call s:merge_opts(merged, eopts)
+  let mopts = get(merged, 'options', '')
+  if s:is_win && empty(get(merged, 'source', '')) && empty($FZF_DEFAULT_COMMAND) && (type(mopts) == s:TYPE.list ? join(mopts) : mopts) =~# s:bin.preview
+    return s:warn('preview script is incompatible with the default command in Windows')
+  endif
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -634,7 +643,7 @@ function! fzf#vim#ag(query, ...)
   let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
   let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
-  let command = ag_opts . ' ' . shellescape(query)
+  let command = ag_opts . ' ' . fzf#shellescape(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
@@ -658,9 +667,9 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let opts = {
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
-  \ 'options': '--ansi --prompt "'.capname.'> " '.
-  \            '--multi --bind alt-a:select-all,alt-d:deselect-all '.
-  \            '--color hl:68,hl+:110'
+  \ 'options': ['--ansi', '--prompt', capname.'> ',
+  \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
+  \             '--color', 'hl:68,hl+:110']
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
