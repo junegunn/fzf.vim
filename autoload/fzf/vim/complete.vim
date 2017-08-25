@@ -23,6 +23,7 @@
 
 let s:cpo_save = &cpo
 set cpo&vim
+let s:is_win = has('win32') || has('win64')
 
 function! s:extend(base, extra)
   let base = copy(a:base)
@@ -58,25 +59,26 @@ endfunction
 " ----------------------------------------------------------------------------
 function! s:file_split_prefix(prefix)
   let expanded = expand(a:prefix)
+  let slash = (s:is_win && !&shellslash) ? '\\' : '/'
   return isdirectory(expanded) ?
     \ [expanded,
-    \  substitute(a:prefix, '/*$', '/', ''),
+    \  substitute(a:prefix, '[/\\]*$', slash, ''),
     \  ''] :
     \ [fnamemodify(expanded, ':h'),
-    \  substitute(fnamemodify(a:prefix, ':h'), '/*$', '/', ''),
+    \  substitute(fnamemodify(a:prefix, ':h'), '[/\\]*$', slash, ''),
     \  fnamemodify(expanded, ':t')]
 endfunction
 
 function! s:file_source(prefix)
   let [dir, head, tail] = s:file_split_prefix(a:prefix)
   return printf(
-    \ "cd %s && ".s:file_cmd." | sed 's:^:%s:'",
-    \ shellescape(dir), empty(a:prefix) || a:prefix == tail ? '' : head)
+    \ "cd %s && ".s:file_cmd." | sed %s",
+    \ fzf#shellescape(dir), fzf#shellescape('s:^:'.(empty(a:prefix) || a:prefix == tail ? '' : head).':'))
 endfunction
 
 function! s:file_options(prefix)
   let [_, head, tail] = s:file_split_prefix(a:prefix)
-  return printf('--prompt %s --query %s', shellescape(head), shellescape(tail))
+  return ['--prompt', head, '--query', tail]
 endfunction
 
 function! s:fname_prefix(str)

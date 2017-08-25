@@ -1252,12 +1252,13 @@ function! fzf#vim#complete(...)
   let s:opts = s:eval(s:opts, 'options', s:query)
   let s:opts = s:eval(s:opts, 'extra_options', s:query)
   if has_key(s:opts, 'extra_options')
-    let s:opts.options =
-      \ join(filter([get(s:opts, 'options', ''), remove(s:opts, 'extra_options')], '!empty(v:val)'))
+    call s:merge_opts(s:opts, remove(s:opts, 'extra_options'))
   endif
   if has_key(s:opts, 'options')
     " FIXME: fzf currently doesn't have --no-expect option
-    let s:opts.options = substitute(s:opts.options, '--expect=[^ ]*', '', 'g')
+    if type(s:opts.options) == s:TYPE.string
+      let s:opts.options = substitute(s:opts.options, '--expect=[^ ]*', '', 'g')
+    endif
   endif
 
   call feedkeys("\<Plug>(-fzf-complete-trigger)")
