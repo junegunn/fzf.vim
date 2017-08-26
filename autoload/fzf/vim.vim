@@ -1255,9 +1255,10 @@ function! fzf#vim#complete(...)
     call s:merge_opts(s:opts, remove(s:opts, 'extra_options'))
   endif
   if has_key(s:opts, 'options')
-    " FIXME: fzf currently doesn't have --no-expect option
-    if type(s:opts.options) == s:TYPE.string
-      let s:opts.options = substitute(s:opts.options, '--expect=[^ ]*', '', 'g')
+    if type(s:opts.options) == s:TYPE.list
+      call add(s:opts.options, '--no-expect')
+    else
+      let s:opts.options .= ' --no-expect'
     endif
   endif
 
