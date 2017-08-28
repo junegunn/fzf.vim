@@ -23,6 +23,7 @@
 
 let s:cpo_save = &cpo
 set cpo&vim
+let s:is_win = has('win32') || has('win64')
 
 function! s:defs(commands)
   let prefix = get(g:, 'fzf_command_prefix', '')
@@ -123,9 +124,14 @@ augroup fzf_buffers
 augroup END
 
 inoremap <expr> <plug>(fzf-complete-word)        fzf#vim#complete#word()
-inoremap <expr> <plug>(fzf-complete-path)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'")
-inoremap <expr> <plug>(fzf-complete-file)        fzf#vim#complete#path("find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed 's:^..::'")
-inoremap <expr> <plug>(fzf-complete-file-ag)     fzf#vim#complete#path("ag -l -g ''")
+if s:is_win
+  inoremap <expr> <plug>(fzf-complete-path)      fzf#vim#complete#path('dir /s/b')
+  inoremap <expr> <plug>(fzf-complete-file)      fzf#vim#complete#path('dir /s/b/a:-d')
+else
+  inoremap <expr> <plug>(fzf-complete-path)      fzf#vim#complete#path("find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'")
+  inoremap <expr> <plug>(fzf-complete-file)      fzf#vim#complete#path("find . -path '*/\.*' -prune -o -type f -print -o -type l -print \| sed 's:^..::'")
+endif
+inoremap <expr> <plug>(fzf-complete-file-ag)     fzf#vim#complete#path('ag -l -g ""')
 inoremap <expr> <plug>(fzf-complete-line)        fzf#vim#complete#line()
 inoremap <expr> <plug>(fzf-complete-buffer-line) fzf#vim#complete#buffer_line()
 

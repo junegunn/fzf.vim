@@ -1171,7 +1171,7 @@ endfunction
 
 function! s:complete_trigger()
   let opts = copy(s:opts)
-  let opts.options = printf('+m -q %s %s', shellescape(s:query), get(opts, 'options', ''))
+  call s:merge_opts(opts, ['+m', '-q', s:query])
   let opts['sink*'] = s:function('s:complete_insert')
   let s:reducer = s:pluck(opts, 'reducer', s:function('s:first_line'))
   call fzf#run(opts)
@@ -1252,12 +1252,14 @@ function! fzf#vim#complete(...)
   let s:opts = s:eval(s:opts, 'options', s:query)
   let s:opts = s:eval(s:opts, 'extra_options', s:query)
   if has_key(s:opts, 'extra_options')
-    let s:opts.options =
-      \ join(filter([get(s:opts, 'options', ''), remove(s:opts, 'extra_options')], '!empty(v:val)'))
+    call s:merge_opts(s:opts, remove(s:opts, 'extra_options'))
   endif
   if has_key(s:opts, 'options')
-    " FIXME: fzf currently doesn't have --no-expect option
-    let s:opts.options = substitute(s:opts.options, '--expect=[^ ]*', '', 'g')
+    if type(s:opts.options) == s:TYPE.list
+      call add(s:opts.options, '--no-expect')
+    else
+      let s:opts.options .= ' --no-expect'
+    endif
   endif
 
   call feedkeys("\<Plug>(-fzf-complete-trigger)")
