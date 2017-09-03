@@ -15,6 +15,12 @@ fi
 
 IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
+
+if [[ $FILE =~ '^[A-Z]$' ]]; then
+  FILE=$FILE:${INPUT[1]}
+  shift
+fi
+
 CENTER=${INPUT[1]}
 
 if [ ! -r "$FILE" ]; then
