@@ -16,7 +16,7 @@ fi
 IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 
-if [[ $FILE =~ '^[A-Z]$' ]]; then
+if [[ $1 =~ ^[A-Z]:\\ ]]; then
   FILE=$FILE:${INPUT[1]}
   shift
 fi
