@@ -17,6 +17,11 @@ IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 CENTER=${INPUT[1]}
 
+if [[ $1 =~ ^[A-Z]:\\ ]]; then
+  FILE=$FILE:${INPUT[1]}
+  CENTER=${INPUT[2]}
+fi
+
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
   exit 1
