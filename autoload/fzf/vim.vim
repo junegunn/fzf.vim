@@ -108,9 +108,9 @@ endfunction
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
-  let options = get(opts, 'options', '')
-  if type(options) == s:TYPE.list
-    let options = join(options)
+  let options = ''
+  if has_key(opts, 'options')
+    let options = type(opts.options) == s:TYPE.list ? join(opts.options) : opts.options
   endif
   if options !~ '--expect' && has_key(opts, 'sink*')
     let Sink = remove(opts, 'sink*')
