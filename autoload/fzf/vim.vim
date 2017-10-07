@@ -1101,6 +1101,11 @@ function! s:commits(buffer_local, args)
     let options.options[-1] .= ',ctrl-d'
   endif
 
+  if !s:is_win
+    call extend(options.options,
+    \ ['--preview', 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --format=format: --color=always | head -200'])
+  endif
+
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
 endfunction
 
