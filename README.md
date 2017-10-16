@@ -93,6 +93,10 @@ pathogen#helptags()`. [↩](#a1))
 
 #### Global options
 
+See [README-VIM.md][readme-vim] of the main fzf repository for details.
+
+[readme-vim]: https://github.com/junegunn/fzf/blob/master/README-VIM.md#configuration
+
 ```vim
 " This is the default extra key bindings
 let g:fzf_action = {
@@ -107,6 +111,7 @@ let g:fzf_layout = { 'down': '~40%' }
 " In Neovim, you can set up fzf window using a Vim command
 let g:fzf_layout = { 'window': 'enew' }
 let g:fzf_layout = { 'window': '-tabnew' }
+let g:fzf_layout = { 'window': '10split enew' }
 
 " Customize fzf colors to match your color scheme
 let g:fzf_colors =
@@ -117,6 +122,7 @@ let g:fzf_colors =
   \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
   \ 'hl+':     ['fg', 'Statement'],
   \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
   \ 'prompt':  ['fg', 'Conditional'],
   \ 'pointer': ['fg', 'Exception'],
   \ 'marker':  ['fg', 'Keyword'],
