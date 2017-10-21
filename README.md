@@ -34,7 +34,18 @@ note that Windows support is experimental at the moment.
 Installation
 ------------
 
-Using [vim-plug](https://github.com/junegunn/vim-plug):
+Use [vim-plug](https://github.com/junegunn/vim-plug) or any Vim plugin
+manager of your choice.
+
+If you already installed fzf using [Homebrew](https://brew.sh/), the following
+should suffice:
+
+```vim
+Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf.vim'
+```
+
+But if you want to install fzf as well using vim-plug:
 
 ```vim
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }

@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: October 17 2017
+fzf-vim.txt	fzf-vim	Last change: October 21 2017
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -63,7 +63,15 @@ note that Windows support is experimental at the moment.
 INSTALLATION                                              *fzf-vim-installation*
 ==============================================================================
 
-Using {vim-plug}{4}:
+Use {vim-plug}{4} or any Vim plugin manager of your choice.
+
+If you already installed fzf using {Homebrew}{5}, the following should
+suffice:
+>
+    Plug '/usr/local/opt/fzf'
+    Plug 'junegunn/fzf.vim'
+<
+But if you want to install fzf as well using vim-plug:
 >
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
@@ -75,6 +83,7 @@ Using {vim-plug}{4}:
  - Make sure to use Vim 7.4 or above
 
                                       {4} https://github.com/junegunn/vim-plug
+                                      {5} https://brew.sh/
 
 
 COMMANDS                                                      *fzf-vim-commands*
@@ -89,7 +98,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `GFiles?`         | Git files ( `git status` )
   `Buffers`         | Open buffers
   `Colors`          | Color schemes
-  `Ag [PATTERN]`    | {ag}{5} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `Ag [PATTERN]`    | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
   `Lines [QUERY]`   | Lines in loaded buffers
   `BLines [QUERY]`  | Lines in the current buffer
   `Tags [QUERY]`    | Tags in the project ( `ctags -R` )
@@ -100,8 +109,8 @@ COMMANDS                                                      *fzf-vim-commands*
   `History`         |  `v:oldfiles`  and open buffers
   `History:`        | Command history
   `History/`        | Search history
-  `Snippets`        | Snippets ({UltiSnips}{6})
-  `Commits`         | Git commits (requires {fugitive.vim}{7})
+  `Snippets`        | Snippets ({UltiSnips}{7})
+  `Commits`         | Git commits (requires {fugitive.vim}{8})
   `BCommits`        | Git commits for the current buffer
   `Commands`        | Commands
   `Maps`            | Normal mode mappings
@@ -117,13 +126,13 @@ COMMANDS                                                      *fzf-vim-commands*
  - You can set `g:fzf_command_prefix` to give the same prefix to the commands
    - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
-(1: `Helptags` will shadow the command of the same name from {pathogen}{8}.
+(1: `Helptags` will shadow the command of the same name from {pathogen}{9}.
 But its functionality is still available via `call pathogen#helptags()`.)
 
-                             {5} https://github.com/ggreer/the_silver_searcher
-                             {6} https://github.com/SirVer/ultisnips
-                             {7} https://github.com/tpope/vim-fugitive
-                             {8} https://github.com/tpope/vim-pathogen
+                             {6} https://github.com/ggreer/the_silver_searcher
+                             {7} https://github.com/SirVer/ultisnips
+                             {8} https://github.com/tpope/vim-fugitive
+                             {9} https://github.com/tpope/vim-pathogen
 
 
 < Customization >_____________________________________________________________~
@@ -133,7 +142,7 @@ But its functionality is still available via `call pathogen#helptags()`.)
 Global options~
                                                         *fzf-vim-global-options*
 
-See {README-VIM.md}{9} of the main fzf repository for details.
+See {README-VIM.md}{10} of the main fzf repository for details.
 >
     " This is the default extra key bindings
     let g:fzf_action = {
@@ -172,7 +181,7 @@ See {README-VIM.md}{9} of the main fzf repository for details.
     " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
     let g:fzf_history_dir = '~/.local/share/fzf-history'
 <
-   {9} https://github.com/junegunn/fzf/blob/master/README-VIM.md#configuration
+  {10} https://github.com/junegunn/fzf/blob/master/README-VIM.md#configuration
 
 
 Command-local options~
