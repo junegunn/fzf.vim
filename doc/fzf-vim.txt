@@ -186,7 +186,7 @@ Command-local options~
                                                  *fzf-vim-command-local-options*
 
                *g:fzf_buffers_jump* *g:fzf_commits_log_options* *g:fzf_tags_command*
-                                                         *g:fzf_commands_expect*
+                                     *g:fzf_btags_command* *g:fzf_commands_expect*
 >
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
@@ -196,6 +196,10 @@ Command-local options~
 
     " [Tags] Command to generate tags file
     let g:fzf_tags_command = 'ctags -R'
+
+    " [BTags] Command to generate tags for a buffer (%s will be formatted to
+    " file name)
+    let g:fzf_btags_command = {'go': 'gotags -silent -sort %s | sed /^!_TAG_/d'}
 
     " [Commands] --expect expression for directly executing the command
     let g:fzf_commands_expect = 'alt-enter,ctrl-x'
