@@ -407,9 +407,12 @@ endfunction
 " Colors
 " ------------------------------------------------------------------
 function! fzf#vim#colors(...)
+  let colors = split(globpath(&rtp, "colors/*.vim"), "\n")
+  if has('packages')
+    let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
+  endif
   return s:fzf('colors', {
-  \ 'source':  fzf#vim#_uniq(map(split(globpath(&rtp, "colors/*.vim"), "\n"),
-  \               "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
+  \ 'source':  fzf#vim#_uniq(map(colors, "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
   \ 'sink':    'colo',
   \ 'options': '+m --prompt="Colors> "'
   \}, a:000)
