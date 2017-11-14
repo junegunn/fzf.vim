@@ -670,6 +670,14 @@ function! fzf#vim#ag_raw(command_suffix, ...)
   return call('fzf#vim#grep', extend(['ag --nogroup --column --color '.a:command_suffix, 1], a:000))
 endfunction
 
+" rg command suffix, [options]
+function! fzf#vim#rg_raw(command_suffix, ...)
+  if !executable('rg')
+    return s:warn('rg is not found')
+  endif
+  return call('fzf#vim#grep', extend(['rg --column --line-number --no-heading --color=always '.a:command_suffix, 1], a:000))
+endfunction
+
 " command, with_column, [options]
 function! fzf#vim#grep(grep_command, with_column, ...)
   let words = []
