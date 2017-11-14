@@ -18,7 +18,11 @@ end
 
 usage if ARGV.empty?
 
-file, center = ARGV.first.split(':')
+file, center, extra = ARGV.first.split(':')
+if ARGV.first =~ /^[A-Z]:\\/
+  file << ':' + center
+  center = extra
+end
 usage unless file
 
 path = File.expand_path(file)

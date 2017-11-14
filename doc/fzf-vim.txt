@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: September 20 2015
+fzf-vim.txt	fzf-vim	Last change: October 21 2017
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -8,10 +8,14 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
     Installation
     Commands
       Customization
+        Global options
+        Command-local options
+        Advanced customization
     Mappings
       Usage
       Completion helper
         Reducer example
+    Status line (neovim)
     License
 
 FZF :HEART: VIM                                          *fzf-vim-fzf-heart-vim*
@@ -53,35 +57,48 @@ selector with fzf.
 
 fzf is an independent command-line program and thus requires an external
 terminal emulator when on GVim. You may or may not like the experience. Also
-note that fzf currently does not compile on Windows.
+note that Windows support is experimental at the moment.
 
 
 INSTALLATION                                              *fzf-vim-installation*
 ==============================================================================
 
-Using {vim-plug}{4}:
+Use {vim-plug}{4} or any Vim plugin manager of your choice.
+
+If you already installed fzf using {Homebrew}{5}, the following should
+suffice:
 >
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': 'yes \| ./install' }
+    Plug '/usr/local/opt/fzf'
     Plug 'junegunn/fzf.vim'
 <
+But if you want to install fzf as well using vim-plug:
+>
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
+<
+ - `dir` and `do` options are not mandatory
+ - Use `./install --bin` instead if you don't need fzf outside of Vim
+ - Make sure to use Vim 7.4 or above
+
                                       {4} https://github.com/junegunn/vim-plug
+                                      {5} https://brew.sh/
 
 
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
 
- -----------------+-------------------------------------------------------------------
- Command          | List                                                                ~
- -----------------+-------------------------------------------------------------------
+ -----------------+-----------------------------------------------------------------------
+ Command          | List                                                                  ~
+ -----------------+-----------------------------------------------------------------------
   `Files [PATH]`    | Files (similar to  `:FZF` )
-  `GFiles [OPTS]`   | Git files (git ls-files)
-  `GFiles?`         | Git files (git status)
+  `GFiles [OPTS]`   | Git files ( `git ls-files` )
+  `GFiles?`         | Git files ( `git status` )
   `Buffers`         | Open buffers
   `Colors`          | Color schemes
-  `Ag [PATTERN]`    | {ag}{5} search result (ALT-A to select all, ALT-D to deselect all)
-  `Lines [QUERY]`   | Lines in loaded buffers
-  `BLines [QUERY]`  | Lines in the current buffer
+  `Ag [PATTERN]`    | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `Lines [QUERY]`   | Lines in loaded buffers
+  `BLines [QUERY]`  | Lines in the current buffer
   `Tags [QUERY]`    | Tags in the project ( `ctags -R` )
   `BTags [QUERY]`   | Tags in the current buffer
   `Marks`           | Marks
@@ -90,36 +107,40 @@ COMMANDS                                                      *fzf-vim-commands*
   `History`         |  `v:oldfiles`  and open buffers
   `History:`        | Command history
   `History/`        | Search history
-  `Snippets`        | Snippets ({UltiSnips}{6})
-  `Commits`         | Git commits (requires {fugitive.vim}{7})
+  `Snippets`        | Snippets ({UltiSnips}{7})
+  `Commits`         | Git commits (requires {fugitive.vim}{8})
   `BCommits`        | Git commits for the current buffer
   `Commands`        | Commands
   `Maps`            | Normal mode mappings
   `Helptags`        | Help tags [1]
   `Filetypes`       | File types
- -----------------+-------------------------------------------------------------------
+ -----------------+-----------------------------------------------------------------------
+
+                                                          *g:fzf_command_prefix*
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
    tab, a new split, or in a new vertical split
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
  - You can set `g:fzf_command_prefix` to give the same prefix to the commands
-     - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
+   - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
-(1: `Helptags` will shadow the command of the same name from {pathogen}{8}.
+(1: `Helptags` will shadow the command of the same name from {pathogen}{9}.
 But its functionality is still available via `call pathogen#helptags()`.)
 
-                             {5} https://github.com/ggreer/the_silver_searcher
-                             {6} https://github.com/SirVer/ultisnips
-                             {7} https://github.com/tpope/vim-fugitive
-                             {8} https://github.com/tpope/vim-pathogen
+                             {6} https://github.com/ggreer/the_silver_searcher
+                             {7} https://github.com/SirVer/ultisnips
+                             {8} https://github.com/tpope/vim-fugitive
+                             {9} https://github.com/tpope/vim-pathogen
 
 
 < Customization >_____________________________________________________________~
                                                          *fzf-vim-customization*
 
-             *g:fzf_action* *g:fzf_layout* *g:fzf_colors*  *g:fzf_commits_log_options*
 
 Global options~
+                                                        *fzf-vim-global-options*
+
+See {README-VIM.md}{10} of the main fzf repository for details.
 >
     " This is the default extra key bindings
     let g:fzf_action = {
@@ -134,6 +155,7 @@ Global options~
     " In Neovim, you can set up fzf window using a Vim command
     let g:fzf_layout = { 'window': 'enew' }
     let g:fzf_layout = { 'window': '-tabnew' }
+    let g:fzf_layout = { 'window': '10split enew' }
 
     " Customize fzf colors to match your color scheme
     let g:fzf_colors =
@@ -144,6 +166,7 @@ Global options~
       \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
       \ 'hl+':     ['fg', 'Statement'],
       \ 'info':    ['fg', 'PreProc'],
+      \ 'border':  ['fg', 'Ignore'],
       \ 'prompt':  ['fg', 'Conditional'],
       \ 'pointer': ['fg', 'Exception'],
       \ 'marker':  ['fg', 'Keyword'],
@@ -156,16 +179,20 @@ Global options~
     " explicitly bind the keys to down and up in your $FZF_DEFAULT_OPTS.
     let g:fzf_history_dir = '~/.local/share/fzf-history'
 <
+  {10} https://github.com/junegunn/fzf/blob/master/README-VIM.md#configuration
+
 
 Command-local options~
+                                                 *fzf-vim-command-local-options*
 
+               *g:fzf_buffers_jump* *g:fzf_commits_log_options* *g:fzf_tags_command*
+                                                         *g:fzf_commands_expect*
 >
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
 
     " [[B]Commits] Customize the options used by 'git log':
-    let g:fzf_commits_log_options = \
-        '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+    let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
     " [Tags] Command to generate tags file
     let g:fzf_tags_command = 'ctags -R'
@@ -174,18 +201,20 @@ Command-local options~
     let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 <
 
-Advanced customization using autoload functions~
+Advanced customization~
+                                                *fzf-vim-advanced-customization*
 
 You can use autoload functions to define your own commands.
 >
-    " git grep
+    " Command for git grep
+    " - fzf#vim#grep(command, with_column, [options], [fullscreen])
     command! -bang -nargs=* GGrep
       \ call fzf#vim#grep('git grep --line-number '.shellescape(<q-args>), 0, <bang>0)
 
     " Override Colors command. You can safely do this in your .vimrc as fzf.vim
     " will not override existing commands.
-    command! Colors
-      \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'})
+    command! -bang Colors
+      \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'}, <bang>0)
 
     " Augmenting Ag command using fzf#vim#with_preview function
     "   * fzf#vim#with_preview([[options], preview window, [toggle keys...]])
@@ -214,7 +243,6 @@ You can use autoload functions to define your own commands.
     command! -bang -nargs=? -complete=dir Files
       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 <
-
 
 MAPPINGS                                                      *fzf-vim-mappings*
 ==============================================================================
@@ -289,6 +317,20 @@ Reducer example~
       \ 'reducer': function('<sid>make_sentence'),
       \ 'options': '--multi --reverse --margin 15%,0',
       \ 'left':    20})
+<
+
+STATUS LINE (NEOVIM)                                 *fzf-vim-status-lineneovim*
+==============================================================================
+>
+    function! s:fzf_statusline()
+      " Override statusline as you like
+      highlight fzf1 ctermfg=161 ctermbg=251
+      highlight fzf2 ctermfg=23 ctermbg=251
+      highlight fzf3 ctermfg=237 ctermbg=251
+      setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
+    endfunction
+
+    autocmd! User FzfStatusLine call <SID>fzf_statusline()
 <
 
 LICENSE                                                        *fzf-vim-license*
