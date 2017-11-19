@@ -287,10 +287,9 @@ may want to customize the statusline of the containing buffer.
 ### Hide statusline
 
 ```vim
-if has('nvim') || has('gui_running')
-  autocmd! FileType fzf
-  autocmd  FileType fzf set laststatus=0 | autocmd BufLeave <buffer> set laststatus=2
-endif
+autocmd! FileType fzf
+autocmd  FileType fzf set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 ```
 
 ### Custom statusline
