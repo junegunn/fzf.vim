@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: October 21 2017
+fzf-vim.txt	fzf-vim	Last change: November 19 2017
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -15,7 +15,9 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
       Usage
       Completion helper
         Reducer example
-    Status line (neovim)
+    Status line of terminal buffer
+      Hide statusline
+      Custom statusline
     License
 
 FZF :HEART: VIM                                          *fzf-vim-fzf-heart-vim*
@@ -319,8 +321,26 @@ Reducer example~
       \ 'left':    20})
 <
 
-STATUS LINE (NEOVIM)                                 *fzf-vim-status-lineneovim*
+STATUS LINE OF TERMINAL BUFFER          *fzf-vim-status-line-of-terminal-buffer*
 ==============================================================================
+
+When fzf starts in a terminal buffer (see {fzf/README-VIM.md}{11}), you may
+want to customize the statusline of the containing buffer.
+
+{11} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
+
+
+< Hide statusline >___________________________________________________________~
+                                                       *fzf-vim-hide-statusline*
+>
+    if has('nvim') || has('gui_running')
+      autocmd! FileType fzf
+      autocmd  FileType fzf set laststatus=0 | autocmd BufLeave <buffer> set laststatus=2
+    endif
+<
+
+< Custom statusline >_________________________________________________________~
+                                                     *fzf-vim-custom-statusline*
 >
     function! s:fzf_statusline()
       " Override statusline as you like

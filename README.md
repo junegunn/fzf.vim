@@ -276,8 +276,24 @@ inoremap <expr> <c-x><c-s> fzf#complete({
   \ 'left':    20})
 ```
 
-Status line (neovim)
---------------------
+Status line of terminal buffer
+------------------------------
+
+When fzf starts in a terminal buffer (see [fzf/README-VIM.md][termbuf]), you
+may want to customize the statusline of the containing buffer.
+
+[termbuf]: https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
+
+### Hide statusline
+
+```vim
+if has('nvim') || has('gui_running')
+  autocmd! FileType fzf
+  autocmd  FileType fzf set laststatus=0 | autocmd BufLeave <buffer> set laststatus=2
+endif
+```
+
+### Custom statusline
 
 ```vim
 function! s:fzf_statusline()
