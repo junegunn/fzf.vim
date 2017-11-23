@@ -44,6 +44,8 @@ if s:is_win
   let s:bin.preview = (executable('ruby') ? 'ruby' : 'bash').' '.escape(s:bin.preview, '\')
 endif
 
+let s:wide = 120
+
 function! s:extend_opts(dict, eopts, prepend)
   if empty(a:eopts)
     return
@@ -327,7 +329,7 @@ function! fzf#vim#_lines(all)
   let rest = []
   let buf = bufnr('')
   let longest_name = 0
-  let display_bufnames = &columns > 100
+  let display_bufnames = &columns > s:wide
   if display_bufnames
     let bufnames = {}
     for b in s:buflisted()
@@ -1120,7 +1122,7 @@ function! s:commits(buffer_local, args)
     let options.options[-1] .= ',ctrl-d'
   endif
 
-  if !s:is_win
+  if !s:is_win && &columns > s:wide
     call extend(options.options,
     \ ['--preview', 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --format=format: --color=always | head -200'])
   endif
