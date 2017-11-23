@@ -47,6 +47,8 @@ call s:defs([
 \'command!      -bang -nargs=* Lines                     call fzf#vim#lines(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* BLines                    call fzf#vim#buffer_lines(<q-args>, <bang>0)',
 \'command! -bar -bang Colors                             call fzf#vim#colors(<bang>0)',
+\'command! -bar -bang Compilers                          call fzf#vim#compilers(<bang>0)',
+\'command! -bar -bang BCompilers                         call fzf#vim#buffer_compilers(<bang>0)',
 \'command!      -bang -nargs=+ -complete=dir Locate      call fzf#vim#locate(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* Ag                        call fzf#vim#ag(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* Tags                      call fzf#vim#tags(<q-args>, <bang>0)',
