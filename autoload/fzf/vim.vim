@@ -839,12 +839,24 @@ function! fzf#vim#tags(query, ...)
       break
     endif
   endfor
-  let opts = v2_limit < 0 ? '--algo=v1 ' : ''
+
+  let opts = []
+
+  if v2_limit < 0
+    add(opts, '--algo=v1')
+  endif
+  if exists('g:fzf_tags_command_tags_flags')
+    add(opts, g:fzf_tags_command_flags)
+  else
+    add(opts, '--nth 1..2 -m --tiebreak=begin')
+  endif
+
+  let cmd_options = join(opts, ' ')
 
   return s:fzf('tags', {
   \ 'source':  fzf#shellescape(s:bin.tags).' '.join(map(tagfiles, 'fzf#shellescape(fnamemodify(v:val, ":p"))')),
   \ 'sink*':   s:function('s:tags_sink'),
-  \ 'options': opts.'--nth 1..2 -m --tiebreak=begin --prompt "Tags> "'.s:q(a:query)}, a:000)
+  \ 'options': cmd_options.' --prompt "Tags> "'.s:q(a:query)}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
