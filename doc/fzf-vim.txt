@@ -198,6 +198,8 @@ Command-local options~
 
     " [Tags] Command to generate tags file
     let g:fzf_tags_command = 'ctags -R'
+    " [Tags] Flags for 'fzf' command. (See 'fzf --help' for full list)
+    let g:fzf_tags_command_flags = '--nth 1..2 -m --tiebreak=begin'
 
     " [Commands] --expect expression for directly executing the command
     let g:fzf_commands_expect = 'alt-enter,ctrl-x'
