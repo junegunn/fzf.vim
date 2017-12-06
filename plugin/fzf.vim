@@ -77,7 +77,7 @@ function! fzf#complete(...)
   return call('fzf#vim#complete', a:000)
 endfunction
 
-if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
+if (has('nvim') || has('terminal') && has('patch-8.0.995')) && (get(g:, 'fzf_statusline', 1) || get(g:, 'fzf_nvim_statusline', 1))
   function! s:fzf_restore_colors()
     if exists('#User#FzfStatusLine')
       doautocmd User FzfStatusLine
@@ -95,7 +95,7 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
     endif
   endfunction
 
-  function! s:fzf_nvim_term()
+  function! s:fzf_vim_term()
     if get(w:, 'airline_active', 0)
       let w:airline_disabled = 1
       autocmd BufWinLeave <buffer> let w:airline_disabled = 0
@@ -108,7 +108,7 @@ if has('nvim') && get(g:, 'fzf_nvim_statusline', 1)
 
   augroup _fzf_statusline
     autocmd!
-    autocmd FileType fzf call s:fzf_nvim_term()
+    autocmd FileType fzf call s:fzf_vim_term()
   augroup END
 endif
 
