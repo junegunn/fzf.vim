@@ -37,8 +37,8 @@ if `file --mime "#{file}"` =~ /binary/
 end
 
 center = (center || 0).to_i
-if ENV['FZF_PREVIEW_HEIGHT']
-  height = ENV['FZF_PREVIEW_HEIGHT'].to_i
+if ENV['LINES']
+  height = ENV['LINES'].to_i
 else
   height = File.readable?('/dev/tty') ? `stty size < /dev/tty`.split.first.to_i : 40
   height /= 2 if split

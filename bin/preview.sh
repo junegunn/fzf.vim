@@ -36,9 +36,7 @@ if [ -z "$CENTER" ]; then
   CENTER=1
 fi
 
-if [ -n "$FZF_PREVIEW_HEIGHT" ]; then
-  LINES=$FZF_PREVIEW_HEIGHT
-else
+if [ -z "$LINES" ]; then
   if [ -r /dev/tty ]; then
     LINES=$(stty size < /dev/tty | awk '{print $1}')
   else
