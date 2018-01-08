@@ -34,8 +34,15 @@ note that Windows support is experimental at the moment.
 Installation
 ------------
 
-Use [vim-plug](https://github.com/junegunn/vim-plug) or any Vim plugin
-manager of your choice.
+fzf.vim depends on the basic Vim plugin of [the main fzf
+repository][fzf-main], which means you need to **set up both "fzf" and
+"fzf.vim" on Vim**. To learn more about fzf/Vim integration, see
+[README-VIM][README-VIM].
+
+[fzf-main]: https://github.com/junegunn/fzf
+[README-VIM]: https://github.com/junegunn/fzf/blob/master/README-VIM.md
+
+### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 If you already installed fzf using [Homebrew](https://brew.sh/), the following
 should suffice:
