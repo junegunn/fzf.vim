@@ -115,11 +115,6 @@ function! s:remove_layout(opts)
   return a:opts
 endfunction
 
-" Deprecated: use fzf#wrap instead
-function! fzf#vim#wrap(opts)
-  return fzf#wrap(a:opts)
-endfunction
-
 function! s:wrap(name, opts, bang)
   " fzf#wrap does not append --expect if sink or sink* is found
   let opts = copy(a:opts)
