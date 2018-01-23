@@ -608,12 +608,15 @@ endfunction
 
 function! s:format_buffer(b)
   let name = bufname(a:b)
+  let is_terminal = name =~? 'term://.*$'
+  let name = is_terminal ? getbufvar(a:b, 'term_title') : name
   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
+  let terminal = is_terminal ? s:green(' [Terminal]', 'Constant') : ''
   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
-  let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
+  let extra = join(filter([modified, terminal, readonly], '!empty(v:val)'), '')
   return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
