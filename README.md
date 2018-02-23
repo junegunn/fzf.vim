@@ -44,7 +44,7 @@ repository][fzf-main], which means you need to **set up both "fzf" and
 
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
-If you already installed fzf using [Homebrew](https://brew.sh/), the following
+If you already installed fzf using [Homebrew](https://brew.sh/), adding the following to your `.vimrc` file
 should suffice:
 
 ```vim
@@ -65,6 +65,7 @@ Plug 'junegunn/fzf.vim'
 
 Commands
 --------
+Enter these commands like you would other Vim commands using `:`.
 
 | Command           | List                                                                    |
 | ---               | ---                                                                     |
