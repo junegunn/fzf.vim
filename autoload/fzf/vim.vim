@@ -271,6 +271,23 @@ function! fzf#vim#_uniq(list)
 endfunction
 
 " ------------------------------------------------------------------
+" Commands customization
+" ------------------------------------------------------------------
+let g:fzf_custom = get(g:, 'fzf_custom', {})
+
+function! s:merge_custom(cmd, cst)
+    if !has_key(g:fzf_custom, a:cst)
+        return a:cmd
+    endif
+    let custom = g:fzf_custom[a:cst]
+    let command = copy(a:cmd)
+    for key in keys(custom)
+        let command[key] = custom[key]
+    endfor
+    return command
+endfunction
+
+" ------------------------------------------------------------------
 " Files
 " ------------------------------------------------------------------
 function! s:shortpath()
@@ -409,11 +426,12 @@ function! fzf#vim#colors(...)
   if has('packages')
     let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
   endif
-  return s:fzf('colors', {
+  let cmd = {
   \ 'source':  fzf#vim#_uniq(map(colors, "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
   \ 'sink':    'colo',
   \ 'options': '+m --prompt="Colors> "'
-  \}, a:000)
+  \}
+  return s:fzf('colors', s:merge_custom(cmd, 'Colors'), a:000)
 endfunction
 
 " ------------------------------------------------------------------
