@@ -602,7 +602,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
+  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
   \}, args)
 endfunction
 
@@ -739,10 +739,6 @@ function! s:btags_sink(lines)
   normal! zz
 endfunction
 
-function! s:q(query)
-  return ' --query '.fzf#shellescape(a:query)
-endfunction
-
 " query, [[tag commands], options]
 function! fzf#vim#buffer_tags(query, ...)
   let args = copy(a:000)
@@ -758,7 +754,7 @@ function! fzf#vim#buffer_tags(query, ...)
     return s:fzf('btags', {
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': '--reverse -m -d "\t" --with-nth 1,4.. -n 1 --prompt "BTags> "'.s:q(a:query)}, args)
+    \ 'options': ['--reverse', '-m', '-d', '\t', '--with-nth', '1,4..', '-n', '1', '--prompt', 'BTags> ', '--query', a:query]}, args)
   catch
     return s:warn(v:exception)
   endtry
