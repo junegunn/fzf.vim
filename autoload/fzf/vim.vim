@@ -866,7 +866,8 @@ endfunction
 " ------------------------------------------------------------------
 " Commands
 " ------------------------------------------------------------------
-let s:nbs = nr2char(0x2007)
+let s:nbscode = 0x2007
+let s:nbs = nr2char(s:nbscode)
 
 function! s:format_cmd(line)
   return substitute(a:line, '\C \([A-Z]\S*\) ',
@@ -925,7 +926,8 @@ function! fzf#vim#commands(...)
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
   \ 'sink*':   s:function('s:command_sink'),
   \ 'options': '--ansi --expect '.get(g:, 'fzf_commands_expect', 'ctrl-x').
-  \            ' --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
+  \            ' --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3'.
+  \            ' -d\x{'.printf('%04x',s:nbscode).'}'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
