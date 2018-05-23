@@ -776,13 +776,18 @@ function! s:tags_sink(lines)
     for line in a:lines[1:]
       try
         let parts   = split(line, '\t\zs')
+        " I don't know what this line is trying to achieve so maybe the regex
+        " is wrong and that's why the jump to the right tag position is not
+        " working. But who knows, there is no comment :-[.
         let excmd   = matchstr(join(parts[2:-2], '')[:-2], '^.\{-}\ze;\?"\t')
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
+        let pos     = str2nr(parts[-2])
         call s:open(cmd, expand(abspath, 1))
         execute excmd
-        call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+        execute ':' . pos
+        call add(qfl, {'filename': expand('%'), 'lnum': pos, 'text': getline(pos)})
       catch /^Vim:Interrupt$/
         break
       catch
