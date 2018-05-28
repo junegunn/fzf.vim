@@ -577,7 +577,7 @@ endfunction
 
 function! s:format_buffer(b)
   let name = bufname(a:b)
-  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
