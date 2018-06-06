@@ -576,8 +576,9 @@ function! s:bufopen(lines)
 endfunction
 
 function! s:format_buffer(b)
+  let filename_modifier = get(g:, 'fzf_buffer_fnamemodify_arg', ":~:.")
   let name = bufname(a:b)
-  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, filename_modifier)
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
