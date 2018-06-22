@@ -112,7 +112,10 @@ if (has('nvim') || has('terminal') && has('patch-8.0.995')) && (get(g:, 'fzf_sta
   augroup END
 endif
 
-let g:fzf#vim#buffers = {}
+if !exists('g:fzf#vim#buffers')
+  let g:fzf#vim#buffers = {}
+endif
+
 augroup fzf_buffers
   autocmd!
   if exists('*reltimefloat')
