@@ -446,6 +446,8 @@ function! s:history_source(type)
 endfunction
 
 nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<cr>
+nnoremap <plug>(-fzf-/) /
+nnoremap <plug>(-fzf-:) :
 
 function! s:history_sink(type, lines)
   if len(a:lines) < 2
@@ -465,7 +467,7 @@ function! s:history_sink(type, lines)
 endfunction
 
 function! s:cmd_history_sink(lines)
-  call s:history_sink(':', a:lines)
+  call s:history_sink("\<plug>(-fzf-:)", a:lines)
 endfunction
 
 function! fzf#vim#command_history(...)
@@ -476,7 +478,7 @@ function! fzf#vim#command_history(...)
 endfunction
 
 function! s:search_history_sink(lines)
-  call s:history_sink('/', a:lines)
+  call s:history_sink("\<plug>(-fzf-/)", a:lines)
 endfunction
 
 function! fzf#vim#search_history(...)
