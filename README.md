@@ -249,13 +249,13 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
 ### Completion helper
 
-`fzf#complete` is a helper function for creating custom fuzzy completion using
-fzf. If the first parameter is a command string or a Vim list, it will be used
-as the source.
+`fzf#vim#complete` is a helper function for creating custom fuzzy completion
+using fzf. If the first parameter is a command string or a Vim list, it will
+be used as the source.
 
 ```vim
 " Replace the default dictionary completion with fzf-based fuzzy completion
-inoremap <expr> <c-x><c-k> fzf#complete('cat /usr/share/dict/words')
+inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
 ```
 
 For advanced uses, you can pass an options dictionary to the function. The set
@@ -271,6 +271,15 @@ following exceptions:
   completion prefix as the argument and return the final value
 - `sink` or `sink*` are ignored
 
+```vim
+" Global line completion (not just open buffers. ripgrep required.)
+inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
+  \ 'prefix': '^.*$',
+  \ 'source': 'rg -n ^ --color always',
+  \ 'options': '--ansi --delimiter : --nth 3..',
+  \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
+```
+
 #### Reducer example
 
 ```vim
@@ -278,7 +287,7 @@ function! s:make_sentence(lines)
   return substitute(join(a:lines), '^.', '\=toupper(submatch(0))', '').'.'
 endfunction
 
-inoremap <expr> <c-x><c-s> fzf#complete({
+inoremap <expr> <c-x><c-s> fzf#vim#complete({
   \ 'source':  'cat /usr/share/dict/words',
   \ 'reducer': function('<sid>make_sentence'),
   \ 'options': '--multi --reverse --margin 15%,0',
