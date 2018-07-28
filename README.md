@@ -27,10 +27,6 @@ is small, which is the case for many of the commands provided here.
 Nevertheless I wrote them anyway since it's really easy to implement custom
 selector with fzf.
 
-fzf is an independent command-line program and thus requires an external
-terminal emulator when on GVim. You may or may not like the experience. Also
-note that Windows support is experimental at the moment.
-
 Installation
 ------------
 
