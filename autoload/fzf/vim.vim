@@ -182,7 +182,7 @@ endfunction
 function! s:ansi(str, group, default, ...)
   let fg = s:get_color('fg', a:group)
   let bg = s:get_color('bg', a:group)
-  let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
+  let color = (empty(fg) ? s:ansi[a:default] : s:csi(fg, 1)) .
         \ (empty(bg) ? '' : ';'.s:csi(bg, 0))
   return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
 endfunction
