@@ -183,7 +183,7 @@ function! s:ansi(str, group, default, ...)
   let fg = s:get_color('fg', a:group)
   let bg = s:get_color('bg', a:group)
   let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
-        \ (empty(bg) ? '' : s:csi(bg, 0))
+        \ (empty(bg) ? '' : ';'.s:csi(bg, 0))
   return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
 endfunction
 
@@ -348,10 +348,11 @@ function! fzf#vim#_lines(all)
     else
       let bufname = ''
     endif
+    let linefmt = s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s"
     call extend(b == buf ? cur : rest,
     \ filter(
     \   map(lines,
-    \       '(!a:all && empty(v:val)) ? "" : printf(s:blue("%2d\t", "TabLine")."%s".s:yellow("\t%4d ", "LineNr")."\t%s", b, bufname, v:key + 1, v:val)'),
+    \       '(!a:all && empty(v:val)) ? "" : printf(linefmt, b, bufname, v:key + 1, v:val)'),
     \   'a:all || !empty(v:val)'))
   endfor
   return [display_bufnames, extend(cur, rest)]
@@ -387,8 +388,8 @@ function! s:buffer_line_handler(lines)
 endfunction
 
 function! s:buffer_lines()
-  return map(getline(1, "$"),
-    \ 'printf(s:yellow(" %4d ", "LineNr")."\t%s", v:key + 1, v:val)')
+  let linefmt = s:yellow(" %4d ", "LineNr")."\t%s"
+  return map(getline(1, "$"), 'printf(linefmt, v:key + 1, v:val)')
 endfunction
 
 function! fzf#vim#buffer_lines(...)
@@ -891,9 +892,11 @@ function! s:command_sink(lines)
   endif
 endfunction
 
+let s:fmt_excmd = '   '.s:blue('%-38s', 'Statement').'%s'
+
 function! s:format_excmd(ex)
   let match = matchlist(a:ex, '^|:\(\S\+\)|\s*\S*\(.*\)')
-  return printf('   '.s:blue('%-38s', 'Statement').'%s', s:nbs.match[1].s:nbs, s:strip(match[2]))
+  return printf(s:fmt_excmd, s:nbs.match[1].s:nbs, s:strip(match[2]))
 endfunction
 
 function! s:excmds()
