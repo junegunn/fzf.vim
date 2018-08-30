@@ -342,7 +342,7 @@ function! fzf#vim#_lines(all)
     if display_bufnames
       let bufname = bufnames[b]
       if len(bufname) > len_bufnames + 1
-        let bufname = '…' . bufname[-(len_bufnames+1):]
+        let bufname = '…' . bufname[-len_bufnames+1:]
       endif
       let bufname = printf(s:green("%".len_bufnames."s", "Directory"), bufname)
     else
