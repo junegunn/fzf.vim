@@ -70,6 +70,7 @@ Commands
 | `Buffers`         | Open buffers                                                            |
 | `Colors`          | Color schemes                                                           |
 | `Ag [PATTERN]`    | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
+| `Rg [PATTERN]`    | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
 | `Lines [QUERY]`   | Lines in loaded buffers                                                 |
 | `BLines [QUERY]`  | Lines in the current buffer                                             |
 | `Tags [QUERY]`    | Tags in the project (`ctags -R`)                                        |
@@ -329,4 +330,5 @@ MIT
 [run]:   https://github.com/junegunn/fzf#usage-as-vim-plugin
 [vimrc]: https://github.com/junegunn/dotfiles/blob/master/vimrc
 [ag]:    https://github.com/ggreer/the_silver_searcher
+[rg]:    https://github.com/BurntSushi/ripgrep
 [us]:    https://github.com/SirVer/ultisnips

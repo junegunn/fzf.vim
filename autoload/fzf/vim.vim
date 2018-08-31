@@ -614,7 +614,7 @@ function! fzf#vim#buffers(...)
 endfunction
 
 " ------------------------------------------------------------------
-" Ag
+" Ag / Rg
 " ------------------------------------------------------------------
 function! s:ag_to_qf(line, with_column)
   let parts = split(a:line, ':')
