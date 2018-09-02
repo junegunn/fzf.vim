@@ -1002,8 +1002,8 @@ endfunction
 " ------------------------------------------------------------------
 function! fzf#vim#filetypes(...)
   return s:fzf('filetypes', {
-  \ 'source':  sort(map(split(globpath(&rtp, 'syntax/*.vim'), '\n'),
-  \            'fnamemodify(v:val, ":t:r")')),
+  \ 'source':  fzf#vim#_uniq(sort(map(split(globpath(&rtp, 'syntax/*.vim'), '\n'),
+  \            'fnamemodify(v:val, ":t:r")'))),
   \ 'sink':    'setf',
   \ 'options': '+m --prompt="File types> "'
   \}, a:000)
