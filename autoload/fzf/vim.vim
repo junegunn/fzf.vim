@@ -406,7 +406,12 @@ endfunction
 
 function! s:buffer_lines(query)
   let linefmt = s:yellow(" %4d ", "LineNr")."\t%s"
-  return map(empty(a:query) ? getline(1, "$") : filter(getline(1, "$"), 'v:val =~ "'.a:query.'"'), 'printf(linefmt, v:key + 1, v:val)')
+  let fmtexpr = 'printf(linefmt, v:key + 1, v:val)'
+  let lines = getline(1, '$')
+  if empty(a:query)
+    return map(lines, fmtexpr)
+  end
+  return filter(map(lines, 'v:val =~ a:query ? '.fmtexpr.' : ""'), 'len(v:val)')
 endfunction
 
 function! fzf#vim#buffer_lines(...)
