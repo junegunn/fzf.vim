@@ -413,9 +413,9 @@ function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf('blines', {
-  \ 'source':  s:buffer_lines(),
+  \ 'source':  empty(query) ? s:buffer_lines() : filter(s:buffer_lines(), 'v:val =~ "'.query.'"'),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': ['+m', '--tiebreak=index', '--multi', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1', '--query', query]
+  \ 'options': ['+m', '--tiebreak=index', '--multi', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1']
   \}, args)
 endfunction
 
