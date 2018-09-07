@@ -264,7 +264,7 @@ function! s:fill_quickfix(list, ...)
     copen
     wincmd p
     if a:0
-      exe a:1
+      execute a:1
     endif
   endif
 endfunction
@@ -404,16 +404,16 @@ function! s:buffer_line_handler(lines)
   normal! ^zz
 endfunction
 
-function! s:buffer_lines()
+function! s:buffer_lines(query)
   let linefmt = s:yellow(" %4d ", "LineNr")."\t%s"
-  return map(getline(1, "$"), 'printf(linefmt, v:key + 1, v:val)')
+  return map(empty(a:query) ? getline(1, "$") : filter(getline(1, "$"), 'v:val =~ "'.a:query.'"'), 'printf(linefmt, v:key + 1, v:val)')
 endfunction
 
 function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf('blines', {
-  \ 'source':  empty(query) ? s:buffer_lines() : filter(s:buffer_lines(), 'v:val =~ "'.query.'"'),
+  \ 'source':  s:buffer_lines(query),
   \ 'sink*':   s:function('s:buffer_line_handler'),
   \ 'options': ['+m', '--tiebreak=index', '--multi', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1']
   \}, args)
