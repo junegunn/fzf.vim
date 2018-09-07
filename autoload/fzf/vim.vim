@@ -388,6 +388,12 @@ function! s:buffer_line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+  let qfl = []
+  for line in a:lines[1:]
+    let [ln, ltxt] = split(line, "\t")
+    call add(qfl, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
+  endfor
+  call s:fill_quickfix(qfl, 'cfirst')
   normal! m'
   let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
@@ -409,7 +415,7 @@ function! fzf#vim#buffer_lines(...)
   return s:fzf('blines', {
   \ 'source':  s:buffer_lines(),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': ['+m', '--tiebreak=index', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1', '--query', query]
+  \ 'options': ['+m', '--tiebreak=index', '--multi', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1', '--query', query]
   \}, args)
 endfunction
 
