@@ -258,6 +258,17 @@ function! s:warn(message)
   return 0
 endfunction
 
+function! s:fill_quickfix(list, ...)
+  if len(a:list) > 1
+    call setqflist(a:list)
+    copen
+    wincmd p
+    if a:0
+      execute a:1
+    endif
+  endif
+endfunction
+
 function! fzf#vim#_uniq(list)
   let visited = {}
   let ret = []
@@ -377,6 +388,12 @@ function! s:buffer_line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+  let qfl = []
+  for line in a:lines[1:]
+    let [ln, ltxt] = split(line, "\t")
+    call add(qfl, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
+  endfor
+  call s:fill_quickfix(qfl, 'cfirst')
   normal! m'
   let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
@@ -387,18 +404,18 @@ function! s:buffer_line_handler(lines)
   normal! ^zz
 endfunction
 
-function! s:buffer_lines()
+function! s:buffer_lines(query)
   let linefmt = s:yellow(" %4d ", "LineNr")."\t%s"
-  return map(getline(1, "$"), 'printf(linefmt, v:key + 1, v:val)')
+  return map(empty(a:query) ? getline(1, "$") : filter(getline(1, "$"), 'v:val =~ "'.a:query.'"'), 'printf(linefmt, v:key + 1, v:val)')
 endfunction
 
 function! fzf#vim#buffer_lines(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
   return s:fzf('blines', {
-  \ 'source':  s:buffer_lines(),
+  \ 'source':  s:buffer_lines(query),
   \ 'sink*':   s:function('s:buffer_line_handler'),
-  \ 'options': ['+m', '--tiebreak=index', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1', '--query', query]
+  \ 'options': ['+m', '--tiebreak=index', '--multi', '--prompt', 'BLines> ', '--ansi', '--extended', '--nth=2..', '--layout=reverse-list', '--tabstop=1']
   \}, args)
 endfunction
 
@@ -648,11 +665,7 @@ function! s:ag_handler(lines, with_column)
   catch
   endtry
 
-  if len(list) > 1
-    call setqflist(list)
-    copen
-    wincmd p
-  endif
+  call s:fill_quickfix(list)
 endfunction
 
 " query, [[ag options], options]
@@ -737,12 +750,7 @@ function! s:btags_sink(lines)
     execute split(line, "\t")[2]
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
-  if len(qfl) > 1
-    call setqflist(qfl)
-    copen
-    wincmd p
-    cfirst
-  endif
+  call s:fill_quickfix(qfl, 'cfirst')
   normal! zz
 endfunction
 
@@ -799,12 +807,7 @@ function! s:tags_sink(lines)
   finally
     let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
   endtry
-  if len(qfl) > 1
-    call setqflist(qfl)
-    copen
-    wincmd p
-    clast
-  endif
+  call s:fill_quickfix(qfl, 'clast')
   normal! zz
 endfunction
 
