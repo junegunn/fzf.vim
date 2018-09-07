@@ -258,6 +258,17 @@ function! s:warn(message)
   return 0
 endfunction
 
+function! s:fill_quickfix(list, ...)
+  if len(a:list) > 1
+    call setqflist(a:list)
+    copen
+    wincmd p
+    if a:0
+      exe a:1
+    endif
+  endif
+endfunction
+
 function! fzf#vim#_uniq(list)
   let visited = {}
   let ret = []
@@ -648,11 +659,7 @@ function! s:ag_handler(lines, with_column)
   catch
   endtry
 
-  if len(list) > 1
-    call setqflist(list)
-    copen
-    wincmd p
-  endif
+  call s:fill_quickfix(list)
 endfunction
 
 " query, [[ag options], options]
@@ -737,12 +744,7 @@ function! s:btags_sink(lines)
     execute split(line, "\t")[2]
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
-  if len(qfl) > 1
-    call setqflist(qfl)
-    copen
-    wincmd p
-    cfirst
-  endif
+  call s:fill_quickfix(qfl, 'cfirst')
   normal! zz
 endfunction
 
@@ -799,12 +801,7 @@ function! s:tags_sink(lines)
   finally
     let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
   endtry
-  if len(qfl) > 1
-    call setqflist(qfl)
-    copen
-    wincmd p
-    clast
-  endif
+  call s:fill_quickfix(qfl, 'clast')
   normal! zz
 endfunction
 
