@@ -327,7 +327,7 @@ function! s:line_handler(lines)
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0]
   execute keys[2]
-  normal! ^zz
+  normal! ^zvzz
 endfunction
 
 function! fzf#vim#_lines(all)
@@ -401,7 +401,7 @@ function! s:buffer_line_handler(lines)
   endif
 
   execute split(a:lines[1], '\t')[0]
-  normal! ^zz
+  normal! ^zvzz
 endfunction
 
 function! s:buffer_lines(query)
