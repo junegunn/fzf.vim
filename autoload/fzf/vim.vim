@@ -709,6 +709,7 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
+  \             '--delimiter', ':', '--nth','2..', '--with-nth', '1,4..',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--color', 'hl:4,hl+:12']
   \}
