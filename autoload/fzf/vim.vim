@@ -55,7 +55,6 @@ else
       endif
     endfor
   endif
-  echom s:preview_highlighter
   let s:preview_line_highlight = get(g:, 'fzf_preview_line_highlight', '\x1b[7m')
   let s:bin.preview = 'CENTER={2};FIRST=$(($CENTER-$LINES/4));FIRST=$(($FIRST<1?1:$FIRST));'.s:preview_highlighter.' {1}|sed -n "$FIRST,+50{${CENTER}{s/\x1b\[[0-9;]*m/&' . s:preview_line_highlight . '/g;s/$/\x1b[m/};p}"'
 endif
