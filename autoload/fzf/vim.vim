@@ -32,16 +32,32 @@ let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
 let s:bin = {
-\ 'preview': s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 if s:is_win
+  let s:bin.preview = s:bin_dir.(executable('ruby') ? 'preview.rb' : 'preview.sh'),
   if has('nvim')
     let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
   else
     let s:bin.preview = fnamemodify(s:bin.preview, ':8')
   endif
-  let s:bin.preview = (executable('ruby') ? 'ruby' : 'bash').' '.escape(s:bin.preview, '\')
+  let s:bin.preview = (executable('ruby') ? 'ruby' : 'bash').' '.escape(s:bin.preview, '\').' {}'
+else
+  if exists("g:fzf_preview_highlighter")
+    let s:preview_highlighter = g:fzf_preview_highlighter
+  elseif executable('highlight')
+    let s:preview_highlighter = 'highlight -O ansi --line-numbers --force'
+  else
+    for s:hl in ['coderay', 'rougify', 'cat']
+      if executable(s:hl)
+        let s:preview_highlighter = s:hl
+        break
+      endif
+    endfor
+  endif
+  echom s:preview_highlighter
+  let s:preview_line_highlight = get(g:, 'fzf_preview_line_highlight', '\x1b[7m')
+  let s:bin.preview = 'CENTER={2};FIRST=$(($CENTER-$LINES/4));FIRST=$(($FIRST<1?1:$FIRST));'.s:preview_highlighter.' {1}|sed -n "$FIRST,+50{${CENTER}{s/\x1b\[[0-9;]*m/&' . s:preview_line_highlight . '/g;s/$/\x1b[m/};p}"'
 endif
 
 let s:wide = 120
@@ -97,7 +113,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  let preview = ['--preview-window', window, '--preview', (s:is_win ? s:bin.preview : fzf#shellescape(s:bin.preview)).' {}']
+  let preview = ['--preview-window', window, '--preview', s:bin.preview]
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
@@ -710,7 +726,7 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   \ 'column':  a:with_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--color', 'hl:4,hl+:12']
+  \             '--color', 'hl:4,hl+:12', '--delimiter=:']
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
