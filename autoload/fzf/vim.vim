@@ -390,7 +390,9 @@ function! s:buffer_line_handler(lines)
   endif
   let qfl = []
   for line in a:lines[1:]
-    let [ln, ltxt] = split(line, "\t")
+    let chunks = split(line, "\t", 1)
+    let ln = chunks[0]
+    let ltxt = join(chunks[1:], "\t")
     call add(qfl, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
   endfor
   call s:fill_quickfix(qfl, 'cfirst')
