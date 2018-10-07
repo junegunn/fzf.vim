@@ -4,7 +4,7 @@
 
 require 'shellwords'
 
-COMMAND = %[(highlight -O ansi -l {} || coderay {} || rougify {} || cat {}) 2> /dev/null]
+COMMAND = %[(highlight -O ansi -l {} || coderay {} || rougify {} || bat --style=numbers --color=always {} || cat {}) 2> /dev/null]
 ANSI    = /\x1b\[[0-9;]*m/
 REVERSE = "\x1b[7m"
 RESET   = "\x1b[m"
@@ -55,3 +55,4 @@ IO.popen(['sh', '-c', COMMAND.gsub('{}', Shellwords.shellescape(path))]) do |io|
     end
   end
 end
+print RESET
