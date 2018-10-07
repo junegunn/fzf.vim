@@ -52,4 +52,16 @@ FIRST=$(($CENTER-$LINES/3))
 FIRST=$(($FIRST < 1 ? 1 : $FIRST))
 LAST=$((${FIRST}+${LINES}-1))
 
-awk "NR >= $FIRST && NR <= $LAST {if (NR == $CENTER) printf(\"$REVERSE%5d %s\n$RESET\", NR, \$0); else printf(\"%5d %s\n\", NR, \$0)}" $FILE
+if which bat >/dev/null; then
+  CAT="bat --style=numbers --color=always"
+  $CAT $FILE | awk "NR >= $FIRST && NR <= $LAST { \
+      if (NR == $CENTER) \
+          { gsub(/\x1b[[0-9;]*m/, \"&$REVERSE\"); printf(\"$REVERSE%s\n$RESET\", \$0); } \
+      else printf(\"$RESET%s\n\", \$0); \
+      }"
+else
+  awk "NR >= $FIRST && NR <= $LAST { \
+      if (NR == $CENTER) printf(\"$REVERSE%5d %s\n$RESET\", NR, \$0); \
+      else printf(\"%5d %s\n\", NR, \$0); \
+      }" $FILE
+fi
