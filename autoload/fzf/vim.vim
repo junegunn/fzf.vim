@@ -1088,7 +1088,7 @@ function! s:commits_sink(lines)
       else
         " Since fugitive buffers are unlisted, we can't keep using 'e'
         let c = (cmd == 'e' && idx > 1) ? 'tab split' : cmd
-        execute c FugitiveGenerate(sha)
+        execute c FugitiveFind(sha)
       endif
     endif
   endfor
