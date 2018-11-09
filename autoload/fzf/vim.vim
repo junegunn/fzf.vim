@@ -591,6 +591,13 @@ function! s:bufopen(lines)
   if len(a:lines) < 2
     return
   endif
+
+  if a:lines[0] == 'ctrl-d'
+    let index = matchstr(a:lines[1], '^\[\([0-9a-f]\+\)\]')
+    execute('bwipeout ' . index[1:len(index)-2])
+    return
+  end
+
   let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
   if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
     let [t, w] = s:find_open_window(b)
@@ -630,10 +637,15 @@ endfunction
 function! fzf#vim#buffers(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
+  \ 'options': [
+  \   '+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d',
+  \   '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query,
+  \   '--header', ':: Press '.s:magenta('CTRL-D', 'Special').' to wipeout a buffer',
+  \   '--expect=ctrl-d,'.expect_keys]
   \}, args)
 endfunction
 
