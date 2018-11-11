@@ -41,7 +41,7 @@ if s:is_win
   else
     let s:bin.preview = fnamemodify(s:bin.preview, ':8')
   endif
-  let s:bin.preview = (executable('ruby') ? 'ruby' : 'bash').' '.escape(s:bin.preview, '\')
+  let s:bin.preview = 'bash '.escape(s:bin.preview, '\')
 endif
 
 let s:wide = 120
