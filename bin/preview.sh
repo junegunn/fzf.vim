@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 REVERSE="\x1b[7m"
 RESET="\x1b[m"
