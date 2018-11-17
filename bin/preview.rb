@@ -33,7 +33,7 @@ unless File.readable? path
   exit 1
 end
 
-if `file --mime "#{file}"` =~ /binary/
+if `file --dereference --mime "#{file}"` =~ /binary/
   puts "#{file} is a binary file"
   exit 0
 end
