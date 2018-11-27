@@ -183,7 +183,7 @@ command! -bang Colors
   \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'}, <bang>0)
 
 " Augmenting Ag command using fzf#vim#with_preview function
-"   * fzf#vim#with_preview([[options], preview window, [toggle keys...]])
+"   * fzf#vim#with_preview([[options], [preview window], [toggle keys...]])
 "     * For syntax-highlighting, Ruby and any of the following tools are required:
 "       - Bat: https://github.com/sharkdp/bat
 "       - Highlight: http://www.andre-simon.de/doku/highlight/en/highlight.php
