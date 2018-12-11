@@ -113,6 +113,7 @@ See [README-VIM.md][readme-vim] of the main fzf repository for details.
 ```vim
 " This is the default extra key bindings
 let g:fzf_action = {
+  \ 'ctrl-q': 'bdelete',
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }

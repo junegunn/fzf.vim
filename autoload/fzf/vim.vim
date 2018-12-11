@@ -219,6 +219,7 @@ function! s:fzf(name, opts, extra)
 endfunction
 
 let s:default_action = {
+  \ 'ctrl-q': 'bdelete',
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
@@ -591,19 +592,21 @@ function! s:bufopen(lines)
   if len(a:lines) < 2
     return
   endif
-  let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
-  if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
-    let [t, w] = s:find_open_window(b)
-    if t
-      call s:jump(t, w)
-      return
+  for line in a:lines[:1]
+    let b = matchstr(line, '\[\zs[0-9]*\ze\]')
+    if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
+      let [t, w] = s:find_open_window(b)
+      if t
+        call s:jump(t, w)
+        return
+      endif
     endif
-  endif
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
-  endif
-  execute 'buffer' b
+    let cmd = s:action_for(a:lines[0])
+    if !empty(cmd)
+      execute 'silent' cmd
+    endif
+    execute 'buffer' b
+  endfor
 endfunction
 
 function! s:format_buffer(b)
@@ -633,7 +636,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
+  \ 'options': ['+m', '--multi', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
   \}, args)
 endfunction
 
