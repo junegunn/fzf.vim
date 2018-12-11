@@ -583,7 +583,7 @@ function! s:find_open_window(b)
 endfunction
 
 function! s:jump(t, w)
-  execute 'normal!' a:t.'gt'
+  execute a:t.'tabnext'
   execute a:w.'wincmd w'
 endfunction
 
