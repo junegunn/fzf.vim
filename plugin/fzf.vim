@@ -128,6 +128,7 @@ augroup fzf_buffers
 augroup END
 
 inoremap <expr> <plug>(fzf-complete-word)        fzf#vim#complete#word()
+inoremap <expr> <plug>(fzf-complete-tags)        fzf#vim#complete#tags()
 if s:is_win
   inoremap <expr> <plug>(fzf-complete-path)      fzf#vim#complete#path('dir /s/b')
   inoremap <expr> <plug>(fzf-complete-file)      fzf#vim#complete#path('dir /s/b/a:-d')

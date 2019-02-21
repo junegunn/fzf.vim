@@ -243,6 +243,7 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
+inoremap <expr> <c-x><c-t> fzf#vim#complete#tags({'right': '35%'})
 ```
 
 ### Completion helper

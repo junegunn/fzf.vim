@@ -52,6 +52,11 @@ function! fzf#vim#complete#word(...)
     \ get(a:000, 0, fzf#wrap())))
 endfunction
 
+function! fzf#vim#complete#tags(...)
+  return fzf#vim#complete(s:extend({
+    \ 'source': 'cat ./tags | sed "s/\t/ /g" | cut -d " " -f 1'},
+    \ get(a:000, 0, fzf#wrap())))
+endfunction
 " ----------------------------------------------------------------------------
 " <plug>(fzf-complete-path)
 " <plug>(fzf-complete-file)
