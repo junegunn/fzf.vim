@@ -22,7 +22,7 @@ if [ ! -r "$FILE" ]; then
   exit 1
 fi
 
-if [[ "$(file --mime "$FILE")" =~ binary ]]; then
+if [[ "$(file --dereference --mime "$FILE")" =~ binary ]]; then
   echo "$1 is a binary file"
   exit 0
 fi
