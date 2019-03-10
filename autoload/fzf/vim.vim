@@ -592,7 +592,7 @@ function! s:bufopen(lines)
     return
   endif
 
-  let l:close_action = get(g: 'fzf_buffer_close_action', 'ctrl-d')
+  let l:close_action = get(g:, 'fzf_buffers_close_action', 'ctrl-d')
   if a:lines[0] == l:close_action
     let index = matchstr(a:lines[1], '^\[\([0-9a-f]\+\)\]')
     execute('bwipeout ' . index[1:len(index)-2])
@@ -638,7 +638,7 @@ endfunction
 function! fzf#vim#buffers(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  let l:close_action = get(g: 'fzf_buffer_close_action', 'ctrl-d')
+  let l:close_action = get(g:, 'fzf_buffers_close_action', 'ctrl-d')
   let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
