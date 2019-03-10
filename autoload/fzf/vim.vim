@@ -592,7 +592,8 @@ function! s:bufopen(lines)
     return
   endif
 
-  if a:lines[0] == 'ctrl-d'
+  let l:close_action = get(g: 'fzf_buffer_close_action', 'ctrl-d')
+  if a:lines[0] == l:close_action
     let index = matchstr(a:lines[1], '^\[\([0-9a-f]\+\)\]')
     execute('bwipeout ' . index[1:len(index)-2])
     return
@@ -637,6 +638,7 @@ endfunction
 function! fzf#vim#buffers(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let l:close_action = get(g: 'fzf_buffer_close_action', 'ctrl-d')
   let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
@@ -644,8 +646,8 @@ function! fzf#vim#buffers(...)
   \ 'options': [
   \   '+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d',
   \   '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query,
-  \   '--header', ':: Press '.s:magenta('CTRL-D', 'Special').' to wipeout a buffer',
-  \   '--expect=ctrl-d,'.expect_keys]
+  \   '--header', ':: Press '.s:magenta(toupper(l:close_action), 'Special').' to wipeout a buffer',
+  \   '--expect='.l:close_action.','.expect_keys]
   \}, args)
 endfunction
 
