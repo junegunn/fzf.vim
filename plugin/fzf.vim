@@ -1,4 +1,4 @@
-" Copyright (c) 2015 Junegunn Choi
+" Copyright (c) 2015-2019 Junegunn Choi
 "
 " MIT License
 "
@@ -120,9 +120,9 @@ endif
 augroup fzf_buffers
   autocmd!
   if exists('*reltimefloat')
-    autocmd BufWinEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = reltimefloat(reltime())
+    autocmd BufEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = reltimefloat(reltime())
   else
-    autocmd BufWinEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = localtime()
+    autocmd BufEnter,WinEnter * let g:fzf#vim#buffers[bufnr('')] = localtime()
   endif
   autocmd BufDelete * silent! call remove(g:fzf#vim#buffers, expand('<abuf>'))
 augroup END
