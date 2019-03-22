@@ -1154,7 +1154,7 @@ endfunction
 " ------------------------------------------------------------------
 let s:default_wipeout_command = 'bwipeout'
 
-function! s:bwipeout(bang, lines)
+function! s:bwipeout(lines)
   if len(a:lines) < 2
     return
   endif
