@@ -155,9 +155,6 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
 
-" [Buffers] An action to close selected buffer
-let g:fzf_buffers_close_action = 'ctrl-d'
-
 " [[B]Commits] Customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
@@ -166,6 +163,9 @@ let g:fzf_tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+" [Wipeouts] A command to close selected buffer
+let g:fzf_wipeout_command = 'bwipeout'
 ```
 
 #### Advanced customization
