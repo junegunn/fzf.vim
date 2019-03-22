@@ -591,14 +591,6 @@ function! s:bufopen(lines)
   if len(a:lines) < 2
     return
   endif
-
-  let l:close_action = get(g:, 'fzf_buffers_close_action', 'ctrl-d')
-  if a:lines[0] == l:close_action
-    let index = matchstr(a:lines[1], '^\[\([0-9a-f]\+\)\]')
-    execute('bwipeout ' . index[1:len(index)-2])
-    return
-  end
-
   let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
   if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
     let [t, w] = s:find_open_window(b)
@@ -638,16 +630,10 @@ endfunction
 function! fzf#vim#buffers(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
-  let l:close_action = get(g:, 'fzf_buffers_close_action', 'ctrl-d')
-  let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': [
-  \   '+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d',
-  \   '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query,
-  \   '--header', ':: Press '.s:magenta(toupper(l:close_action), 'Special').' to wipeout a buffer',
-  \   '--expect='.l:close_action.','.expect_keys]
+  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
   \}, args)
 endfunction
 
@@ -1161,6 +1147,38 @@ endfunction
 
 function! fzf#vim#buffer_commits(...)
   return s:commits(1, a:000)
+endfunction
+
+" ------------------------------------------------------------------
+" Wipeouts
+" ------------------------------------------------------------------
+let s:default_wipeout_command = 'bwipeout'
+
+function! s:bwipeout(bang, lines)
+  if len(a:lines) < 2
+    return
+  endif
+
+  let l:wipeout_command = get(g:, 'fzf_wipeout_command', s:default_wipeout_command)
+
+  for l:line in a:lines[1:]
+    let l:index = matchstr(l:line, '^\[\([0-9a-f]\+\)\]')
+    execute(l:wipeout_command . ' ' . index[1:len(index)-2])
+  endfor
+endfunction
+
+function! fzf#vim#wipeout_buffers(...)
+  let [query, args] = (a:0 && type(a:1) == type('')) ?
+        \ [a:1, a:000[1:]] : ['', a:000]
+  let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
+  return s:fzf('wipeout_buffers', {
+  \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
+  \ 'sink*':   s:function('s:bwipeout'),
+  \ 'options': [
+  \   '-m', '-x', '--tiebreak=index', '--ansi', '-d',
+  \   '\t', '-n', '2,1..2', '--prompt', 'Wipeout> ', '--query', query,
+  \   '--expect='.expect_keys]
+  \}, args)
 endfunction
 
 " ------------------------------------------------------------------

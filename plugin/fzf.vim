@@ -61,7 +61,8 @@ call s:defs([
 \'command! -bar -bang BCommits                           call fzf#vim#buffer_commits(<bang>0)',
 \'command! -bar -bang Maps                               call fzf#vim#maps("n", <bang>0)',
 \'command! -bar -bang Filetypes                          call fzf#vim#filetypes(<bang>0)',
-\'command!      -bang -nargs=* History                   call s:history(<q-args>, <bang>0)'])
+\'command!      -bang -nargs=* History                   call s:history(<q-args>, <bang>0)',
+\'command! -bar -bang -nargs=? -complete=buffer Wipeouts call fzf#vim#wipeout_buffers(<q-args>, <bang>0)'])
 
 function! s:history(arg, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'
