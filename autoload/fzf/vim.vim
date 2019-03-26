@@ -457,9 +457,10 @@ endfunction
 function! s:all_files()
   return fzf#vim#_uniq(map(
     \ filter([expand('%')], 'len(v:val)')
-    \   + filter(map(s:buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
-    \   + filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
-    \ 'fnamemodify(v:val, ":~:.")'))
+    \        + filter(filter(map(s:buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
+    \                 + filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
+    \                 exists('g:fzf_history_filter')?'v:val !~ '''.g:fzf_history_filter.'''':'1'),
+    \        'fnamemodify(v:val, ":~:.")'))
 endfunction
 
 function! s:history_source(type)
