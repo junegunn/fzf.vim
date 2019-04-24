@@ -711,7 +711,7 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   \ 'source':  a:grep_command,
   \ 'column':  a:with_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
-  \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
+  \             '--multi', '--bind', 'ctrl-a:select-all,ctrl-d:select-all,alt-a:select-all,alt-d:deselect-all',
   \             '--color', 'hl:4,hl+:12']
   \}
   function! opts.sink(lines)
