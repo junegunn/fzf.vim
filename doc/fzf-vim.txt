@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: August 31 2018
+*fzf-vim.txt*	fzf-vim	Last change: August 31 2018
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
