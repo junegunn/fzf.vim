@@ -28,6 +28,15 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+
+let s:is_unix = has('unix') || has('bsd')
+if s:is_unix
+let s:mod = system("kldstat -q -m pty")
+	if v:shell_error
+					echo "Please load pty Kernelmodule or else this plugin will not work correctly"
+	endif
+endif
+
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
