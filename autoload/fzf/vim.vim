@@ -803,7 +803,7 @@ function! s:tags_sink(lines)
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
         call s:open(cmd, expand(abspath, 1))
-        execute excmd
+        silent execute excmd
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
         break
