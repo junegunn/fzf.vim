@@ -46,22 +46,27 @@ endif
 
 function! s:extend_opts(dict, eopts, prepend)
   if empty(a:eopts)
-    return
+    return a:dict
   endif
-  if has_key(a:dict, 'options')
-    if type(a:dict.options) == s:TYPE.list && type(a:eopts) == s:TYPE.list
+
+  let extended = type(a:eopts) == s:TYPE.dict ? extend(a:eopts, a:dict) : a:dict
+
+  if has_key(l:extended, 'options')
+    if type(l:extended.options) == s:TYPE.list && type(a:eopts) == s:TYPE.list
       if a:prepend
-        let a:dict.options = extend(copy(a:eopts), a:dict.options)
+        let l:extended.options = extend(copy(a:eopts), l:extended.options)
       else
-        call extend(a:dict.options, a:eopts)
+        call extend(l:extended.options, a:eopts)
       endif
-    else
-      let all_opts = a:prepend ? [a:eopts, a:dict.options] : [a:dict.options, a:eopts]
-      let a:dict.options = join(map(all_opts, 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
+    elseif type(a:eopts) != s:TYPE.dict
+      let all_opts = a:prepend ? [a:eopts, l:extended.options] : [l:extended.options, a:eopts]
+      let l:extended.options = join(map(all_opts, 'type(v:val) == s:TYPE.list ? join(map(copy(v:val), "fzf#shellescape(v:val)")) : v:val'))
     endif
-  else
-    let a:dict.options = a:eopts
+  elseif type(a:eopts) == s:TYPE.list
+    let l:extended.options = a:eopts
   endif
+
+  return l:extended
 endfunction
 
 function! s:merge_opts(dict, eopts)
@@ -100,7 +105,7 @@ function! fzf#vim#with_preview(...)
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
   endif
-  call s:merge_opts(options, preview)
+  let options = s:merge_opts(options, preview)
   return options
 endfunction
 
@@ -215,8 +220,8 @@ function! s:fzf(name, opts, extra)
   endif
 
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
-  let merged = extend(copy(a:opts), extra)
-  call s:merge_opts(merged, eopts)
+  let merged = s:merge_opts(extend(copy(a:opts), extra), eopts)
+
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -298,7 +303,8 @@ function! fzf#vim#files(dir, ...)
   endif
 
   let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
-  call s:merge_opts(args, get(g:, 'fzf_files_options', []))
+  let args = s:merge_opts(args, get(g:, 'fzf_files_options', []))
+
   return s:fzf('files', args, a:000)
 endfunction
 
@@ -1195,8 +1201,7 @@ function! s:pluck(dict, key, default)
 endfunction
 
 function! s:complete_trigger()
-  let opts = copy(s:opts)
-  call s:prepend_opts(opts, ['+m', '-q', s:query])
+  let opts = s:prepend_opts(copy(s:opts), ['+m', '-q', s:query])
   let opts['sink*'] = s:function('s:complete_insert')
   let s:reducer = s:pluck(opts, 'reducer', s:function('s:first_line'))
   call fzf#run(opts)
@@ -1277,7 +1282,7 @@ function! fzf#vim#complete(...)
   let s:opts = s:eval(s:opts, 'options', s:query)
   let s:opts = s:eval(s:opts, 'extra_options', s:query)
   if has_key(s:opts, 'extra_options')
-    call s:merge_opts(s:opts, remove(s:opts, 'extra_options'))
+    let s:opts = s:merge_opts(s:opts, remove(s:opts, 'extra_options'))
   endif
   if has_key(s:opts, 'options')
     if type(s:opts.options) == s:TYPE.list
