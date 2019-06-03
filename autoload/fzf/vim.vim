@@ -303,7 +303,7 @@ function! fzf#vim#files(dir, ...)
   endif
 
   let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
-  let args = s:merge_opts(args, get(g:, 'fzf_files_options', []))
+  let args = s:merge_opts(args, copy(get(g:, 'fzf_files_options', [])))
 
   return s:fzf('files', args, a:000)
 endfunction
