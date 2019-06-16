@@ -533,8 +533,8 @@ function! s:get_git_root()
   return v:shell_error ? '' : root
 endfunction
 
-function! fzf#vim#gitfiles(args, ...)
-  let root = s:get_git_root()
+function! fzf#vim#gitfiles(local, args, ...)
+  let root = a:local && exists('b:git_dir') ? b:git_dir : s:get_git_root()
   if empty(root)
     return s:warn('Not in git repo')
   endif
