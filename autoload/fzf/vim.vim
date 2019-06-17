@@ -534,7 +534,7 @@ function! s:get_git_root()
 endfunction
 
 function! fzf#vim#gitfiles(local, args, ...)
-  let root = a:local && exists('b:git_dir') ? b:git_dir : s:get_git_root()
+  let root = a:local && exists('b:git_dir') ? fnamemodify(b:git_dir, ':h') : s:get_git_root()
   if empty(root)
     return s:warn('Not in git repo')
   endif
