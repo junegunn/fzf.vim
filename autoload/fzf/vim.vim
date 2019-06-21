@@ -193,8 +193,14 @@ for s:color_name in keys(s:ansi)
         \ "endfunction"
 endfor
 
+function! s:default_buffer_function()
+  return range(1, bufnr('$'))
+endfunction
+
 function! s:buflisted()
-  return filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
+  let Buffunc = function(get(g:, "fzf_buffer_function", 's:default_buffer_function'))
+  return filter(Buffunc(), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
+  endif
 endfunction
 
 function! s:fzf(name, opts, extra)
