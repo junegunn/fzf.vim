@@ -59,6 +59,27 @@ Plug 'junegunn/fzf.vim'
 - Use `./install --bin` instead if you don't need fzf outside of Vim
 - Make sure to use Vim 7.4 or above
 
+### Using git
+Alternatively you can git clone this repository to any directory.
+```
+git clone https://github.com/junegunn/fzf.vim ~/.fzf.vim
+```
+
+And then to enable it on Vim by simply adding the directory to the
+`&runtimepath` in your `~/.vimrc`.
+```
+:set rtp+=~/.fzf.vim
+```
+
+As mentioned earlier `fzf.vim` depends on the main repository
+[fzf](https://github.com/junegunn/fzf), `fzf`
+[path](https://github.com/junegunn/fzf#as-vim-plugin) also should present
+on Vim's `&runtimepath`. So `~/.vimrc` should contain below two entries.
+```
+:set rtp+=~/.fzf
+:set rtp+=~/.fzf.vim
+```
+
 Commands
 --------
 
