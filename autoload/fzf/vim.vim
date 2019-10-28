@@ -561,8 +561,17 @@ endfunction
 " ------------------------------------------------------------------
 
 function! s:get_git_root()
-  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
-  return v:shell_error ? '' : root
+  " if possible use fugitive to determine git repo for current buffer
+  if exists('*FugitiveGitDir') && get(g:, 'fzf_fugitive_dir', 1)
+    let root = FugitiveGitDir()
+    if !empty(root)  " remove the last '/.git' component
+      let root = fnamemodify(root, ':h')
+    endif
+    return root
+  else
+    let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+    return v:shell_error ? '' : root
+  endif
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
@@ -1133,8 +1142,8 @@ function! s:commits_sink(lines)
 endfunction
 
 function! s:commits(buffer_local, args)
-  let s:git_root = s:get_git_root()
-  if empty(s:git_root)
+  let root = s:get_git_root()
+  if empty(root)
     return s:warn('Not in git repository')
   endif
 
@@ -1142,7 +1151,8 @@ function! s:commits(buffer_local, args)
   let current = expand('%')
   let managed = 0
   if !empty(current)
-    call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
+    " run command in current git root dir
+    call system('git -C "'.root.'" show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
 
@@ -1159,6 +1169,7 @@ function! s:commits(buffer_local, args)
   let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   let options = {
   \ 'source':  source,
+  \ 'dir':     root,
   \ 'sink*':   s:function('s:commits_sink'),
   \ 'options': s:reverse_list(['--ansi', '--multi', '--tiebreak=index',
   \   '--inline-info', '--prompt', command.'> ', '--bind=ctrl-s:toggle-sort',
