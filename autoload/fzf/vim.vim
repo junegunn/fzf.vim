@@ -306,7 +306,7 @@ function! fzf#vim#files(dir, ...)
     let dir = s:shortpath()
   endif
 
-  let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
+  let args.options = ['-m', '--prompt', strwidth(dir) < winwidth(0) / 2 - 20 ? dir : '> ']
   call s:merge_opts(args, get(g:, 'fzf_files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
@@ -335,7 +335,7 @@ function! fzf#vim#_lines(all)
   let rest = []
   let buf = bufnr('')
   let longest_name = 0
-  let display_bufnames = &columns > s:wide
+  let display_bufnames = winwidth(0) > s:wide
   if display_bufnames
     let bufnames = {}
     for b in s:buflisted()
@@ -1133,7 +1133,7 @@ function! s:commits(buffer_local, args)
     let options.options[-1] .= ',ctrl-d'
   endif
 
-  if !s:is_win && &columns > s:wide
+  if !s:is_win && winwidth(0) > s:wide
     call extend(options.options,
     \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: --color=always | head -200'])
   endif
