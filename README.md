@@ -112,6 +112,7 @@ See [README-VIM.md][readme-vim] of the main fzf repository for details.
 
 ```vim
 " This is the default extra key bindings
+" Note, that fzf.vim does not support functions in fzf_action
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
