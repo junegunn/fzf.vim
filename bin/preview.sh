@@ -17,6 +17,7 @@ if [[ $1 =~ ^[A-Z]:\\ ]]; then
   CENTER=${INPUT[2]}
 fi
 
+FILE="${FILE/#\~\//$HOME\/}"
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
   exit 1
