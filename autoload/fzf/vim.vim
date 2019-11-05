@@ -948,6 +948,36 @@ function! fzf#vim#commands(...)
 endfunction
 
 " ------------------------------------------------------------------
+" Compilers
+" ------------------------------------------------------------------
+function! fzf#vim#compilers(...)
+  let compilers = split(globpath(&rtp, "compiler/*.vim"), "\n")
+  if has('packages')
+    let compilers += split(globpath(&packpath, "pack/*/opt/*/compiler/*.vim"), "\n")
+  endif
+  return s:fzf('compilers', {
+  \ 'source':  fzf#vim#_uniq(map(compilers, "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
+  \ 'sink':    'compiler!',
+  \ 'options': '+m --prompt="Compilers> "'
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
+" BCompilers
+" ------------------------------------------------------------------
+function! fzf#vim#buffer_compilers(...)
+  let compilers = split(globpath(&rtp, "compiler/*.vim"), "\n")
+  if has('packages')
+    let compilers += split(globpath(&packpath, "pack/*/opt/*/compiler/*.vim"), "\n")
+  endif
+  return s:fzf('compilers', {
+  \ 'source':  fzf#vim#_uniq(map(compilers, "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
+  \ 'sink':    'compiler',
+  \ 'options': '+m --prompt="BCompilers> "'
+  \}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Marks
 " ------------------------------------------------------------------
 function! s:format_mark(line)

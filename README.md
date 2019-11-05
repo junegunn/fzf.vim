@@ -85,6 +85,8 @@ Commands
 | `Commits`         | Git commits (requires [fugitive.vim][f])                                |
 | `BCommits`        | Git commits for the current buffer                                      |
 | `Commands`        | Commands                                                                |
+| `Compilers`       | Compilers                                                               |
+| `BCompilers`      | Compilers for the current buffer                                        |
 | `Maps`            | Normal mode mappings                                                    |
 | `Helptags`        | Help tags <sup id="a1">[1](#helptags)</sup>                             |
 | `Filetypes`       | File types
