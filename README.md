@@ -59,6 +59,13 @@ Plug 'junegunn/fzf.vim'
 - Use `./install --bin` instead if you don't need fzf outside of Vim
 - Make sure to use Vim 7.4 or above
 
+### Using [dein.vim](https://github.com/Shougo/dein.vim/)
+
+```vim
+call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
+call dein#add('junegunn/fzf', { 'build': './install', 'rtp': '' })
+```
+
 Commands
 --------
 
