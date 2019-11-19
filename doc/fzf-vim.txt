@@ -100,6 +100,7 @@ COMMANDS                                                      *fzf-vim-commands*
  -----------------+-----------------------------------------------------------------------
   `Files [PATH]`    | Files (similar to  `:FZF` )
   `GFiles [OPTS]`   | Git files ( `git ls-files` )
+  `GLFiles [OPTS]`  | `GFiles` on the current buffer's repository (requires {fugitive.vim}{9})
   `GFiles?`         | Git files ( `git status` )
   `Buffers`         | Open buffers
   `Colors`          | Color schemes
