@@ -640,23 +640,23 @@ endfunction
 " ------------------------------------------------------------------
 " Ag / Rg
 " ------------------------------------------------------------------
-function! s:ag_to_qf(line, with_column)
+function! s:ag_to_qf(line, has_column)
   let parts = split(a:line, ':')
-  let text = join(parts[(a:with_column ? 3 : 2):], ':')
+  let text = join(parts[(a:has_column ? 3 : 2):], ':')
   let dict = {'filename': &acd ? fnamemodify(parts[0], ':p') : parts[0], 'lnum': parts[1], 'text': text}
-  if a:with_column
+  if a:has_column
     let dict.col = parts[2]
   endif
   return dict
 endfunction
 
-function! s:ag_handler(lines, with_column)
+function! s:ag_handler(lines, has_column)
   if len(a:lines) < 2
     return
   endif
 
   let cmd = s:action_for(a:lines[0], 'e')
-  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val, a:with_column)')
+  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val, a:has_column)')
   if empty(list)
     return
   endif
@@ -665,7 +665,7 @@ function! s:ag_handler(lines, with_column)
   try
     call s:open(cmd, first.filename)
     execute first.lnum
-    if a:with_column
+    if a:has_column
       execute 'normal!' first.col.'|'
     endif
     normal! zz
@@ -695,8 +695,8 @@ function! fzf#vim#ag_raw(command_suffix, ...)
   return call('fzf#vim#grep', extend(['ag --nogroup --column --color '.a:command_suffix, 1], a:000))
 endfunction
 
-" command (string), with_column (0/1), [options (dict)], [fullscreen (0/1)]
-function! fzf#vim#grep(grep_command, with_column, ...)
+" command (string), has_column (0/1), [options (dict)], [fullscreen (0/1)]
+function! fzf#vim#grep(grep_command, has_column, ...)
   let words = []
   for word in split(a:grep_command)
     if word !~# '^[a-z]'
@@ -708,7 +708,7 @@ function! fzf#vim#grep(grep_command, with_column, ...)
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
   let opts = {
-  \ 'column':  a:with_column,
+  \ 'column':  a:has_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--color', 'hl:4,hl+:12']
