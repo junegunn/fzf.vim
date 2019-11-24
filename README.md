@@ -328,7 +328,7 @@ License
 MIT
 
 [fzf]:   https://github.com/junegunn/fzf
-[run]:   https://github.com/junegunn/fzf#usage-as-vim-plugin
+[run]:   https://github.com/junegunn/fzf/blob/master/README-VIM.md
 [vimrc]: https://github.com/junegunn/dotfiles/blob/master/vimrc
 [ag]:    https://github.com/ggreer/the_silver_searcher
 [rg]:    https://github.com/BurntSushi/ripgrep
