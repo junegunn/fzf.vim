@@ -1,16 +1,11 @@
+<!-- ISSUES NOT FOLLOWING THIS TEMPLATE WILL BE CLOSED AND DELETED -->
+
 <!-- Check all that apply [x] -->
-- Category
-    - [ ] Question
-    - [ ] Bug
-    - [ ] Suggestion
-- OS
-    - [ ] Linux
-    - [ ] macOS
-    - [ ] Windows
-    - [ ] Etc.
-- Vim
-    - [ ] Vim
-    - [ ] Neovim
+
+- [ ] I have read through https://github.com/junegunn/fzf.vim/blob/master/README.md
+- [ ] I have read through https://github.com/junegunn/fzf/blob/master/README-VIM.md
+- [ ] I have read through the manual page of fzf (`man fzf`)
+- [ ] I have searched through the existing issues
 
 <!--
 
