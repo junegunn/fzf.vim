@@ -1104,20 +1104,19 @@ function! s:commits(buffer_local, args)
   if empty(s:git_root)
     return s:warn('Not in git repository')
   endif
-
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let path = expand('%:p:h')
+  let source = 'git -C '.path.' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
   let current = expand('%')
   let managed = 0
   if !empty(current)
     call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
-
   if a:buffer_local
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
-    let source .= ' --follow '.fzf#shellescape(current)
+    let source .= ' --follow '.expand('%:t')
   else
     let source .= ' --graph'
   endif
