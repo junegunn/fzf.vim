@@ -44,7 +44,13 @@ FIRST=$(($CENTER-$LINES/3))
 FIRST=$(($FIRST < 1 ? 1 : $FIRST))
 LAST=$((${FIRST}+${LINES}-1))
 
-DEFAULT_COMMAND="bat --style=numbers --color=always {} || highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
+if [ -z "$FZF_PREVIEW_COMMAND" ] && command -v bat > /dev/null; then
+  bat --style=numbers --color=always --pager=never \
+      --line-range=$FIRST:$LAST --highlight-line=$CENTER "$FILE"
+  exit $?
+fi
+
+DEFAULT_COMMAND="highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
 CMD=${FZF_PREVIEW_COMMAND:-$DEFAULT_COMMAND}
 CMD=${CMD//{\}/$(printf %q "$FILE")}
 
