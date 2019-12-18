@@ -229,7 +229,21 @@ command! -bang -nargs=* GGrep
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 ```
 
-#### Example: Advanced `Rg` command
+#### Example: `Rg` command with preview window
+
+You can see the definition of `Rg` command with `:command Rg`. With the
+information, you can redefine it with the preview window enabled. In this
+case, we're only interested in setting up the preview window, so we will omit
+the spec argument to `fzf#vim#preview`.
+
+```vim
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview(), <bang>0)
+```
+
+#### Example: Advanced ripgrep integration
 
 In the default implementation of `Rg`, ripgrep process starts only once with
 the initial query (e.g. `:Rg foo`) and fzf filters the output of the process.
@@ -240,6 +254,8 @@ ripgrep process by making it restart ripgrep whenever the query string is
 updated. In this scenario, fzf becomes a simple selector interface rather than
 a "fuzzy finder".
 
+- We will name the new command all-uppercase `RG` so we can still access the
+  default version.
 - `--bind 'change:reload:rg ... {q}'` will make fzf restart ripgrep process
   whenever the query string, denoted by `{q}`, is changed.
 - With `--phony` option, fzf will no longer perform search. The query string
@@ -255,7 +271,7 @@ function! RipgrepFzf(query, fullscreen)
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
 
-command! -nargs=* -bang Rg call RipgrepFzf(<q-args>, <bang>0)
+command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 ```
 
 Mappings

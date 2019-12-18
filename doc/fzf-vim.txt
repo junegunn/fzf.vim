@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: November 24 2019
+fzf-vim.txt	fzf-vim	Last change: December 18 2019
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -15,7 +15,8 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
         Vim functions
         Example: Customizing Files command
         Example: git grep wrapper
-        Example: Advanced Rg command
+        Example: Rg command with preview window
+        Example: Advanced ripgrep integration
     Mappings
       Usage
       Completion helper
@@ -285,8 +286,22 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
                                                            {11} bin/preview.sh
 
 
-Example: Advanced Rg command~
-                                           *fzf-vim-example-advanced-rg-command*
+Example: Rg command with preview window~
+                                *fzf-vim-example-rg-command-with-preview-window*
+
+You can see the definition of `Rg` command with `:command Rg`. With the
+information, you can redefine it with the preview window enabled. In this
+case, we're only interested in setting up the preview window, so we will omit
+the spec argument to `fzf#vim#preview`.
+>
+    command! -bang -nargs=* Rg
+      \ call fzf#vim#grep(
+      \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+      \   fzf#vim#with_preview(), <bang>0)
+<
+
+Example: Advanced ripgrep integration~
+                                  *fzf-vim-example-advanced-ripgrep-integration*
 
 In the default implementation of `Rg`, ripgrep process starts only once with
 the initial query (e.g. `:Rg foo`) and fzf filters the output of the process.
@@ -297,6 +312,8 @@ ripgrep process by making it restart ripgrep whenever the query string is
 updated. In this scenario, fzf becomes a simple selector interface rather than
 a "fuzzy finder".
 
+ - We will name the new command all-uppercase `RG` so we can still access the
+   default version.
  - `--bind 'change:reload:rg ... {q}'` will make fzf restart ripgrep process
    whenever the query string, denoted by `{q}`, is changed.
  - With `--phony` option, fzf will no longer perform search. The query string you
@@ -311,7 +328,7 @@ a "fuzzy finder".
       call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
     endfunction
 
-    command! -nargs=* -bang Rg call RipgrepFzf(<q-args>, <bang>0)
+    command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 <
 
 MAPPINGS                                                      *fzf-vim-mappings*
