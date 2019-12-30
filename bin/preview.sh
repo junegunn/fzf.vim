@@ -11,6 +11,7 @@ fi
 IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 CENTER=${INPUT[1]}
+FILE=$(eval echo "${FILE}")
 
 if [[ $1 =~ ^[A-Z]:\\ ]]; then
   FILE=$FILE:${INPUT[1]}
