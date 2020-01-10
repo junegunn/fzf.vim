@@ -641,7 +641,7 @@ endfunction
 " Ag / Rg
 " ------------------------------------------------------------------
 function! s:ag_to_qf(line, has_column)
-  let parts = split(a:line, ':')
+  let parts = split(a:line, '[^:]\zs:\ze[^:]')
   let text = join(parts[(a:has_column ? 3 : 2):], ':')
   let dict = {'filename': &acd ? fnamemodify(parts[0], ':p') : parts[0], 'lnum': parts[1], 'text': text}
   if a:has_column
