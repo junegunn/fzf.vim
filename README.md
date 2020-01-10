@@ -366,8 +366,7 @@ may want to customize the statusline of the containing buffer.
 ### Hide statusline
 
 ```vim
-autocmd! FileType fzf
-autocmd  FileType fzf set laststatus=0 noshowmode noruler
+autocmd! FileType fzf set laststatus=0 noshowmode noruler
   \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 ```
 
