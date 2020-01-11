@@ -1112,6 +1112,7 @@ function! s:commits(buffer_local, args)
     call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
+
   if a:buffer_local
     if !managed
       return s:warn('The current buffer is not in the working tree')
