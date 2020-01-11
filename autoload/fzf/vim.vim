@@ -1105,7 +1105,7 @@ function! s:commits(buffer_local, args)
     return s:warn('Not in git repository')
   endif
   let path = expand('%:p:h')
-  let source = 'git -C '.path.' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let source = 'git -C '.fzf#shellescape(path).' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
   let current = expand('%')
   let managed = 0
   if !empty(current)
@@ -1116,7 +1116,7 @@ function! s:commits(buffer_local, args)
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
-    let source .= ' --follow '.expand('%:t')
+    let source .= ' --follow '.fzf#shellescape(current)
   else
     let source .= ' --graph'
   endif
