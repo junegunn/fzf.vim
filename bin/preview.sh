@@ -32,7 +32,9 @@ if [ -z "$CENTER" ]; then
   CENTER=0
 fi
 
-if [ -z "$LINES" ]; then
+if [ -n "$FZF_PREVIEW_LINES" ]; then
+  LINES=$FZF_PREVIEW_LINES
+else
   if [ -r /dev/tty ]; then
     LINES=$(stty size < /dev/tty | awk '{print $1}')
   else
