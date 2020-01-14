@@ -1104,8 +1104,8 @@ function! s:commits(buffer_local, args)
   if empty(s:git_root)
     return s:warn('Not in git repository')
   endif
-
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let path = expand('%:p:h')
+  let source = 'git -C '.fzf#shellescape(path).' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
   let current = expand('%')
   let managed = 0
   if !empty(current)
