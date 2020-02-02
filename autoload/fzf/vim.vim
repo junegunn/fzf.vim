@@ -197,7 +197,11 @@ function! s:buflisted()
   return filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
 endfunction
 
+let s:last_command = {}
+
 function! s:fzf(name, opts, extra)
+  let s:last_command = {'name': a:name, 'opts': a:opts, 'extra': a:extra, 'grep_command': $FZF_DEFAULT_COMMAND}
+
   let [extra, bang] = [{}, 0]
   if len(a:extra) <= 1
     let first = get(a:extra, 0, 0)
@@ -215,6 +219,7 @@ function! s:fzf(name, opts, extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   call s:merge_opts(merged, eopts)
+
   return fzf#run(s:wrap(a:name, merged, bang))
 endfunction
 
@@ -717,10 +722,14 @@ function! fzf#vim#grep(grep_command, has_column, ...)
     return s:ag_handler(a:lines, self.column)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
+  return s:with_grep_command(a:grep_command, {-> s:fzf(name, opts, a:000)})
+endfunction
+
+function! s:with_grep_command(grep_command, fn)
   try
     let prev_default_command = $FZF_DEFAULT_COMMAND
     let $FZF_DEFAULT_COMMAND = a:grep_command
-    return s:fzf(name, opts, a:000)
+    return a:fn()
   finally
     let $FZF_DEFAULT_COMMAND = prev_default_command
   endtry
@@ -1321,6 +1330,14 @@ function! fzf#vim#complete(...)
 
   call feedkeys("\<Plug>(-fzf-complete-trigger)")
   return ''
+endfunction
+
+function! fzf#vim#resume()
+  if len(keys(s:last_command)) == 0
+    return
+  endif
+
+  return s:with_grep_command(s:last_command.grep_command, {-> s:fzf(s:last_command.name, s:last_command.opts, s:last_command.extra)})
 endfunction
 
 " ------------------------------------------------------------------
