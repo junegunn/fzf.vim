@@ -49,6 +49,8 @@ Plug 'junegunn/fzf.vim'
 - If you have already installed fzf using [Homebrew](https://brew.sh/), and do
   not wish to have another copy on your system, replace the first line with
   `Plug '/usr/local/opt/fzf'`
+- If you want to set up fzf globally on your system only using vim-plug, you
+  can write `Plug 'junegunn/fzf', { 'do': './install --all' }`
 
 Commands
 --------
