@@ -130,6 +130,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Maps`            | Normal mode mappings
   `:Helptags`        | Help tags [1]
   `:Filetypes`       | File types
+  `:Resume`          | Resume last command (with fzf query if there was one)
  ------------------+-----------------------------------------------------------------------
 
                                                           *g:fzf_command_prefix*
