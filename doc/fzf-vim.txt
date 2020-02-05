@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: February 4 2020
+fzf-vim.txt	fzf-vim	Last change: February 5 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -78,10 +78,11 @@ fzf/Vim integration, see {README-VIM}{4}.
 < Using vim-plug >____________________________________________________________~
                                                         *fzf-vim-using-vim-plug*
 >
-    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf', { 'do': './install --bin' }
     Plug 'junegunn/fzf.vim'
 <
  - Make sure to use Vim 7.4 or above
+ - The `do` option makes sure that you have the latest version of fzf binary
  - If you have already installed fzf using {Homebrew}{5}, and do not wish to have
    another copy on your system, replace the first line with
    `Plug '/usr/local/opt/fzf'`
