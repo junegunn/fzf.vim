@@ -1147,11 +1147,11 @@ function! s:commits(buffer_local, args)
 endfunction
 
 function! fzf#vim#commits(...)
-  return s:commits(0, a:000)
+  return s:commits(0, a:000[1:])
 endfunction
 
 function! fzf#vim#buffer_commits(...)
-  return s:commits(1, a:000)
+  return s:commits(1, a:000[1:])
 endfunction
 
 " ------------------------------------------------------------------
