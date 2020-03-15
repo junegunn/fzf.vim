@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: February 5 2020
+fzf-vim.txt	fzf-vim	Last change: March 15 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -10,6 +10,7 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
     Commands
     Customization
       Global options
+        Preview window
       Command-local options
       Advanced customization
         Vim functions
@@ -159,6 +160,22 @@ through {README-VIM}{4} to learn more about them.
 
                  {4} https://github.com/junegunn/fzf/blob/master/README-VIM.md
 
+
+Preview window~
+                                                        *fzf-vim-preview-window*
+
+                                                          *g:fzf_preview_window*
+
+If the width of the screen is wider than 120 columns, some commands will show
+the preview window on the right. You can customize the behavior with
+`g:fzf_preview_window`. Here are some examples:
+>
+    " Empty value to disable preview window altogether
+    let g:fzf_preview_window = ''
+
+    " Always enable preview window on the right with 60% width
+    let g:fzf_preview_window = 'right:60%'
+<
 
 < Command-local options >_____________________________________________________~
                                                  *fzf-vim-command-local-options*

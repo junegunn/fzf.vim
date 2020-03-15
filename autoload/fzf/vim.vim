@@ -88,6 +88,9 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
+  " Placeholder expression (TODO/TBD: undocumented)
+  let placeholder = get(options, 'placeholder', '{}')
+
   " Preview window
   if len(args) && type(args[0]) == s:TYPE.string
     if args[0] !~# '^\(up\|down\|left\|right\)'
@@ -97,7 +100,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  let preview = ['--preview-window', window, '--preview', (s:is_win ? s:bin.preview : fzf#shellescape(s:bin.preview)).' {}']
+  let preview = ['--preview-window', window, '--preview', (s:is_win ? s:bin.preview : fzf#shellescape(s:bin.preview)).' '.placeholder]
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
@@ -616,13 +619,15 @@ endfunction
 
 function! s:format_buffer(b)
   let name = bufname(a:b)
+  let line = getbufinfo(a:b)[0]['lnum']
   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
+  let target = line == 0 ? name : name.':'.line
+  return s:strip(printf("%s\t[%s] %s\t%s\t%s", target, s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
 function! s:sort_buffers(...)
@@ -641,7 +646,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(s:buflisted_sorted(), 's:format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
+  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '--with-nth', '2..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query]
   \}, args)
 endfunction
 

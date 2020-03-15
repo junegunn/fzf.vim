@@ -105,6 +105,20 @@ Every command in fzf.vim internally calls `fzf#wrap` function of the main
 repository which supports a set of global option variables. So please read
 through [README-VIM][README-VIM] to learn more about them.
 
+#### Preview window
+
+If the width of the screen is wider than 120 columns, some commands will show
+the preview window on the right. You can customize the behavior with
+`g:fzf_preview_window`. Here are some examples:
+
+```vim
+" Empty value to disable preview window altogether
+let g:fzf_preview_window = ''
+
+" Always enable preview window on the right with 60% width
+let g:fzf_preview_window = 'right:60%'
+```
+
 ### Command-local options
 
 A few commands in fzf.vim can be customized with global option variables shown
