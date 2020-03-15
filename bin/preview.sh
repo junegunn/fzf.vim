@@ -17,9 +17,10 @@ if [[ $1 =~ ^[A-Z]:\\ ]]; then
   CENTER=${INPUT[2]}
 fi
 
-if [[ ! "$CENTER" =~ ^[0-9]*$ ]]; then
+if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
   exit 1
 fi
+CENTER=${CENTER/[^0-9]*/}
 
 FILE="${FILE/#\~\//$HOME/}"
 if [ ! -r "$FILE" ]; then
