@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: March 15 2020
+fzf-vim.txt	fzf-vim	Last change: March 17 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -79,25 +79,18 @@ fzf/Vim integration, see {README-VIM}{4}.
 < Using vim-plug >____________________________________________________________~
                                                         *fzf-vim-using-vim-plug*
 >
-    Plug 'junegunn/fzf', { 'do': './install --bin' }
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
 <
- - Make sure to use Vim 7.4 or above
- - The `do` option makes sure that you have the latest version of fzf binary
- - If you have already installed fzf using {Homebrew}{5}, and do not wish to have
-   another copy on your system, replace the first line with
-   `Plug '/usr/local/opt/fzf'`
- - If you want to set up fzf globally on your system only using vim-plug, you can
-   write `Plug 'junegunn/fzf', { 'do': './install --all' }`
-
-                                                          {5} https://brew.sh/
+`fzf#install()` makes sure that you have the latest binary, but it's optional,
+so you can omit it if you use a plugin manager that doesn't support hooks.
 
 
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
-           *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:Lines* *:BLines* *:Tags* *:BTags*
- *:Marks* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
+    *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:Lines* *:BLines* *:Tags* *:BTags* *:Marks*
+        *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
                                                           *:Helptags* *:Filetypes*
 
  ------------------+-----------------------------------------------------------------------
@@ -108,8 +101,8 @@ COMMANDS                                                      *fzf-vim-commands*
   `:GFiles?`         | Git files ( `git status` )
   `:Buffers`         | Open buffers
   `:Colors`          | Color schemes
-  `:Ag [PATTERN]`    | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
-  `:Rg [PATTERN]`    | {rg}{7} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `:Ag [PATTERN]`    | {ag}{5} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `:Rg [PATTERN]`    | {rg}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
   `:Lines [QUERY]`   | Lines in loaded buffers
   `:BLines [QUERY]`  | Lines in the current buffer
   `:Tags [QUERY]`    | Tags in the project ( `ctags -R` )
@@ -120,8 +113,8 @@ COMMANDS                                                      *fzf-vim-commands*
   `:History`         |  `v:oldfiles`  and open buffers
   `:History:`        | Command history
   `:History/`        | Search history
-  `:Snippets`        | Snippets ({UltiSnips}{8})
-  `:Commits`         | Git commits (requires {fugitive.vim}{9})
+  `:Snippets`        | Snippets ({UltiSnips}{7})
+  `:Commits`         | Git commits (requires {fugitive.vim}{8})
   `:BCommits`        | Git commits for the current buffer
   `:Commands`        | Commands
   `:Maps`            | Normal mode mappings
@@ -137,14 +130,14 @@ COMMANDS                                                      *fzf-vim-commands*
  - You can set `g:fzf_command_prefix` to give the same prefix to the commands
    - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
-(1: `Helptags` will shadow the command of the same name from {pathogen}{10}.
+(1: `Helptags` will shadow the command of the same name from {pathogen}{9}.
 But its functionality is still available via `call pathogen#helptags()`.)
 
-                             {6} https://github.com/ggreer/the_silver_searcher
-                             {7} https://github.com/BurntSushi/ripgrep
-                             {8} https://github.com/SirVer/ultisnips
-                             {9} https://github.com/tpope/vim-fugitive
-                             {10} https://github.com/tpope/vim-pathogen
+                             {5} https://github.com/ggreer/the_silver_searcher
+                             {6} https://github.com/BurntSushi/ripgrep
+                             {7} https://github.com/SirVer/ultisnips
+                             {8} https://github.com/tpope/vim-fugitive
+                             {9} https://github.com/tpope/vim-pathogen
 
 
 CUSTOMIZATION                                            *fzf-vim-customization*
@@ -252,8 +245,8 @@ Want a preview window?
         \ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', 'cat {}']}, <bang>0)
 <
 It kind of works, but you probably want a nicer previewer program than `cat`.
-fzf.vim ships {a versatile preview script}{11} you can readily use. It
-internally executes {bat}{12} for syntax highlighting, so make sure to install
+fzf.vim ships {a versatile preview script}{10} you can readily use. It
+internally executes {bat}{11} for syntax highlighting, so make sure to install
 it.
 >
     command! -bang -nargs=? -complete=dir Files
@@ -273,8 +266,8 @@ You can just omit the spec argument if you only want the previewer.
     command! -bang -nargs=? -complete=dir Files
         \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 <
-                                           {11} bin/preview.sh
-                                           {12} https://github.com/sharkdp/bat
+                                           {10} bin/preview.sh
+                                           {11} https://github.com/sharkdp/bat
 
 
 Example: git grep wrapper~
@@ -287,7 +280,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
    not print column numbers.
  - We set the base directory to git root by setting `dir` attribute in spec
    dictionary.
- - {The preview script}{11} supports `grep` format (`FILE_PATH:LINE_NO:...`), so
+ - {The preview script}{10} supports `grep` format (`FILE_PATH:LINE_NO:...`), so
    we can just wrap the spec with `fzf#vim#with_preview` as before to enable
    previewer.
 >
@@ -296,7 +289,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
       \   'git grep --line-number '.shellescape(<q-args>), 0,
       \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 <
-                                                           {11} bin/preview.sh
+                                                           {10} bin/preview.sh
 
 
 Example: Rg command with preview window~
@@ -429,10 +422,10 @@ Reducer example~
 STATUS LINE OF TERMINAL BUFFER          *fzf-vim-status-line-of-terminal-buffer*
 ==============================================================================
 
-When fzf starts in a terminal buffer (see {fzf/README-VIM.md}{13}), you may
+When fzf starts in a terminal buffer (see {fzf/README-VIM.md}{12}), you may
 want to customize the statusline of the containing buffer.
 
-{13} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
+{12} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
 
 
 < Hide statusline >___________________________________________________________~

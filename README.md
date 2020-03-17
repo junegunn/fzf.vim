@@ -41,17 +41,12 @@ repository][fzf-main], which means you need to **set up both "fzf" and
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
-Plug 'junegunn/fzf', { 'do': './install --bin' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 ```
 
-- Make sure to use Vim 7.4 or above
-- The `do` option makes sure that you have the latest version of fzf binary
-- If you have already installed fzf using [Homebrew](https://brew.sh/), and do
-  not wish to have another copy on your system, replace the first line with
-  `Plug '/usr/local/opt/fzf'`
-- If you want to set up fzf globally on your system only using vim-plug, you
-  can write `Plug 'junegunn/fzf', { 'do': './install --all' }`
+`fzf#install()` makes sure that you have the latest binary, but it's optional,
+so you can omit it if you use a plugin manager that doesn't support hooks.
 
 Commands
 --------
