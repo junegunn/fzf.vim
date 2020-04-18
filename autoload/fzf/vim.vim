@@ -308,6 +308,15 @@ function! s:shortpath()
   return empty(short) ? '~'.slash : short . (short =~ escape(slash, '\').'$' ? '' : slash)
 endfunction
 
+function! s:dir_files()
+    return fzf#vim#_uniq(map(
+      \ filter([expand('%')], 'len(v:val)')
+      \   + filter(map(s:buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
+      \   + filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
+      " * TODO: include the rest of the files in the current directory here
+      \ 'fnamemodify(v:val, ":~:.")'))
+endfunction
+
 function! fzf#vim#files(dir, ...)
   let args = {}
   if !empty(a:dir)
@@ -322,6 +331,8 @@ function! fzf#vim#files(dir, ...)
   endif
 
   let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
+  " might need to remove `args.dir` for args.source to work
+  let args.source = s:dir_files()
   call s:merge_opts(args, get(g:, 'fzf_files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
