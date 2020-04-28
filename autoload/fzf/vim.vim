@@ -323,7 +323,16 @@ function! fzf#vim#files(dir, ...)
 
   let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
   call s:merge_opts(args, get(g:, 'fzf_files_options', []))
-  return s:fzf('files', args, a:000)
+
+  try
+    let prev_default_command = $FZF_DEFAULT_COMMAND
+    if !empty(matchstr(prev_default_command, '^rg'))
+      let $FZF_DEFAULT_COMMAND = 'rg --files'
+    endif
+    return s:fzf('files', args, a:000)
+  finally
+    let $FZF_DEFAULT_COMMAND = prev_default_command
+  endtry
 endfunction
 
 " ------------------------------------------------------------------
