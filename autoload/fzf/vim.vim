@@ -1214,7 +1214,7 @@ function! fzf#vim#maps(mode, ...)
   let curr = ''
   for line in split(cout, "\n")
     if line =~ "^\t"
-      let src = '  '.matchstr(line, '/\zs[^/]*\ze$')
+      let src = "\t".substitute(matchstr(line, '/\zs[^/\\]*\ze$'), ' [^ ]* ', ':', '')
       call add(list, printf('%s %s', curr, s:green(src, 'Comment')))
       let curr = ''
     else
