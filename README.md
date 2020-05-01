@@ -280,18 +280,19 @@ command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 Mappings
 --------
 
-| Mapping                            | Description                               |
-| ---                                | ---                                       |
-| `<plug>(fzf-maps-n)`               | Normal mode mappings                      |
-| `<plug>(fzf-maps-i)`               | Insert mode mappings                      |
-| `<plug>(fzf-maps-x)`               | Visual mode mappings                      |
-| `<plug>(fzf-maps-o)`               | Operator-pending mappings                 |
-| `<plug>(fzf-complete-word)`        | `cat /usr/share/dict/words`               |
-| `<plug>(fzf-complete-path)`        | Path completion using `find` (file + dir) |
-| `<plug>(fzf-complete-file)`        | File completion using `find`              |
-| `<plug>(fzf-complete-file-ag)`     | File completion using `ag`                |
-| `<plug>(fzf-complete-line)`        | Line completion (all open buffers)        |
-| `<plug>(fzf-complete-buffer-line)` | Line completion (current buffer only)     |
+| Mapping                              | Description                                 |
+| ---                                  | ---                                         |
+| `<plug>(fzf-maps-n)`                 | Normal mode mappings                        |
+| `<plug>(fzf-maps-i)`                 | Insert mode mappings                        |
+| `<plug>(fzf-maps-x)`                 | Visual mode mappings                        |
+| `<plug>(fzf-maps-o)`                 | Operator-pending mappings                   |
+| `<plug>(fzf-complete-word)`          | `cat /usr/share/dict/words`                 |
+| `<plug>(fzf-complete-path)`          | Path completion using `find` (file + dir)   |
+| `<plug>(fzf-complete-path-relative)` | Generate relative path (starting ./ or ../) |
+| `<plug>(fzf-complete-file)`          | File completion using `find`                |
+| `<plug>(fzf-complete-file-ag)`       | File completion using `ag`                  |
+| `<plug>(fzf-complete-line)`          | Line completion (all open buffers)          |
+| `<plug>(fzf-complete-buffer-line)`   | Line completion (current buffer only)       |
 
 ### Usage
 

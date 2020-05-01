@@ -54,6 +54,7 @@ endfunction
 
 " ----------------------------------------------------------------------------
 " <plug>(fzf-complete-path)
+" <plug>(fzf-complete-path-relative)
 " <plug>(fzf-complete-file)
 " <plug>(fzf-complete-file-ag)
 " ----------------------------------------------------------------------------
@@ -123,6 +124,32 @@ function! s:fname_prefix(str)
   endfor
 
   return prefix
+endfunction
+
+function! s:generate_relative(path)
+  let target = getcwd() . '/' . (join(a:path))
+  let base = expand('%:p:h')
+
+  let prefix = ""
+  while stridx(target, base) != 0
+    let base = substitute(system('dirname ' . base), '\n\+$', '', '')
+    let prefix = '../' . prefix
+  endwhile
+
+  if prefix == ''
+    let prefix = './'
+  endif
+
+  return prefix . substitute(target, base . '/', '', '')
+endfunction
+
+function! fzf#vim#complete#path_relative(command, ...)
+  let s:file_cmd = a:command
+  return fzf#vim#complete(s:extend({
+  \ 'prefix':  s:function('s:fname_prefix'),
+  \ 'source':  s:function('s:file_source'),
+  \ 'options': s:function('s:file_options'),
+  \ 'reducer': s:function('s:generate_relative')}, get(a:000, 0, fzf#wrap())))
 endfunction
 
 function! fzf#vim#complete#path(command, ...)
