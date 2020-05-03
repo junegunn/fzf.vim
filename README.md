@@ -290,6 +290,7 @@ Mappings
 | `<plug>(fzf-complete-path)`        | Path completion using `find` (file + dir) |
 | `<plug>(fzf-complete-file)`        | File completion using `find`              |
 | `<plug>(fzf-complete-file-ag)`     | File completion using `ag`                |
+| `<plug>(fzf-complete-file-rg)`     | File completion using `rg`                |
 | `<plug>(fzf-complete-line)`        | Line completion (all open buffers)        |
 | `<plug>(fzf-complete-buffer-line)` | Line completion (current buffer only)     |
 
@@ -305,6 +306,8 @@ omap <leader><tab> <plug>(fzf-maps-o)
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+" for rg use:
+" imap <c-x><c-j> <plug>(fzf-complete-file-rg)
 imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " Advanced customization using Vim function
