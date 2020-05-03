@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: March 17 2020
+fzf-vim.txt	fzf-vim	Last change: May 3 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -19,9 +19,9 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
         Example: Rg command with preview window
         Example: Advanced ripgrep integration
     Mappings
-      Usage
-      Completion helper
-        Reducer example
+    Completion functions
+    Custom completion
+      Reducer example
     Status line of terminal buffer
       Hide statusline
       Custom statusline
@@ -350,14 +350,9 @@ MAPPINGS                                                      *fzf-vim-mappings*
  <plug>(fzf-complete-word)        |  `cat /usr/share/dict/words`
  <plug>(fzf-complete-path)        | Path completion using  `find`  (file + dir)
  <plug>(fzf-complete-file)        | File completion using  `find`
- <plug>(fzf-complete-file-ag)     | File completion using  `ag`
  <plug>(fzf-complete-line)        | Line completion (all open buffers)
  <plug>(fzf-complete-buffer-line) | Line completion (current buffer only)
  ---------------------------------+------------------------------------------
-
-
-< Usage >_____________________________________________________________________~
-                                                                 *fzf-vim-usage*
 >
     " Mapping selecting mappings
     nmap <leader><tab> <plug>(fzf-maps-n)
@@ -367,15 +362,31 @@ MAPPINGS                                                      *fzf-vim-mappings*
     " Insert mode completion
     imap <c-x><c-k> <plug>(fzf-complete-word)
     imap <c-x><c-f> <plug>(fzf-complete-path)
-    imap <c-x><c-j> <plug>(fzf-complete-file-ag)
     imap <c-x><c-l> <plug>(fzf-complete-line)
-
-    " Advanced customization using Vim function
-    inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 <
 
-< Completion helper >_________________________________________________________~
-                                                     *fzf-vim-completion-helper*
+COMPLETION FUNCTIONS                              *fzf-vim-completion-functions*
+==============================================================================
+
+ -----------------------------------------+--------------------------------------
+ Function                                 | Description                          ~
+ -----------------------------------------+--------------------------------------
+  `fzf#vim#complete#path(command, [spec])`  | Path completion
+  `fzf#vim#complete#word([spec])`           | Word completion
+  `fzf#vim#complete#line([spec])`           | Line completion (all open buffers)
+  `fzf#vim#complete#buffer_line([spec])`    | Line completion (current buffer only)
+ -----------------------------------------+--------------------------------------
+>
+    " Path completion with custom source command
+    inoremap <expr> <c-x><c-j> fzf#vim#complete#path('fd')
+    inoremap <expr> <c-x><c-j> fzf#vim#complete#path('rg --files')
+
+    " Word completion with custom spec with popup layout option
+    inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+<
+
+CUSTOM COMPLETION                                    *fzf-vim-custom-completion*
+==============================================================================
 
 `fzf#vim#complete` is a helper function for creating custom fuzzy completion
 using fzf. If the first parameter is a command string or a Vim list, it will
@@ -405,7 +416,7 @@ following exceptions:
       \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
 <
 
-Reducer example~
+< Reducer example >___________________________________________________________~
                                                        *fzf-vim-reducer-example*
 >
     function! s:make_sentence(lines)

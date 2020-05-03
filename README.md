@@ -289,11 +289,8 @@ Mappings
 | `<plug>(fzf-complete-word)`        | `cat /usr/share/dict/words`               |
 | `<plug>(fzf-complete-path)`        | Path completion using `find` (file + dir) |
 | `<plug>(fzf-complete-file)`        | File completion using `find`              |
-| `<plug>(fzf-complete-file-ag)`     | File completion using `ag`                |
 | `<plug>(fzf-complete-line)`        | Line completion (all open buffers)        |
 | `<plug>(fzf-complete-buffer-line)` | Line completion (current buffer only)     |
-
-### Usage
 
 ```vim
 " Mapping selecting mappings
@@ -304,14 +301,30 @@ omap <leader><tab> <plug>(fzf-maps-o)
 " Insert mode completion
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
-
-" Advanced customization using Vim function
-inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 ```
 
-### Completion helper
+Completion functions
+--------------------
+
+| Function                                 | Description                           |
+| ---                                      | ---                                   |
+| `fzf#vim#complete#path(command, [spec])` | Path completion                       |
+| `fzf#vim#complete#word([spec])`          | Word completion                       |
+| `fzf#vim#complete#line([spec])`          | Line completion (all open buffers)    |
+| `fzf#vim#complete#buffer_line([spec])`   | Line completion (current buffer only) |
+
+```vim
+" Path completion with custom source command
+inoremap <expr> <c-x><c-j> fzf#vim#complete#path('fd')
+inoremap <expr> <c-x><c-j> fzf#vim#complete#path('rg --files')
+
+" Word completion with custom spec with popup layout option
+inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+```
+
+Custom completion
+-----------------
 
 `fzf#vim#complete` is a helper function for creating custom fuzzy completion
 using fzf. If the first parameter is a command string or a Vim list, it will
@@ -344,7 +357,7 @@ inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
   \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
 ```
 
-#### Reducer example
+### Reducer example
 
 ```vim
 function! s:make_sentence(lines)
