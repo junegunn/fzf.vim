@@ -45,6 +45,12 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 ```
 
+### Using [Vim 8 packages](https://vimhelp.org/repeat.txt.html#packages)
+
+```
+git clone https://github.com/junegunn/fzf.vim ~/.vim/pack/plugins/start/fzf.vim
+```
+
 `fzf#install()` makes sure that you have the latest binary, but it's optional,
 so you can omit it if you use a plugin manager that doesn't support hooks.
 
