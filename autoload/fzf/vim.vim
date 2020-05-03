@@ -28,6 +28,8 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+" 'preview': '/mnt/c/Users/ladev/vimfiles/pack/default/start/fzf.vim/bin/preview.sh',
+
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
@@ -41,7 +43,8 @@ if s:is_win
   else
     let s:bin.preview = fnamemodify(s:bin.preview, ':8')
   endif
-  let s:bin.preview = 'bash '.escape(s:bin.preview, '\')
+    let git_bash_bin = 'bash /mnt/'.substitute(s:bin.preview, '\([A-Z]\):', '\L\1\e', '')
+    let s:bin.preview = substitute(git_bash_bin, '\', '/', 'g')
 endif
 
 let s:wide = 120
