@@ -286,7 +286,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
 >
     command! -bang -nargs=* GGrep
       \ call fzf#vim#grep(
-      \   'git grep --line-number '.shellescape(<q-args>), 0,
+      \   'git grep --line-number -- '.shellescape(<q-args>), 0,
       \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 <
                                                            {10} bin/preview.sh
@@ -302,7 +302,7 @@ the spec argument to `fzf#vim#preview`.
 >
     command! -bang -nargs=* Rg
       \ call fzf#vim#grep(
-      \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+      \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
       \   fzf#vim#with_preview(), <bang>0)
 <
 
