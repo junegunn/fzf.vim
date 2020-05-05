@@ -228,7 +228,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
 ```vim
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
-  \   'git grep --line-number '.shellescape(<q-args>), 0,
+  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 ```
 
@@ -242,7 +242,7 @@ the spec argument to `fzf#vim#preview`.
 ```vim
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+  \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
   \   fzf#vim#with_preview(), <bang>0)
 ```
 
@@ -267,7 +267,7 @@ a "fuzzy finder".
 
 ```vim
 function! RipgrepFzf(query, fullscreen)
-  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case %s || true'
+  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
   let initial_command = printf(command_fmt, shellescape(a:query))
   let reload_command = printf(command_fmt, '{q}')
   let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}

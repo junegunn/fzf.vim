@@ -700,7 +700,7 @@ function! fzf#vim#ag(query, ...)
   let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
   let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
-  let command = ag_opts . ' ' . fzf#shellescape(query)
+  let command = ag_opts . ' -- ' . fzf#shellescape(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
