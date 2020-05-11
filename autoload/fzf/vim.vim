@@ -28,8 +28,6 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
-" 'preview': '/mnt/c/Users/ladev/vimfiles/pack/default/start/fzf.vim/bin/preview.sh',
-
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
