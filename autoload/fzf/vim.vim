@@ -543,13 +543,13 @@ endfunction
 " GFiles[?]
 " ------------------------------------------------------------------
 
-function! s:get_git_root()
+function! fzf#vim#_get_git_root()
   let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
   return v:shell_error ? '' : root
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
-  let root = s:get_git_root()
+  let root = fzf#vim#_get_git_root()
   if empty(root)
     return s:warn('Not in git repo')
   endif
@@ -1117,7 +1117,7 @@ function! s:commits_sink(lines)
 endfunction
 
 function! s:commits(buffer_local, args)
-  let s:git_root = s:get_git_root()
+  let s:git_root = fzf#vim#_get_git_root()
   if empty(s:git_root)
     return s:warn('Not in git repository')
   endif
