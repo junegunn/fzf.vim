@@ -41,7 +41,6 @@ if s:is_win
   else
     let s:bin.preview = fnamemodify(s:bin.preview, ':8')
   endif
-  let s:bin.preview = 'bash '.escape(s:bin.preview, '\')
 endif
 
 let s:wide = 120
@@ -76,6 +75,11 @@ endfunction
 
 " [[options to wrap], [preview window expression], [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
+  let bash_path = exepath('bash')
+  if empty(bash_path)
+    throw 'bash is not in PATH'
+  endif
+  let is_wsl_bash = bash_path =~? 'Windows[/\\]system32[/\\]bash.exe$'
   " Default options
   let options = {}
   let window = ''
@@ -104,7 +108,14 @@ function! fzf#vim#with_preview(...)
   if len(window)
     let preview += ['--preview-window', window]
   endif
-  let preview += ['--preview', (s:is_win ? s:bin.preview : fzf#shellescape(s:bin.preview)).' '.placeholder]
+  if s:is_win
+    let preview_cmd = 'bash '.(is_wsl_bash
+    \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
+    \ : escape(s:bin.preview, '\'))
+  else
+    let preview_cmd = fzf#shellescape(s:bin.preview)
+  endif
+  let preview += ['--preview', preview_cmd.' '.placeholder]
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
