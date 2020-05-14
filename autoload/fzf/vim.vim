@@ -30,7 +30,7 @@ set cpo&vim
 
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
-let s:bin_dir = expand('<sfile>:h:h:h').'/bin/'
+let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
