@@ -131,6 +131,9 @@ let g:fzf_tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+" [History] Filter results by pattern, e.g. do not show visited vim help
+let g:fzf_history_filter = '.*/doc/\f*\.txt'
 ```
 
 ### Advanced customization
