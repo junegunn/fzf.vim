@@ -44,6 +44,7 @@ if s:is_win
 endif
 
 let s:wide = 120
+let s:warned = 0
 
 function! s:extend_opts(dict, eopts, prepend)
   if empty(a:eopts)
@@ -76,9 +77,6 @@ endfunction
 " [[options to wrap], [preview window expression], [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
   let bash_path = exepath('bash')
-  if empty(bash_path)
-    throw 'bash is not in PATH'
-  endif
   let is_wsl_bash = bash_path =~? 'Windows[/\\]system32[/\\]bash.exe$'
   " Default options
   let options = {}
@@ -90,6 +88,14 @@ function! fzf#vim#with_preview(...)
   if len(args) && type(args[0]) == s:TYPE.dict
     let options = copy(args[0])
     call remove(args, 0)
+  endif
+
+  if empty(bash_path)
+    if !s:warned
+      call s:warn('Preview window not supported (bash not found in PATH)')
+      let s:warned = 1
+    endif
+    return options
   endif
 
   " Placeholder expression (TODO/TBD: undocumented)
