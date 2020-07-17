@@ -1203,10 +1203,10 @@ function! fzf#vim#maps(mode, ...)
     else
       let curr = line[3:]
     endif
+    if !empty(curr)
+      call add(list, curr)
+    endif
   endfor
-  if !empty(curr)
-    call add(list, curr)
-  endif
   let aligned = s:align_pairs(list)
   let sorted  = sort(aligned)
   let colored = map(sorted, 's:highlight_keys(v:val)')
