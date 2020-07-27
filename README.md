@@ -48,6 +48,13 @@ Plug 'junegunn/fzf.vim'
 `fzf#install()` makes sure that you have the latest binary, but it's optional,
 so you can omit it if you use a plugin manager that doesn't support hooks.
 
+### Dependencies
+
+- For syntax-highlighted preview, install [bat](https://github.com/sharkdp/bat)
+- `Ag` requires [The Silver Searcher (ag)][ag]
+- `Rg` requires [ripgrep (rg)][rg]
+- `Tags` and `Helptags` require Perl
+
 Commands
 --------
 
