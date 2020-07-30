@@ -17,14 +17,21 @@ if [[ $1 =~ ^[A-Z]:\\ ]]; then
   CENTER=${INPUT[2]}
 fi
 
-FILE="${FILE/#\~\//$HOME\/}"
+if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
+  exit 1
+fi
+CENTER=${CENTER/[^0-9]*/}
+
+FILE="${FILE/#\~\//$HOME/}"
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
   exit 1
 fi
 
-if [[ "$(file --dereference --mime "$FILE")" =~ binary ]]; then
-  echo "$1 is a binary file"
+FILE_LENGTH=${#FILE}
+MIME=$(file --dereference --mime "$FILE")
+if [[ "${MIME:FILE_LENGTH}" =~ binary ]]; then
+  echo "$MIME"
   exit 0
 fi
 
@@ -32,7 +39,9 @@ if [ -z "$CENTER" ]; then
   CENTER=0
 fi
 
-if [ -z "$LINES" ]; then
+if [ -n "$FZF_PREVIEW_LINES" ]; then
+  LINES=$FZF_PREVIEW_LINES
+else
   if [ -r /dev/tty ]; then
     LINES=$(stty size < /dev/tty | awk '{print $1}')
   else
@@ -44,7 +53,13 @@ FIRST=$(($CENTER-$LINES/3))
 FIRST=$(($FIRST < 1 ? 1 : $FIRST))
 LAST=$((${FIRST}+${LINES}-1))
 
-DEFAULT_COMMAND="bat --style=numbers --color=always {} || highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
+if [ -z "$FZF_PREVIEW_COMMAND" ] && command -v bat > /dev/null; then
+  bat --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
+      --line-range=$FIRST:$LAST --highlight-line=$CENTER "$FILE"
+  exit $?
+fi
+
+DEFAULT_COMMAND="highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
 CMD=${FZF_PREVIEW_COMMAND:-$DEFAULT_COMMAND}
 CMD=${CMD//{\}/$(printf %q "$FILE")}
 
