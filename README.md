@@ -50,6 +50,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
 ### Dependencies
 
+- [fzf][fzf-main] 0.22.0 or above
 - For syntax-highlighted preview, install [bat](https://github.com/sharkdp/bat)
 - `Ag` requires [The Silver Searcher (ag)][ag]
 - `Rg` requires [ripgrep (rg)][rg]

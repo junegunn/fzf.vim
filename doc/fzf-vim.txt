@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: July 27 2020
+fzf-vim.txt	fzf-vim	Last change: August 12 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -90,11 +90,13 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 < Dependencies >______________________________________________________________~
                                                           *fzf-vim-dependencies*
 
+ - {fzf}{1} 0.22.0 or above
  - For syntax-highlighted preview, install {bat}{5}
  - `Ag` requires {The Silver Searcher (ag)}{6}
  - `Rg` requires {ripgrep (rg)}{7}
  - `Tags` and `Helptags` require Perl
 
+                             {1} https://github.com/junegunn/fzf
                              {5} https://github.com/sharkdp/bat
                              {6} https://github.com/ggreer/the_silver_searcher
                              {7} https://github.com/BurntSushi/ripgrep
