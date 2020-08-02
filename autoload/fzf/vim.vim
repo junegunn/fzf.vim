@@ -74,19 +74,19 @@ function! s:prepend_opts(dict, eopts)
   return s:extend_opts(a:dict, a:eopts, 1)
 endfunction
 
-" [[options to wrap], [preview window expression], [toggle-preview keys...]]
+" [[spec to wrap], [preview window expression], [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
   let bash_path = exepath('bash')
   let is_wsl_bash = bash_path =~? 'Windows[/\\]system32[/\\]bash.exe$'
-  " Default options
-  let options = {}
+  " Default spec
+  let spec = {}
   let window = ''
 
   let args = copy(a:000)
 
-  " Options to wrap
+  " Spec to wrap
   if len(args) && type(args[0]) == s:TYPE.dict
-    let options = copy(args[0])
+    let spec = copy(args[0])
     call remove(args, 0)
   endif
 
@@ -95,11 +95,11 @@ function! fzf#vim#with_preview(...)
       call s:warn('Preview window not supported (bash not found in PATH)')
       let s:warned = 1
     endif
-    return options
+    return spec
   endif
 
   " Placeholder expression (TODO/TBD: undocumented)
-  let placeholder = get(options, 'placeholder', '{}')
+  let placeholder = get(spec, 'placeholder', '{}')
 
   " Preview window
   if len(args) && type(args[0]) == s:TYPE.string
@@ -126,8 +126,8 @@ function! fzf#vim#with_preview(...)
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
   endif
-  call s:merge_opts(options, preview)
-  return options
+  call s:merge_opts(spec, preview)
+  return spec
 endfunction
 
 function! s:remove_layout(opts)
