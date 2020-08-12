@@ -675,7 +675,7 @@ endfunction
 " Ag / Rg
 " ------------------------------------------------------------------
 function! s:ag_to_qf(line, has_column)
-  let parts = matchlist(a:line, '\(.\{-}\):\(\d\+\)\%(:\(\d\+\)\)\?\%(:\(.*\)\)\?')
+  let parts = matchlist(a:line, '\(.\{-}\)\s*:\s*\(\d\+\)\%(\s*:\s*\(\d\+\)\)\?\%(\s*:\(.*\)\)\?')
   let dict = {'filename': &acd ? fnamemodify(parts[1], ':p') : parts[1], 'lnum': parts[2], 'text': parts[4]}
   if a:has_column
     let dict.col = parts[3]
