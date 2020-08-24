@@ -350,6 +350,15 @@ function! s:line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+  let qfl = []
+  for line in a:lines[1:]
+    let chunks = split(line, "\t", 1)
+    let bufnumber = chunks[0]
+    let ln = chunks[2]
+    let ltxt = join(chunks[3:], "\t")
+    call add(qfl, {'filename': bufname(str2nr(bufnumber)), 'lnum': str2nr(ln), 'text': ltxt})
+  endfor
+  call s:fill_quickfix(qfl, 'cfirst')
   normal! m'
   let cmd = s:action_for(a:lines[0])
   if !empty(cmd) && stridx('edit', cmd) < 0
@@ -409,7 +418,7 @@ function! fzf#vim#lines(...)
   return s:fzf('lines', {
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': s:reverse_list(['+m', '--tiebreak=index', '--prompt', 'Lines> ', '--ansi', '--extended', '--nth='.nth.'..', '--tabstop=1', '--query', query])
+  \ 'options': s:reverse_list(['+m', '--tiebreak=index', '--multi', '--prompt', 'Lines> ', '--ansi', '--extended', '--nth='.nth.'..', '--tabstop=1', '--query', query])
   \}, args)
 endfunction
 
