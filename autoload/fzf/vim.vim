@@ -76,8 +76,6 @@ endfunction
 
 " [[spec to wrap], [preview window expression], [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
-  let bash_path = exepath('bash')
-  let is_wsl_bash = bash_path =~? 'Windows[/\\]system32[/\\]bash.exe$'
   " Default spec
   let spec = {}
   let window = ''
@@ -90,7 +88,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if empty(bash_path)
+  if !executable('bash')
     if !s:warned
       call s:warn('Preview window not supported (bash not found in PATH)')
       let s:warned = 1
@@ -115,6 +113,7 @@ function! fzf#vim#with_preview(...)
     let preview += ['--preview-window', window]
   endif
   if s:is_win
+    let is_wsl_bash = exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$'
     let preview_cmd = 'bash '.(is_wsl_bash
     \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
     \ : escape(s:bin.preview, '\'))
