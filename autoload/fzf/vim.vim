@@ -32,7 +32,7 @@ let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
-\ 'preview': s:bin_dir.'preview.sh',
+\ 'preview': s:bin_dir.'bat.exe',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 if s:is_win
@@ -90,9 +90,9 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if empty(bash_path)
+  if empty('&shell')
     if !s:warned
-      call s:warn('Preview window not supported (bash not found in PATH)')
+      call s:warn('Preview window not supported (shell not defined)')
       let s:warned = 1
     endif
     return spec
@@ -115,9 +115,7 @@ function! fzf#vim#with_preview(...)
     let preview += ['--preview-window', window]
   endif
   if s:is_win
-    let preview_cmd = 'bash '.(is_wsl_bash
-    \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
-    \ : escape(s:bin.preview, '\'))
+    let preview_cmd = &shell . ' ' . &shellcmdflag . ' ' . $FZF_PREVIEW_COMMAND
   else
     let preview_cmd = fzf#shellescape(s:bin.preview)
   endif
@@ -753,8 +751,7 @@ function! fzf#vim#grep(grep_command, has_column, ...)
   \ 'column':  a:has_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--delimiter', ':', '--preview-window', '+{2}-5',
-  \             '--color', 'hl:4,hl+:12']
+  \             '--delimiter', ':', '--preview-window', '+{2}-5']
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
