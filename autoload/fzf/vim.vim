@@ -28,6 +28,7 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:min_version = '0.23.0'
 let s:is_win = has('win32') || has('win64')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
@@ -45,6 +46,40 @@ endif
 
 let s:wide = 120
 let s:warned = 0
+let s:checked = 0
+
+function! s:version_requirement(val, min)
+  let val = split(a:val, '\.')
+  let min = split(a:min, '\.')
+  for idx in range(0, len(min) - 1)
+    let v = get(val, idx, 0)
+    if     v < min[idx] | return 0
+    elseif v > min[idx] | return 1
+    endif
+  endfor
+  return 1
+endfunction
+
+function! s:check_requirements()
+  if s:checked
+    return
+  endif
+
+  if !exists('*fzf#run')
+    throw "fzf#run function not found. You also need Vim plugin from the main fzf repository (i.e. junegunn/fzf *and* junegunn/fzf.vim)"
+  endif
+  if !exists('*fzf#exec')
+    throw "fzf#exec function not found. You need to upgrade Vim plugin from the main fzf repository ('junegunn/fzf')"
+  endif
+  let exec = fzf#exec()
+  let fzf_version = matchstr(systemlist(exec .. ' --version')[0], '[0-9.]*')
+
+  if s:version_requirement(fzf_version, s:min_version)
+    let s:checked = 1
+    return
+  end
+  throw printf('You need to upgrade fzf. Found: %s (%s). Required: %s or above.', fzf_version, exec, s:min_version)
+endfunction
 
 function! s:extend_opts(dict, eopts, prepend)
   if empty(a:eopts)
@@ -229,6 +264,8 @@ function! s:buflisted()
 endfunction
 
 function! s:fzf(name, opts, extra)
+  call s:check_requirements()
+
   let [extra, bang] = [{}, 0]
   if len(a:extra) <= 1
     let first = get(a:extra, 0, 0)
@@ -666,7 +703,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(fzf#vim#_buflisted_sorted(), 'fzf#vim#_format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-5']
+  \ 'options': ['+m', '-x', '--tiebreak=index', '--header-lines=1', '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2']
   \}, args)
 endfunction
 
@@ -743,7 +780,7 @@ function! fzf#vim#grep(grep_command, has_column, ...)
   \ 'column':  a:has_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--delimiter', ':', '--preview-window', '+{2}-5',
+  \             '--delimiter', ':', '--preview-window', '+{2}-/2',
   \             '--color', 'hl:4,hl+:12']
   \}
   function! opts.sink(lines)
@@ -815,7 +852,7 @@ function! fzf#vim#buffer_tags(query, ...)
     return s:fzf('btags', {
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': s:reverse_list(['-m', '-d', '\t', '--with-nth', '1,4..', '-n', '1', '--prompt', 'BTags> ', '--query', a:query, '--preview-window', '+{3}-5'])}, args)
+    \ 'options': s:reverse_list(['-m', '-d', '\t', '--with-nth', '1,4..', '-n', '1', '--prompt', 'BTags> ', '--query', a:query, '--preview-window', '+{3}-/2'])}, args)
   catch
     return s:warn(v:exception)
   endtry
