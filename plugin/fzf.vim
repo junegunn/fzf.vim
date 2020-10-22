@@ -39,27 +39,32 @@ function! s:defs(commands)
   endfor
 endfunction
 
-function! s:p(bang, ...)
-  let preview_window = get(g:, 'fzf_preview_window', a:bang && &columns >= 80 || &columns >= 120 ? 'right': '')
-  if len(preview_window)
-    return call('fzf#vim#with_preview', add(copy(a:000), preview_window))
+function! s:p(...)
+  let preview_args = get(g:, 'fzf_preview_window', ['right', 'ctrl-/'])
+  if empty(preview_args)
+    return { 'options': ['--preview-window', 'hidden'] }
   endif
-  return {}
+
+  " For backward-compatiblity
+  if type(preview_args) == type('')
+    let preview_args = [preview_args]
+  endif
+  return call('fzf#vim#with_preview', extend(copy(a:000), preview_args))
 endfunction
 
 call s:defs([
-\'command!      -bang -nargs=? -complete=dir Files       call fzf#vim#files(<q-args>, s:p(<bang>0), <bang>0)',
-\'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, <q-args> == "?" ? {} : s:p(<bang>0), <bang>0)',
-\'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, <q-args> == "?" ? {} : s:p(<bang>0), <bang>0)',
-\'command! -bar -bang -nargs=? -complete=buffer Buffers  call fzf#vim#buffers(<q-args>, s:p(<bang>0, { "placeholder": "{1}" }), <bang>0)',
+\'command!      -bang -nargs=? -complete=dir Files       call fzf#vim#files(<q-args>, s:p(), <bang>0)',
+\'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command! -bar -bang -nargs=? -complete=buffer Buffers  call fzf#vim#buffers(<q-args>, s:p({ "placeholder": "{1}" }), <bang>0)',
 \'command!      -bang -nargs=* Lines                     call fzf#vim#lines(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* BLines                    call fzf#vim#buffer_lines(<q-args>, <bang>0)',
 \'command! -bar -bang Colors                             call fzf#vim#colors(<bang>0)',
-\'command!      -bang -nargs=+ -complete=dir Locate      call fzf#vim#locate(<q-args>, s:p(<bang>0), <bang>0)',
-\'command!      -bang -nargs=* Ag                        call fzf#vim#ag(<q-args>, s:p(<bang>0), <bang>0)',
-\'command!      -bang -nargs=* Rg                        call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case -- ".shellescape(<q-args>), 1, s:p(<bang>0), <bang>0)',
+\'command!      -bang -nargs=+ -complete=dir Locate      call fzf#vim#locate(<q-args>, s:p(), <bang>0)',
+\'command!      -bang -nargs=* Ag                        call fzf#vim#ag(<q-args>, s:p(), <bang>0)',
+\'command!      -bang -nargs=* Rg                        call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case -- ".shellescape(<q-args>), 1, s:p(), <bang>0)',
 \'command!      -bang -nargs=* Tags                      call fzf#vim#tags(<q-args>, <bang>0)',
-\'command!      -bang -nargs=* BTags                     call fzf#vim#buffer_tags(<q-args>, s:p(<bang>0, { "placeholder": "{2}:{3}" }), <bang>0)',
+\'command!      -bang -nargs=* BTags                     call fzf#vim#buffer_tags(<q-args>, s:p({ "placeholder": "{2}:{3}" }), <bang>0)',
 \'command! -bar -bang Snippets                           call fzf#vim#snippets(<bang>0)',
 \'command! -bar -bang Commands                           call fzf#vim#commands(<bang>0)',
 \'command! -bar -bang Marks                              call fzf#vim#marks(<bang>0)',
@@ -69,7 +74,7 @@ call s:defs([
 \'command! -bar -bang BCommits                           call fzf#vim#buffer_commits(<bang>0)',
 \'command! -bar -bang Maps                               call fzf#vim#maps("n", <bang>0)',
 \'command! -bar -bang Filetypes                          call fzf#vim#filetypes(<bang>0)',
-\'command!      -bang -nargs=* History                   call s:history(<q-args>, s:p(<bang>0), <bang>0)'])
+\'command!      -bang -nargs=* History                   call s:history(<q-args>, s:p(), <bang>0)'])
 
 function! s:history(arg, extra, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'

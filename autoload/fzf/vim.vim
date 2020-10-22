@@ -155,7 +155,9 @@ function! fzf#vim#with_preview(...)
   else
     let preview_cmd = fzf#shellescape(s:bin.preview)
   endif
-  let preview += ['--preview', preview_cmd.' '.placeholder]
+  if len(placeholder)
+    let preview += ['--preview', preview_cmd.' '.placeholder]
+  end
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
