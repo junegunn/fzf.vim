@@ -90,7 +90,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 < Dependencies >______________________________________________________________~
                                                           *fzf-vim-dependencies*
 
- - {fzf}{1} 0.22.0 or above
+ - {fzf}{1} 0.23.0 or above
  - For syntax-highlighted preview, install {bat}{5}
  - `Ag` requires {The Silver Searcher (ag)}{6}
  - `Rg` requires {ripgrep (rg)}{7}
