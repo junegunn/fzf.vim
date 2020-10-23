@@ -538,10 +538,10 @@ endfunction
 
 function! s:history_source(type)
   let max  = histnr(a:type)
-  let fmt  = ' %'.len(string(max)).'d '
+  let fmt  = s:yellow(' %'.len(string(max)).'d ', 'Number')
   let list = filter(map(range(1, max), 'histget(a:type, - v:val)'), '!empty(v:val)')
   return extend([' :: Press '.s:magenta('CTRL-E', 'Special').' to edit'],
-    \ map(list, 's:yellow(printf(fmt, len(list) - v:key), "Number")." ".v:val'))
+    \ map(list, 'printf(fmt, len(list) - v:key)." ".v:val'))
 endfunction
 
 nnoremap <plug>(-fzf-vim-do) :execute g:__fzf_command<cr>
