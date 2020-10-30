@@ -76,7 +76,7 @@ function! s:check_requirements()
   if v:shell_error || empty(output)
     throw 'Failed to run "fzf --version": ' . string(output)
   endif
-  let fzf_version = matchstr(output[0], '[0-9.]\+')
+  let fzf_version = matchstr(output[-1], '[0-9.]\+')
 
   if s:version_requirement(fzf_version, s:min_version)
     let s:checked = 1
