@@ -39,8 +39,15 @@ if [ -z "$CENTER" ]; then
   CENTER=0
 fi
 
-if [ -z "$FZF_PREVIEW_COMMAND" ] && command -v bat > /dev/null; then
-  bat --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
+# Sometimes bat is installed as batcat.
+if command -v bat > /dev/null; then
+    BATNAME="bat"
+elif command -v batcat > /dev/null; then
+    BATNAME="batcat"
+fi
+
+if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
+  ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
       --highlight-line=$CENTER "$FILE"
   exit $?
 fi
