@@ -607,7 +607,7 @@ function! s:get_git_root()
   return v:shell_error ? '' : root
 endfunction
 
-function! fzf#vim#gitfiles(args, ...)
+function! fzf#vim#gitfiles(args, use_current_dir, ...)
   let root = s:get_git_root()
   if empty(root)
     return s:warn('Not in git repo')
@@ -615,7 +615,7 @@ function! fzf#vim#gitfiles(args, ...)
   if a:args != '?'
     return s:fzf('gfiles', {
     \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
-    \ 'dir':     root,
+    \ 'dir':     a:use_current_dir ? getcwd() : root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
   endif
@@ -625,7 +625,7 @@ function! fzf#vim#gitfiles(args, ...)
   " the options dictionary.
   let wrapped = fzf#wrap({
   \ 'source':  'git -c color.status=always status --short --untracked-files=all',
-  \ 'dir':     root,
+  \ 'dir':     a:use_current_dir ? getcwd() : root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', 'sh -c "(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -1000"']
   \})
   call s:remove_layout(wrapped)

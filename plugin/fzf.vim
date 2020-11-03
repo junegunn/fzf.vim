@@ -54,8 +54,10 @@ endfunction
 
 call s:defs([
 \'command!      -bang -nargs=? -complete=dir Files       call fzf#vim#files(<q-args>, s:p(), <bang>0)',
-\'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
-\'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, 0, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, 0, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command!      -bang -nargs=? GitFilesCurrentDir        call fzf#vim#gitfiles(<q-args>, 1, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
+\'command!      -bang -nargs=? GFilesCurrentDir          call fzf#vim#gitfiles(<q-args>, 1, s:p(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
 \'command! -bar -bang -nargs=? -complete=buffer Buffers  call fzf#vim#buffers(<q-args>, s:p({ "placeholder": "{1}" }), <bang>0)',
 \'command!      -bang -nargs=* Lines                     call fzf#vim#lines(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* BLines                    call fzf#vim#buffer_lines(<q-args>, <bang>0)',
@@ -159,4 +161,3 @@ onoremap <silent> <plug>(fzf-maps-o) <c-c>:<c-u>call fzf#vim#maps('o', 0)<cr>
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
-

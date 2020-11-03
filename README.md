@@ -59,32 +59,34 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 Commands
 --------
 
-| Command           | List                                                                    |
-| ---               | ---                                                                     |
-| `:Files [PATH]`   | Files (runs `$FZF_DEFAULT_COMMAND` if defined)                          |
-| `:GFiles [OPTS]`  | Git files (`git ls-files`)                                              |
-| `:GFiles?`        | Git files (`git status`)                                                |
-| `:Buffers`        | Open buffers                                                            |
-| `:Colors`         | Color schemes                                                           |
-| `:Ag [PATTERN]`   | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
-| `:Rg [PATTERN]`   | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
-| `:Lines [QUERY]`  | Lines in loaded buffers                                                 |
-| `:BLines [QUERY]` | Lines in the current buffer                                             |
-| `:Tags [QUERY]`   | Tags in the project (`ctags -R`)                                        |
-| `:BTags [QUERY]`  | Tags in the current buffer                                              |
-| `:Marks`          | Marks                                                                   |
-| `:Windows`        | Windows                                                                 |
-| `:Locate PATTERN` | `locate` command output                                                 |
-| `:History`        | `v:oldfiles` and open buffers                                           |
-| `:History:`       | Command history                                                         |
-| `:History/`       | Search history                                                          |
-| `:Snippets`       | Snippets ([UltiSnips][us])                                              |
-| `:Commits`        | Git commits (requires [fugitive.vim][f])                                |
-| `:BCommits`       | Git commits for the current buffer                                      |
-| `:Commands`       | Commands                                                                |
-| `:Maps`           | Normal mode mappings                                                    |
-| `:Helptags`       | Help tags <sup id="a1">[1](#helptags)</sup>                             |
-| `:Filetypes`      | File types
+| Command                     | List                                                                    |
+| ---                         | ---                                                                     |
+| `:Files [PATH]`             | Files (runs `$FZF_DEFAULT_COMMAND` if defined)                          |
+| `:GFiles [OPTS]`            | Git files (`git ls-files`) in the git root directory                    |
+| `:GFiles?`                  | Git files (`git status`)  in the git root directory                     |
+| `:GFilesCurrentDir [OPTS]`  | Git files (`git ls-files`) in the current directory                     |
+| `:GFilesCurrentDir?`        | Git files (`git status`) in the current directory                       |
+| `:Buffers`                  | Open buffers                                                            |
+| `:Colors`                   | Color schemes                                                           |
+| `:Ag [PATTERN]`             | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
+| `:Rg [PATTERN]`             | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all) |
+| `:Lines [QUERY]`            | Lines in loaded buffers                                                 |
+| `:BLines [QUERY]`           | Lines in the current buffer                                             |
+| `:Tags [QUERY]`             | Tags in the project (`ctags -R`)                                        |
+| `:BTags [QUERY]`            | Tags in the current buffer                                              |
+| `:Marks`                    | Marks                                                                   |
+| `:Windows`                  | Windows                                                                 |
+| `:Locate PATTERN`           | `locate` command output                                                 |
+| `:History`                  | `v:oldfiles` and open buffers                                           |
+| `:History:`                 | Command history                                                         |
+| `:History/`                 | Search history                                                          |
+| `:Snippets`                 | Snippets ([UltiSnips][us])                                              |
+| `:Commits`                  | Git commits (requires [fugitive.vim][f])                                |
+| `:BCommits`                 | Git commits for the current buffer                                      |
+| `:Commands`                 | Commands                                                                |
+| `:Maps`                     | Normal mode mappings                                                    |
+| `:Helptags`                 | Help tags <sup id="a1">[1](#helptags)</sup>                             |
+| `:Filetypes`                | File types
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split
@@ -155,15 +157,15 @@ let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 Each command in fzf.vim is backed by a Vim function. You can override
 a command or define a variation of it by calling its corresponding function.
 
-| Command   | Vim function                                                               |
-| ---       | ---                                                                        |
-| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                       |
-| `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`            |
-| `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                    |
-| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                          |
-| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                           |
-| `Rg`      | `fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])` |
-| ...       | ...                                                                        |
+| Command   | Vim function                                                                     |
+| ---       | ---                                                                              |
+| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                             |
+| `GFiles`  | `fzf#vim#gitfiles(git_options, use_current_dir, [spec dict], [fullscreen bool])` |
+| `GFiles?` | `fzf#vim#gitfiles('?', use_current_dir, [spec dict], [fullscreen bool])`         |
+| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                                |
+| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                                 |
+| `Rg`      | `fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])`       |
+| ...       | ...                                                                              |
 
 (We can see that the last two optional arguments of each function are
 identical. They are directly passed to `fzf#wrap` function. If you haven't
