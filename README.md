@@ -232,8 +232,9 @@ command! -bang -nargs=? -complete=dir Files
 The following example implements `GGrep` command that works similarly to
 predefined `Ag` or `Rg` using `fzf#vim#grep`.
 
-- The second argument to `fzf#vim#grep` is 0 (false), because `git grep` does
-  not print column numbers.
+- The second `has_column` argument to `fzf#vim#grep` determines whether upon
+  selection the cursor is placed at the start of the matched characters.
+  Because `git grep` (>=2.19.0) can pass the column number we set it to 1 (true).
 - We set the base directory to git root by setting `dir` attribute in spec
   dictionary.
 - [The preview script](bin/preview.sh) supports `grep` format
@@ -243,7 +244,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
 ```vim
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
-  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   'git grep --column --line-number -- '.shellescape(<q-args>), 1,
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 ```
 
