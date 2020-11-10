@@ -754,8 +754,8 @@ endfunction
 function! s:adjust_for_tabs(first)
   if &expandtab && a:first.col > 1
     " Has a max amount of tabs to check to prefend efficiency troubles.
-    " 20 is taken random.
-    let l:max_tabs = 20
+    " Tested it with an odd 100 tabs, and performed fine.
+    let l:max_tabs = 200
     " Don't include selected character and adjust for match() counting from 0.
     let l:string_length = a:first.col - 2
     let l:str = getline('.')[0:l:string_length]
