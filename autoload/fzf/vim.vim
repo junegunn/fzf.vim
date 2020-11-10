@@ -741,81 +741,46 @@ function! s:ag_handler(lines, has_column)
     call s:open(cmd, first.filename)
     execute first.lnum
     if a:has_column
-      " ######## v1
-      " let chars = getline('.')[0:first.col-1]
-      " let tab_count = count(chars, "\t")
-
-      " if &expandtab == 1 && &tabstop > 1
-      "   " Not satifactory solution, only takes fully expanded tabs in account.
-
-      "   " Vim 7 compatible solution, according to SO post (perhaps read up
-      "   " first):
-      "   " https://vi.stackexchange.com/questions/21622/get-number-of-commas-in-a-line-using-vimscript
-      "   " And there're other ways described on other posts.
-      "   " echo len(split(getline('.'), ',')) - 1
-      "   " ...
-
-      "   let extra_steps = tab_count * (&tabstop - 1)
-      "   let first.col = first.col + extra_steps
-      "   execute 'normal!' first.col.'|'
-      " endif
-      " ######## end v1
-
-      " ######## v2
-
-      " Get list of positions of tabs.
-      " Look at size of tabs.
-      " For each tab check how far on the line it is.
-      " Count extra space accordingly.
-      " Add it.
-      "
-      " or: perfor retab on string, add extra characters to thing.
-      "   - retab requires the ex_extra feature to be added at compile time.
-      "   - But it is available in Vim 7
-
-      if &expandtab && first.col > 1
-
-        echom "We're starting this."
-        " Don't include character and adjust for search starting at 0.
-        let string_length = first.col - 2
-        let str = getline('.')[0:string_length]
-        let start_search = 0
-        let correction = 0
-        let c = 0
-        let tabi = 0
-
-        " Has a max amount of tabs to check for.
-        while tabi > -1 && c < 10
-          let c += 1
-          echom c
-
-          let tabi = match(str, '\t', start_search)
-          echom tabi
-          if tabi > -1
-
-            " for printing purposes
-            let tabi_real_position = tabi + correction
-            echom 'tabi_editor_position: '.tabi_real_position
-
-            let tab_lateness = (tabi + correction) % &tabstop
-            let correction += &tabstop - 1 - tab_lateness
-            let start_search = tabi + 1
-          endif
-
-        endwhile
-
-        let first.col += correction
-      endif
-
+      call s:adjust_for_tabs(first)
       execute 'normal!' first.col.'|'
-      " ####### end v2
-
     endif
     normal! zz
   catch
   endtry
 
   call s:fill_quickfix(list)
+endfunction
+
+function! s:adjust_for_tabs(first)
+  if &expandtab && a:first.col > 1
+    " Has a max amount of tabs to check to prefend efficiency troubles.
+    " 10 is taken random.
+    let l:max_tabs = 20
+    " Don't include selected character and adjust for match() counting from 0.
+    let l:string_length = a:first.col - 2
+    let l:str = getline('.')[0:l:string_length]
+    let l:start_search = 0
+    let l:correction = 0
+    let l:c = 0
+    let l:tabi = 0
+
+    while l:tabi > -1 && l:c <= l:max_tabs
+      let l:c += 1
+      let l:tabi = match(str, '\t', l:start_search)
+      if l:tabi > -1
+        let l:tab_lateness = (l:tabi + l:correction) % &tabstop
+        let l:correction += &tabstop - 1 - l:tab_lateness
+        let l:start_search = l:tabi + 1
+      endif
+    endwhile
+
+    if l:c > l:max_tabs
+      let a:first.col = 1
+      let l:correction = 0
+    endif
+
+    let a:first.col += l:correction
+  endif
 endfunction
 
 " query, [[ag options], options]
