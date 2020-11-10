@@ -752,7 +752,7 @@ function! s:ag_handler(lines, has_column)
 endfunction
 
 function! s:adjust_for_tabs(first)
-  if &expandtab && a:first.col > 1
+  if a:first.col > 1
     " Has a max amount of tabs to check to prefend potential efficiency troubles.
     " - Tested with an odd 100 tabs, and performed fine.
     " - Line length < 2.400.000 characters was fine.
