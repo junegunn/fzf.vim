@@ -753,8 +753,9 @@ endfunction
 
 function! s:adjust_for_tabs(first)
   if &expandtab && a:first.col > 1
-    " Has a max amount of tabs to check to prefend efficiency troubles.
-    " Tested it with an odd 100 tabs, and performed fine.
+    " Has a max amount of tabs to check to prefend potential efficiency troubles.
+    " - Tested with an odd 100 tabs, and performed fine.
+    " - Line length < 2.400.000 characters was fine.
     let l:max_tabs = 200
     " Don't include selected character and adjust for match() counting from 0.
     let l:string_length = a:first.col - 2
