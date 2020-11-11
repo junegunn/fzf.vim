@@ -741,7 +741,7 @@ function! s:ag_handler(lines, has_column)
     call s:open(cmd, first.filename)
     execute first.lnum
     if a:has_column
-      execute 'normal!' first.col.'|'
+      call cursor(0, first.col)
     endif
     normal! zz
   catch
