@@ -921,7 +921,7 @@ function! fzf#vim#tags(query, ...)
     endif
   endif
 
-  let tagfiles = tagfiles()
+  let tagfiles = map(tagfiles(), 'substitute(v:val, "^term://", "", "")')
   let v2_limit = 1024 * 1024 * 200
   for tagfile in tagfiles
     let v2_limit -= getfsize(tagfile)
