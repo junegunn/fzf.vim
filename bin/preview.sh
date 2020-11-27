@@ -23,6 +23,7 @@ fi
 CENTER=${CENTER/[^0-9]*/}
 
 FILE="${FILE/#\~\//$HOME/}"
+FILE="${FILE//\\\\/\/}"
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
   exit 1
