@@ -979,6 +979,7 @@ function! s:command_sink(lines)
   if empty(a:lines[0])
     call feedkeys(':'.cmd.(a:lines[1][0] == '!' ? '' : ' '), 'n')
   else
+    call histadd(':', cmd)
     execute cmd
   endif
 endfunction
