@@ -947,8 +947,9 @@ function! s:inject_snippet(line)
   let snip = split(a:line, "\t")[0]
   execute 'normal! i'.del.s:strip(snip)
   execute 'normal! l'
-  call UltiSnips#ExpandSnippet()
+  startinsert
   let &ve = ve
+  call feedkeys("\<c-r>=UltiSnips#ExpandSnippet()\<cr>", "n")
 endfunction
 
 function! fzf#vim#snippets(...)
