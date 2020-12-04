@@ -941,15 +941,10 @@ endfunction
 " Snippets (UltiSnips)
 " ------------------------------------------------------------------
 function! s:inject_snippet(line)
-  let ve = &ve
-  set ve=onemore
+  startinsert
   let del = empty(matchstr(getline('.'), '\%' . (col('.') - 1) . 'c\S')) ? "" : "\<c-w>"
   let snip = split(a:line, "\t")[0]
-  execute 'normal! i'.del.s:strip(snip)
-  execute 'normal! l'
-  startinsert
-  let &ve = ve
-  call feedkeys("\<c-r>=UltiSnips#ExpandSnippet()\<cr>", "n")
+  call feedkeys(del . s:strip(snip) . "\<c-r>=UltiSnips#ExpandSnippet()\<cr>", 'n')
 endfunction
 
 function! fzf#vim#snippets(...)
