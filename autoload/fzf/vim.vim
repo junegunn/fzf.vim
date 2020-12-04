@@ -943,8 +943,9 @@ endfunction
 function! s:inject_snippet(line)
   let ve = &ve
   set ve=onemore
+  let del = empty(matchstr(getline('.'), '\%' . (col('.') - 1) . 'c\S')) ? "" : "\<c-w>"
   let snip = split(a:line, "\t")[0]
-  execute 'normal! a'.s:strip(snip)
+  execute 'normal! i'.del.s:strip(snip)
   execute 'normal! l'
   call UltiSnips#ExpandSnippet()
   let &ve = ve
