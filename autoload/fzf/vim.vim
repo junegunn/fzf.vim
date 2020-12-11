@@ -623,10 +623,16 @@ function! fzf#vim#gitfiles(args, ...)
   " Here be dragons!
   " We're trying to access the common sink function that fzf#wrap injects to
   " the options dictionary.
+  let preview = printf(
+    \ 'sh -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ executable('delta')
+      \ ? 'git diff -- {-1} | delta --file-style=omit | sed 1d'
+      \ : 'git diff --color=always -- {-1} | sed 1,4d',
+    \ s:bin.preview)
   let wrapped = fzf#wrap({
   \ 'source':  'git -c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
-  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', 'sh -c "(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -1000"']
+  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
   call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')

@@ -52,6 +52,8 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
 - [fzf][fzf-main] 0.23.0 or above
 - For syntax-highlighted preview, install [bat](https://github.com/sharkdp/bat)
+- `:GF?` will use [delta](https://github.com/dandavison/delta) if available
+  to format `git diff` output
 - `Ag` requires [The Silver Searcher (ag)][ag]
 - `Rg` requires [ripgrep (rg)][rg]
 - `Tags` and `Helptags` require Perl
