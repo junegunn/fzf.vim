@@ -624,7 +624,7 @@ function! fzf#vim#gitfiles(args, ...)
   " We're trying to access the common sink function that fzf#wrap injects to
   " the options dictionary.
   let preview = printf(
-    \ 'sh -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
       \ ? 'git diff -- {-1} | delta --file-style=omit | sed 1d'
       \ : 'git diff --color=always -- {-1} | sed 1,4d',
