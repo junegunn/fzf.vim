@@ -107,8 +107,8 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
-    *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:Lines* *:BLines* *:Tags* *:BTags* *:Marks*
-        *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
+  *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:Lines* *:BLines* *:Tags* *:BTags* *:Tselect*
+ *:Marks* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
                                                           *:Helptags* *:Filetypes*
 
  ------------------+-----------------------------------------------------------------------
@@ -125,6 +125,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:BLines [QUERY]`  | Lines in the current buffer
   `:Tags [QUERY]`    | Tags in the project ( `ctags -R` )
   `:BTags [QUERY]`   | Tags in the current buffer
+  `:Tselect [QUERY]` | Tags matching the query (or top of tagstack if QUERY is unspecified)
   `:Marks`           | Marks
   `:Windows`         | Windows
   `:Locate PATTERN`  |  `locate`  command output
