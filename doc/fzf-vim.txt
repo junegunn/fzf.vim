@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: December 12 2020
+fzf-vim.txt	fzf-vim	Last change: December 14 2020
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -92,7 +92,8 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
  - {fzf}{1} 0.23.0 or above
  - For syntax-highlighted preview, install {bat}{5}
- - `:GF?` will use {delta}{6} if available to format `git diff` output
+ - If {delta}{6} is available, `:GF?`, `:Commits` and `:BCommits` will use it to
+   format `git diff` output. to format `git diff` output
  - `Ag` requires {The Silver Searcher (ag)}{7}
  - `Rg` requires {ripgrep (rg)}{8}
  - `Tags` and `Helptags` require Perl
