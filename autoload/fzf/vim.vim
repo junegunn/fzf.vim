@@ -623,10 +623,16 @@ function! fzf#vim#gitfiles(args, ...)
   " Here be dragons!
   " We're trying to access the common sink function that fzf#wrap injects to
   " the options dictionary.
+  let preview = printf(
+    \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ executable('delta')
+      \ ? 'git diff -- {-1} | delta --file-style=omit | sed 1d'
+      \ : 'git diff --color=always -- {-1} | sed 1,4d',
+    \ s:bin.preview)
   let wrapped = fzf#wrap({
   \ 'source':  'git -c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
-  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', 'sh -c "(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -1000"']
+  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
   call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')
@@ -796,8 +802,7 @@ function! fzf#vim#grep(grep_command, has_column, ...)
   \ 'column':  a:has_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--delimiter', ':', '--preview-window', '+{2}-/2',
-  \             '--color', 'hl:4,hl+:12']
+  \             '--delimiter', ':', '--preview-window', '+{2}-/2']
   \}
   function! opts.sink(lines)
     return s:ag_handler(a:lines, self.column)
@@ -1226,8 +1231,9 @@ function! s:commits(buffer_local, args)
   endif
 
   if !s:is_win && &columns > s:wide
+    let suffix = executable('delta') ? '| delta' : '--color=always'
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: --color=always | head -1000'])
+    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
