@@ -1344,7 +1344,7 @@ function! s:complete_insert(lines)
   if mode() =~ 't'
     call feedkeys('a', 'n')
   else
-    execute "normal! \<esc>la"
+    execute s:eol ? "normal! \<esc>a" : "normal! \<esc>la"
   endif
 endfunction
 
