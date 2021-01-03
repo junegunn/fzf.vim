@@ -22,6 +22,18 @@ if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
 fi
 CENTER=${CENTER/[^0-9]*/}
 
+#MS Win support
+if [ -z "$MSWINHOME" ]; then
+  MSWINHOME="$HOMEDRIVE$HOMEPATH"
+fi
+if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+  MSWINHOME="${MSWINHOME//\\/\\\\}"
+  FILE="${FILE/#\~\\/$MSWINHOME\\}"
+  FILE=`wslpath -u "$FILE"`
+elif [ ! -z "$MSWINHOME" ]; then
+  FILE="${FILE/#\~\\/$MSWINHOME\\}"
+fi
+
 FILE="${FILE/#\~\//$HOME/}"
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
