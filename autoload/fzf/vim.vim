@@ -153,10 +153,10 @@ function! fzf#vim#with_preview(...)
   endif
   if s:is_win
     let is_wsl_bash = exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$'
+    if empty($MSWINHOME)
+      let $MSWINHOME = $HOME
+    endif
     if is_wsl_bash
-      if empty($MSWINHOME)
-        let $MSWINHOME = $HOME
-      endif
       if $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
         let $WSLENV = 'MSWINHOME/u:'.$WSLENV
       endif
