@@ -603,8 +603,24 @@ endfunction
 " ------------------------------------------------------------------
 
 function! s:get_git_root()
-  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
-  return v:shell_error ? '' : root
+  let l:command = ['git', '-C', s:prepare_cwd_for_git(), 'rev-parse', '--show-toplevel']
+
+  let l:root = split(system(l:command), '\n')[0]
+  return v:shell_error ? '' : l:root
+endfunction
+
+function! s:prepare_cwd_for_git() abort
+  let l:relative = get(g:, 'fzf_git_buffer_relative_root', 0)
+  if l:relative == 0
+    return getcwd()
+  endif
+
+  let l:dir = fnamemodify(expand(bufname()), ':p:h')
+  if !isdirectory(l:dir)
+    return getcwd()
+  endif
+
+  return l:dir
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
@@ -1184,16 +1200,16 @@ function! s:commits_sink(lines)
 endfunction
 
 function! s:commits(buffer_local, args)
-  let s:git_root = s:get_git_root()
-  if empty(s:git_root)
+  let l:git_root = s:get_git_root()
+  if empty(l:git_root)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let source = 'git -C ' . l:git_root . ' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
   let current = expand('%')
   let managed = 0
   if !empty(current)
-    call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
+    call system('git -C '. l:git_root . ' show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
 
@@ -1225,7 +1241,7 @@ function! s:commits(buffer_local, args)
   if !s:is_win && &columns > s:wide
     let suffix = executable('delta') ? '| delta' : '--color=always'
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: ' . suffix])
+          \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git -C ' . l:git_root . ' show --format=format: ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
