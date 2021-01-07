@@ -1345,10 +1345,15 @@ function! s:complete_insert(lines)
   let &ve = ve
   if mode() =~ 't'
     call feedkeys('a', 'n')
-  else
+  elseif has('nvim')
     execute "normal! \<esc>la"
+  else
+    call feedkeys("\<Plug>(-fzf-complete-finish)")
   endif
 endfunction
+
+nnoremap <silent> <Plug>(-fzf-complete-finish) a
+inoremap <silent> <Plug>(-fzf-complete-finish) <c-o>l
 
 function! s:eval(dict, key, arg)
   if has_key(a:dict, a:key) && type(a:dict[a:key]) == s:TYPE.funcref
