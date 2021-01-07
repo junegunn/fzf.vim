@@ -642,11 +642,11 @@ function! fzf#vim#gitfiles(args, ...)
   let preview = printf(
     \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? 'git diff -- {-1} | delta --file-style=omit | sed 1d'
-      \ : 'git diff --color=always -- {-1} | sed 1,4d',
+      \ ? 'git -C ' . root .' diff -- {-1} | delta --file-style=omit | sed 1d'
+      \ : 'git -C ' . root .' diff --color=always -- {-1} | sed 1,4d',
     \ s:bin.preview)
   let wrapped = fzf#wrap({
-  \ 'source':  'git -c color.status=always status --short --untracked-files=all',
+  \ 'source':  'git -C ' . root .' -c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
