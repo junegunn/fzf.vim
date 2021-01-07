@@ -1206,7 +1206,7 @@ function! s:commits(buffer_local, args)
   endif
 
   let source = 'git -C ' . l:git_root . ' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
-  let current = expand('%')
+  let current = expand('%:p')
   let managed = 0
   if !empty(current)
     call system('git -C '. l:git_root . ' show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
