@@ -4,8 +4,14 @@ REVERSE="\x1b[7m"
 RESET="\x1b[m"
 
 if [ -z "$1" ]; then
-  echo "usage: $0 FILENAME[:LINENO][:IGNORED]"
+  echo "usage: $0 [--tag] FILENAME[:LINENO][:IGNORED]"
   exit 1
+fi
+
+if [ "$1" = --tag ]; then
+  shift
+  "$(dirname "${BASH_SOURCE[0]}")/tagpreview.sh" "$@"
+  exit $?
 fi
 
 IFS=':' read -r -a INPUT <<< "$1"
