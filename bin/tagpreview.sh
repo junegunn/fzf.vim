@@ -10,7 +10,10 @@ fi
 
 IFS=':' read -r FILE TAGFILE EXCMD <<< "$*"
 
-FILE="$(dirname "${TAGFILE}")/${FILE}"
+# Complete file paths which are relative to the given tag file
+if [ "${FILE:0:1}" != "/" ]; then
+  FILE="$(dirname "${TAGFILE}")/${FILE}"
+fi
 
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
