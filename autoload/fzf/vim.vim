@@ -138,9 +138,19 @@ function! fzf#vim#with_preview(...)
   " Placeholder expression (TODO/TBD: undocumented)
   let placeholder = get(spec, 'placeholder', '{}')
 
-  " Preview window
+  " g:fzf_preview_window
+  if empty(args)
+    let preview_args = get(g:, 'fzf_preview_window', ['right', 'ctrl-/'])
+    if empty(preview_args)
+      let args = ['hidden']
+    else
+      " For backward-compatiblity
+      let args = type(preview_args) == type('') ? [preview_args] : copy(preview_args)
+    endif
+  endif
+
   if len(args) && type(args[0]) == s:TYPE.string
-    if args[0] !~# '^\(up\|down\|left\|right\)'
+    if args[0] !~# '^\(up\|down\|left\|right\|hidden\)'
       throw 'invalid preview window: '.args[0]
     endif
     let window = args[0]
