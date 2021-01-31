@@ -156,10 +156,8 @@ function! fzf#vim#with_preview(...)
     if empty($MSWINHOME)
       let $MSWINHOME = $HOME
     endif
-    if is_wsl_bash
-      if $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
-        let $WSLENV = 'MSWINHOME/u:'.$WSLENV
-      endif
+    if is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
+      let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
     let preview_cmd = 'bash '.(is_wsl_bash
     \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
