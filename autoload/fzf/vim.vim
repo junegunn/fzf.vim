@@ -140,7 +140,7 @@ function! fzf#vim#with_preview(...)
 
   " g:fzf_preview_window
   if empty(args)
-    let preview_args = get(g:, 'fzf_preview_window', ['right', 'ctrl-/'])
+    let preview_args = get(g:, 'fzf_preview_window', ['', 'ctrl-/'])
     if empty(preview_args)
       let args = ['hidden']
     else
@@ -150,7 +150,7 @@ function! fzf#vim#with_preview(...)
   endif
 
   if len(args) && type(args[0]) == s:TYPE.string
-    if args[0] !~# '^\(up\|down\|left\|right\|hidden\)'
+    if len(args[0]) && args[0] !~# '^\(up\|down\|left\|right\|hidden\)'
       throw 'invalid preview window: '.args[0]
     endif
     let window = args[0]
