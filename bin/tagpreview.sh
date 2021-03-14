@@ -25,6 +25,9 @@ if command -v vim > /dev/null; then
   VIMNAME="vim"
 elif command -v nvim > /dev/null; then
   VIMNAME="nvim"
+else
+  echo "Cannot preview tag: vim or nvim unavailable"
+  exit 1
 fi
 
 CENTER="$("${VIMNAME}" -i NONE -u NONE -e -m -s "${FILE}" \
