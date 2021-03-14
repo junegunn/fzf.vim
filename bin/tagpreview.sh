@@ -20,7 +20,17 @@ if [ ! -r "$FILE" ]; then
   exit 1
 fi
 
-CENTER="$(vim -i NONE -u NONE -e -m -s "${FILE}" \
+# If users aren't using vim, they are probably using neovim
+if command -v vim > /dev/null; then
+  VIMNAME="vim"
+elif command -v nvim > /dev/null; then
+  VIMNAME="nvim"
+else
+  echo "Cannot preview tag: vim or nvim unavailable"
+  exit 1
+fi
+
+CENTER="$("${VIMNAME}" -i NONE -u NONE -e -m -s "${FILE}" \
               -c "set nomagic" \
               -c "${EXCMD}" \
               -c 'let l=line(".") | new | put =l | print | qa!')" || return
