@@ -113,6 +113,23 @@ function! s:prepend_opts(dict, eopts)
   return s:extend_opts(a:dict, a:eopts, 1)
 endfunction
 
+function! fzf#vim#preview_path()
+  if s:is_win
+    let is_wsl_bash = exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$'
+    if empty($MSWINHOME)
+      let $MSWINHOME = $HOME
+    endif
+    if is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
+      let $WSLENV = 'MSWINHOME/u:'.$WSLENV
+    endif
+    return 'bash '.(is_wsl_bash
+    \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
+    \ : escape(s:bin.preview, '\'))
+  else
+    return fzf#shellescape(s:bin.preview)
+  endif
+endfunction
+
 " [[spec to wrap], [preview window expression], [toggle-preview keys...]]
 function! fzf#vim#with_preview(...)
   " Default spec
@@ -161,20 +178,7 @@ function! fzf#vim#with_preview(...)
   if len(window)
     let preview += ['--preview-window', window]
   endif
-  if s:is_win
-    let is_wsl_bash = exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$'
-    if empty($MSWINHOME)
-      let $MSWINHOME = $HOME
-    endif
-    if is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
-      let $WSLENV = 'MSWINHOME/u:'.$WSLENV
-    endif
-    let preview_cmd = 'bash '.(is_wsl_bash
-    \ ? substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
-    \ : escape(s:bin.preview, '\'))
-  else
-    let preview_cmd = fzf#shellescape(s:bin.preview)
-  endif
+  let preview_cmd = fzf#vim#preview_path()
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
