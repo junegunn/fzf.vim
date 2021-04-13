@@ -964,7 +964,7 @@ function! fzf#vim#snippets(...)
   let colored = map(aligned, 's:yellow(v:val[0])."\t".v:val[1]')
   return s:fzf('snippets', {
   \ 'source':  colored,
-  \ 'options': '--ansi --tiebreak=index +m -d "\t"',
+  \ 'options': '--ansi --tiebreak=index +m -n 1,2 -d "\t"',
   \ 'sink':    s:function('s:inject_snippet')}, a:000)
 endfunction
 
