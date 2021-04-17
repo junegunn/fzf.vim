@@ -966,7 +966,7 @@ endfunction
 " ------------------------------------------------------------------
 function! s:inject_snippet(line)
   let snip = split(a:line, "\t")[0]
-  execute 'normal! a'.s:strip(snip)."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
+  silent execute 'normal! a'.s:strip(snip)."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
 endfunction
 
 function! fzf#vim#snippets(...)
