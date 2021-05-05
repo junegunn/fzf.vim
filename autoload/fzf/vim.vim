@@ -945,6 +945,49 @@ function! fzf#vim#tags(query, ...)
 endfunction
 
 " ------------------------------------------------------------------
+" Tselect
+" ------------------------------------------------------------------
+function! s:tselect_sink(query, lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = s:action_for(a:lines[0], '')
+  let count = split(a:lines[1])[0]
+  if !empty(cmd)
+    execute cmd
+  endif
+  execute count . 'tag' a:query
+endfunction
+
+function! fzf#vim#tselect(query, ...)
+  let stack = gettagstack()
+  let tagstack_head = stack.length != 0 ? stack.items[-1].tagname : ""
+  let query = empty(a:query) ? tagstack_head : a:query
+  if empty(query)
+    echohl Error
+    echo "E73: tag stack empty"
+    echohl None
+    return
+  else
+
+  let tags = map(taglist('^' . query . '$', expand('%:p')), {i, v ->
+  \ [i + 1, get(v, 'filename', ''), get(v, 'class', ''), get(v, 'cmd', '')]})
+
+  let source = map(s:align_lists(tags), 'join(v:val, " ")')
+  if empty(source)
+    echohl Error
+    echo "E426: tag not found: " . query
+    echohl None
+    return
+  endif
+
+  return s:fzf('tselect', {
+  \ 'source':  source,
+  \ 'sink*':   function('s:tselect_sink', [query]),
+  \ 'options': extend([], ['--ansi', '--no-sort', '--tiebreak=index', '--prompt', 'Tselect> '])}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Snippets (UltiSnips)
 " ------------------------------------------------------------------
 function! s:inject_snippet(line)
