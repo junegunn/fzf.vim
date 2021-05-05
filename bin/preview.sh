@@ -4,15 +4,21 @@ REVERSE="\x1b[7m"
 RESET="\x1b[m"
 
 if [ -z "$1" ]; then
-  echo "usage: $0 FILENAME[:LINENO][:IGNORED]"
+  echo "usage: $0 [--tag] FILENAME[:LINENO][:IGNORED]"
   exit 1
+fi
+
+if [ "$1" = --tag ]; then
+  shift
+  "$(dirname "${BASH_SOURCE[0]}")/tagpreview.sh" "$@"
+  exit $?
 fi
 
 IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 CENTER=${INPUT[1]}
 
-if [[ $1 =~ ^[A-Z]:\\ ]]; then
+if [[ $1 =~ ^[A-Za-z]:\\ ]]; then
   FILE=$FILE:${INPUT[1]}
   CENTER=${INPUT[2]}
 fi
@@ -21,6 +27,20 @@ if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
   exit 1
 fi
 CENTER=${CENTER/[^0-9]*/}
+
+# MS Win support
+if [[ $FILE =~ '\' ]]; then
+  if [ -z "$MSWINHOME" ]; then
+    MSWINHOME="$HOMEDRIVE$HOMEPATH"
+  fi
+  if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+    MSWINHOME="${MSWINHOME//\\/\\\\}"
+    FILE="${FILE/#\~\\/$MSWINHOME\\}"
+    FILE=$(wslpath -u "$FILE")
+  elif [ -n "$MSWINHOME" ]; then
+    FILE="${FILE/#\~\\/$MSWINHOME\\}"
+  fi
+fi
 
 FILE="${FILE/#\~\//$HOME/}"
 if [ ! -r "$FILE" ]; then
