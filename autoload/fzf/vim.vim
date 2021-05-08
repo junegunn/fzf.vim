@@ -302,6 +302,7 @@ function! s:fzf(name, opts, extra)
     throw 'invalid number of arguments'
   endif
 
+  let extra  = copy(extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
   call s:merge_opts(merged, eopts)
