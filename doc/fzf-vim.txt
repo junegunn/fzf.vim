@@ -203,13 +203,16 @@ A few commands in fzf.vim can be customized with global option variables shown
 below.
 
                *g:fzf_buffers_jump* *g:fzf_commits_log_options* *g:fzf_tags_command*
-                                                         *g:fzf_commands_expect*
+                          *g:fzf_commands_expect* *g:fzf_git_buffer_relative_root*
 >
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
 
     " [[B]Commits] Customize the options used by 'git log':
     let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+
+		" [GFiles[?]], [[B]Commits] Set git cwd relative to the current buffer
+		let g:fzf_git_buffer_relative_root = 1
 
     " [Tags] Command to generate tags file
     let g:fzf_tags_command = 'ctags -R'
