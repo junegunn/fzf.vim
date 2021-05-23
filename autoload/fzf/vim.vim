@@ -1161,7 +1161,7 @@ function! fzf#vim#windows(...)
 endfunction
 
 " ------------------------------------------------------------------
-" Commits / BCommits
+" Commits / BCommits / LCommits
 " ------------------------------------------------------------------
 function! s:yank_to_register(data)
   let @" = a:data
@@ -1201,7 +1201,7 @@ function! s:commits_sink(lines)
   endfor
 endfunction
 
-function! s:commits(buffer_local, args)
+function! s:commits(command, args)
   let s:git_root = s:get_git_root()
   if empty(s:git_root)
     return s:warn('Not in git repository')
@@ -1215,27 +1215,30 @@ function! s:commits(buffer_local, args)
     let managed = !v:shell_error
   endif
 
-  if a:buffer_local
+  if a:command == 'BCommits'
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
     let source .= ' --follow '.fzf#shellescape(current)
+  elseif a:command == 'LCommits'
+    let startline = line("'<")
+    let endline = line("'>")
+    let source .= ' -L '.startline.','.endline.':'.current.' --no-patch'
   else
     let source .= ' --graph'
   endif
 
-  let command = a:buffer_local ? 'BCommits' : 'Commits'
   let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   let options = {
   \ 'source':  source,
   \ 'sink*':   s:function('s:commits_sink'),
   \ 'options': s:reverse_list(['--ansi', '--multi', '--tiebreak=index',
-  \   '--inline-info', '--prompt', command.'> ', '--bind=ctrl-s:toggle-sort',
+  \   '--inline-info', '--prompt', a:command.'> ', '--bind=ctrl-s:toggle-sort',
   \   '--header', ':: Press '.s:magenta('CTRL-S', 'Special').' to toggle sort, '.s:magenta('CTRL-Y', 'Special').' to yank commit hashes',
   \   '--expect=ctrl-y,'.expect_keys])
   \ }
 
-  if a:buffer_local
+  if a:command == 'BCommits'
     let options.options[-2] .= ', '.s:magenta('CTRL-D', 'Special').' to diff'
     let options.options[-1] .= ',ctrl-d'
   endif
@@ -1246,15 +1249,19 @@ function! s:commits(buffer_local, args)
     \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: ' . suffix])
   endif
 
-  return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
+  return s:fzf(tolower(a:command), options, a:args)
 endfunction
 
 function! fzf#vim#commits(...)
-  return s:commits(0, a:000)
+  return s:commits('Commits', a:000)
 endfunction
 
 function! fzf#vim#buffer_commits(...)
-  return s:commits(1, a:000)
+  return s:commits('BCommits', a:000)
+endfunction
+
+function! fzf#vim#line_commits(...)
+  return s:commits('LCommits', a:000)
 endfunction
 
 " ------------------------------------------------------------------

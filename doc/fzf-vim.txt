@@ -92,8 +92,8 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
  - {fzf}{1} 0.23.0 or above
  - For syntax-highlighted preview, install {bat}{5}
- - If {delta}{6} is available, `GF?`, `Commits` and `BCommits` will use it to
-   format `git diff` output.
+ - If {delta}{6} is available, `GF?`, `Commits`, `BCommits` and `LCommits`
+   will use it to format `git diff` output.
  - `Ag` requires {The Silver Searcher (ag)}{7}
  - `Rg` requires {ripgrep (rg)}{8}
  - `Tags` and `Helptags` require Perl
@@ -109,8 +109,8 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
     *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:Lines* *:BLines* *:Tags* *:BTags* *:Marks*
-        *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
-                                                          *:Helptags* *:Filetypes*
+              *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:LCommits*
+                                          *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
  ------------------+-----------------------------------------------------------------------
  Command           | List                                                                  ~
@@ -135,6 +135,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Snippets`        | Snippets ({UltiSnips}{9})
   `:Commits`         | Git commits (requires {fugitive.vim}{10})
   `:BCommits`        | Git commits for the current buffer
+  `:LCommits`        | Git commits for the current visually selected lines
   `:Commands`        | Commands
   `:Maps`            | Normal mode mappings
   `:Helptags`        | Help tags [1]
