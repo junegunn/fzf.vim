@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: December 14 2020
+fzf-vim.txt	fzf-vim	Last change: May 24 2021
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -134,7 +134,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:History/`        | Search history
   `:Snippets`        | Snippets ({UltiSnips}{9})
   `:Commits`         | Git commits (requires {fugitive.vim}{10})
-  `:BCommits`        | Git commits for the current buffer
+  `:BCommits`        | Git commits for the current buffer; visual-select lines to track changes in the range
   `:Commands`        | Commands
   `:Maps`            | Normal mode mappings
   `:Helptags`        | Help tags [1]
