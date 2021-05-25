@@ -1267,10 +1267,18 @@ function! s:given_range(line1, line2)
 endfunction
 
 function! fzf#vim#commits(...) range
+  if exists('b:fzf_winview')
+    call winrestview(b:fzf_winview)
+    unlet b:fzf_winview
+  endif
   return s:commits(s:given_range(a:firstline, a:lastline), 0, a:000)
 endfunction
 
 function! fzf#vim#buffer_commits(...) range
+  if exists('b:fzf_winview')
+    call winrestview(b:fzf_winview)
+    unlet b:fzf_winview
+  endif
   return s:commits(s:given_range(a:firstline, a:lastline), 1, a:000)
 endfunction
 
