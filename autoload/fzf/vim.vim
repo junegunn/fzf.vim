@@ -620,7 +620,18 @@ endfunction
 " ------------------------------------------------------------------
 
 function! s:get_git_root()
-  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+  if get(g:, 'fzf_git_auto_chdir', v:true)
+    let bufdir = expand('%:p:h')
+    let path_separator = s:is_win ? '\' : '/'
+    let bufdir_components = split(bufdir, path_separator)
+    let git_dir_index = index(bufdir_components, '.git')
+    if git_dir_index > 0
+      let bufdir = (s:is_win ? '' : '/') . join(bufdir_components[:git_dir_index - 1], path_separator)
+    endif
+    let root = split(system('git -C ' . bufdir . ' rev-parse --show-toplevel'), '\n')[0]
+  else
+    let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+  endif
   return v:shell_error ? '' : root
 endfunction
 
@@ -631,7 +642,7 @@ function! fzf#vim#gitfiles(args, ...)
   endif
   if a:args != '?'
     return s:fzf('gfiles', {
-    \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
+    \ 'source':  'git -C ' . root . ' ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
     \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
@@ -643,11 +654,11 @@ function! fzf#vim#gitfiles(args, ...)
   let preview = printf(
     \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? 'git diff -- {-1} | delta --width $FZF_PREVIEW_COLUMNS --file-style=omit | sed 1d'
-      \ : 'git diff --color=always -- {-1} | sed 1,4d',
+      \ ? 'git -C ' . root . ' diff -- {-1} | delta --width $FZF_PREVIEW_COLUMNS --file-style=omit | sed 1d'
+      \ : 'git -C ' . root . ' diff --color=always -- {-1} | sed 1,4d',
     \ s:bin.preview)
   let wrapped = fzf#wrap({
-  \ 'source':  'git -c color.status=always status --short --untracked-files=all',
+  \ 'source':  'git -C ' . root . ' -c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
@@ -1207,11 +1218,11 @@ function! s:commits(range, buffer_local, args)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
-  let current = expand('%')
+  let source = 'git -C ' . s:git_root . ' log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let current = expand('%:p')
   let managed = 0
   if !empty(current)
-    call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
+    call system('git -C ' . s:git_root . ' show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
 
@@ -1246,7 +1257,7 @@ function! s:commits(range, buffer_local, args)
   if !s:is_win && &columns > s:wide
     let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : '--color=always'
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: ' . suffix])
+    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git -C ' . s:git_root . ' show --format=format: ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)

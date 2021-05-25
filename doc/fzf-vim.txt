@@ -203,7 +203,7 @@ A few commands in fzf.vim can be customized with global option variables shown
 below.
 
                *g:fzf_buffers_jump* *g:fzf_commits_log_options* *g:fzf_tags_command*
-                                                         *g:fzf_commands_expect*
+                                    *g:fzf_commands_expect* *g:fzf_git_auto_chdir*
 >
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
@@ -216,6 +216,9 @@ below.
 
     " [Commands] --expect expression for directly executing the command
     let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+    " [GFiles[?]], [[B]Commits] Change Git working directory based on current buffer
+    let g:fzf_git_auto_chdir = 1
 <
 
 < Advanced customization >____________________________________________________~
