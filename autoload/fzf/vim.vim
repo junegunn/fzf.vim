@@ -769,7 +769,7 @@ function! s:ag_handler(lines, has_column)
     if a:has_column
       call cursor(0, first.col)
     endif
-    normal! zz
+    normal! zvzz
   catch
   endtry
 
