@@ -697,10 +697,20 @@ function! s:bufopen(lines)
     endif
   endif
   let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
+
+  call s:open_buffer_with_action(b, cmd)
+endfunction
+
+function! s:open_buffer_with_action(buffer, action) abort
+  if 'tab drop' ==# a:action
+    execute 'silent tab drop ' . bufname(a:buffer + 0)
+    return
   endif
-  execute 'buffer' b
+
+  if !empty(a:action)
+    execute 'silent' a:action
+  endif
+  execute 'buffer' a:buffer
 endfunction
 
 function! fzf#vim#_format_buffer(b)
