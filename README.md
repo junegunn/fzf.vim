@@ -48,6 +48,22 @@ Plug 'junegunn/fzf.vim'
 `fzf#install()` makes sure that you have the latest binary, but it's optional,
 so you can omit it if you use a plugin manager that doesn't support hooks.
 
+### Using vim 8 native packages
+
+```
+git clone https://github.com/junegunn/fzf.git ~/.vim/pack/packages/start/fzf
+git clone https://github.com/junegunn/fzf.vim.git ~/.vim/pack/packages/start/fzf.vim
+```
+
+Also consider using one of the newer package managers built to work with vim 8 such as
+[minpack](https://github.com/k-takata/minpac) or
+[pack](https://github.com/maralla/pack).
+
+The advantage being that they add install/update/uninstall options as well as configuration.
+
+### Using pack
+`pack install junegunn/fzf junegunn/fzf.vim`
+
 ### Dependencies
 
 - [fzf][fzf-main] 0.23.0 or above
