@@ -631,9 +631,9 @@ function! fzf#vim#gitfiles(args, ...)
   endif
   if a:args != '?'
     return s:fzf('gfiles', {
-    \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
+    \ 'source':  'git ls-files -z'.a:args.(s:is_win ? '' : ' | uniq'),
     \ 'dir':     root,
-    \ 'options': '-m --prompt "GitFiles> "'
+    \ 'options': '-m --read0 --prompt "GitFiles> "'
     \}, a:000)
   endif
 
