@@ -43,6 +43,7 @@ if [[ $FILE =~ '\' ]]; then
 fi
 
 FILE="${FILE/#\~\//$HOME/}"
+FILE=$(eval echo $FILE)
 if [ ! -r "$FILE" ]; then
   echo "File not found ${FILE}"
   exit 1
