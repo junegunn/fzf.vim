@@ -48,13 +48,6 @@ if [ ! -r "$FILE" ]; then
   exit 1
 fi
 
-FILE_LENGTH=${#FILE}
-MIME=$(file --dereference --mime "$FILE")
-if [[ "${MIME:FILE_LENGTH}" =~ binary ]]; then
-  echo "$MIME"
-  exit 0
-fi
-
 if [ -z "$CENTER" ]; then
   CENTER=0
 fi
@@ -70,6 +63,13 @@ if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
   ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
       --highlight-line=$CENTER "$FILE"
   exit $?
+fi
+
+FILE_LENGTH=${#FILE}
+MIME=$(file --dereference --mime "$FILE")
+if [[ "${MIME:FILE_LENGTH}" =~ binary ]]; then
+  echo "$MIME"
+  exit 0
 fi
 
 DEFAULT_COMMAND="highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
