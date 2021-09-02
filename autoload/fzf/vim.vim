@@ -178,6 +178,9 @@ function! fzf#vim#with_preview(...)
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
+  if &ambiwidth ==# 'double'
+    let preview += ['--no-unicode']
+  end
 
   if len(args)
     call extend(preview, ['--bind', join(map(args, 'v:val.":toggle-preview"'), ',')])
