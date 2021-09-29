@@ -48,18 +48,6 @@ let s:wide = 120
 let s:warned = 0
 let s:checked = 0
 
-function! s:version_requirement(val, min)
-  let val = split(a:val, '\.')
-  let min = split(a:min, '\.')
-  for idx in range(0, len(min) - 1)
-    let v = get(val, idx, 0)
-    if     v < min[idx] | return 0
-    elseif v > min[idx] | return 1
-    endif
-  endfor
-  return 1
-endfunction
-
 function! s:check_requirements()
   if s:checked
     return
@@ -71,18 +59,7 @@ function! s:check_requirements()
   if !exists('*fzf#exec')
     throw "fzf#exec function not found. You need to upgrade Vim plugin from the main fzf repository ('junegunn/fzf')"
   endif
-  let exec = fzf#exec()
-  let output = split(system(exec . ' --version'), "\n")
-  if v:shell_error || empty(output)
-    throw 'Failed to run "fzf --version": ' . string(output)
-  endif
-  let fzf_version = matchstr(output[-1], '[0-9.]\+')
-
-  if s:version_requirement(fzf_version, s:min_version)
-    let s:checked = 1
-    return
-  end
-  throw printf('You need to upgrade fzf. Found: %s (%s). Required: %s or above.', fzf_version, exec, s:min_version)
+  let s:checked = !empty(fzf#exec(s:min_version))
 endfunction
 
 function! s:extend_opts(dict, eopts, prepend)
