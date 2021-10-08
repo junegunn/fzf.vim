@@ -302,6 +302,7 @@ endfunction
 
 function! s:open(cmd, target)
   if stridx('edit', a:cmd) == 0 && fnamemodify(a:target, ':p') ==# expand('%:p')
+    normal! m'
     return
   endif
   execute a:cmd s:escape(a:target)
