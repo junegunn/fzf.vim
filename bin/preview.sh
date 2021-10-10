@@ -18,7 +18,7 @@ IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 CENTER=${INPUT[1]}
 
-if [[ $1 =~ ^[A-Za-z]:\\ ]]; then
+if [[ "$1" =~ ^[A-Za-z]:\\ ]]; then
   FILE=$FILE:${INPUT[1]}
   CENTER=${INPUT[2]}
 fi
@@ -29,7 +29,7 @@ fi
 CENTER=${CENTER/[^0-9]*/}
 
 # MS Win support
-if [[ $FILE =~ '\' ]]; then
+if [[ "$FILE" =~ '\' ]]; then
   if [ -z "$MSWINHOME" ]; then
     MSWINHOME="$HOMEDRIVE$HOMEPATH"
   fi
@@ -61,12 +61,12 @@ fi
 
 if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
   ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
-      --highlight-line=$CENTER "$FILE"
+      --highlight-line=$CENTER -- "$FILE"
   exit $?
 fi
 
 FILE_LENGTH=${#FILE}
-MIME=$(file --dereference --mime "$FILE")
+MIME=$(file --dereference --mime -- "$FILE")
 if [[ "${MIME:FILE_LENGTH}" =~ binary ]]; then
   echo "$MIME"
   exit 0
