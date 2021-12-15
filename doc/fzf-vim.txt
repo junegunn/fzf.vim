@@ -136,7 +136,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Commits`         | Git commits (requires {fugitive.vim}{10})
   `:BCommits`        | Git commits for the current buffer; visual-select lines to track changes in the range
   `:Commands`        | Commands
-  `:Maps`            | Normal mode mappings
+  `:Maps`            | All mode mappings
   `:Helptags`        | Help tags [1]
   `:Filetypes`       | File types
  ------------------+-----------------------------------------------------------------------
@@ -369,6 +369,7 @@ MAPPINGS                                                      *fzf-vim-mappings*
  ---------------------------------+------------------------------------------
  Mapping                          | Description                              ~
  ---------------------------------+------------------------------------------
+ <plug>(fzf-maps)                 | All mode mappings
  <plug>(fzf-maps-n)               | Normal mode mappings
  <plug>(fzf-maps-i)               | Insert mode mappings
  <plug>(fzf-maps-x)               | Visual mode mappings
@@ -384,6 +385,12 @@ MAPPINGS                                                      *fzf-vim-mappings*
     nmap <leader><tab> <plug>(fzf-maps-n)
     xmap <leader><tab> <plug>(fzf-maps-x)
     omap <leader><tab> <plug>(fzf-maps-o)
+
+    " Or, to get all mapping from any mode
+    map  <leader><leader><tab> <plug>(fzf-maps)
+    map! <leader><leader><tab> <plug>(fzf-maps)
+    tmap <leader><leader><tab> <plug>(fzf-maps)
+    lmap <leader><leader><tab> <plug>(fzf-maps)
 
     " Insert mode completion
     imap <c-x><c-k> <plug>(fzf-complete-word)
