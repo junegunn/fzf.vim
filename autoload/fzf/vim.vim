@@ -1087,12 +1087,13 @@ function! fzf#vim#helptags(...)
     silent! call delete(s:helptags_script)
   endif
   let s:helptags_script = tempname()
-  call writefile(['/('.(s:is_win ? '^[A-Z]:[\/\\].*?[^:]' : '.*?').'):(.*?)\t(.*?)\t/; printf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\n), $2, $3, $1)'], s:helptags_script)
+
+  call writefile(['/('.(s:is_win ? '^[A-Z]:[\/\\].*?[^:]' : '.*?').'):(.*?)\t(.*?)\t(.*)/; printf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\t%s\n), $2, $3, $1, $4)'], s:helptags_script)
   return s:fzf('helptags', {
-  \ 'source':  'grep -H ".*" '.join(map(tags, 'fzf#shellescape(v:val)')).
+  \ 'source':  'grep --with-filename ".*" '.join(map(tags, 'fzf#shellescape(v:val)')).
     \ ' | perl -n '.fzf#shellescape(s:helptags_script).' | sort',
   \ 'sink':    s:function('s:helptag_sink'),
-  \ 'options': ['--ansi', '+m', '--tiebreak=begin', '--with-nth', '..-2']}, a:000)
+  \ 'options': ['--ansi', '+m', '--tiebreak=begin', '--with-nth', '..3']}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
