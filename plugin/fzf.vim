@@ -60,7 +60,7 @@ call s:defs([
 \'command! -bar -bang Snippets                           call fzf#vim#snippets(<bang>0)',
 \'command! -bar -bang Commands                           call fzf#vim#commands(<bang>0)',
 \'command! -bar -bang Marks                              call fzf#vim#marks(<bang>0)',
-\'command! -bar -bang Helptags                           call fzf#vim#helptags(<bang>0)',
+\'command! -bar -bang Helptags                           call fzf#vim#helptags(fzf#vim#with_preview({ "placeholder": "--tag {2}:{3}:{4}" }), <bang>0)',
 \'command! -bar -bang Windows                            call fzf#vim#windows(<bang>0)',
 \'command! -bar -bang -range=% Commits                   let b:fzf_winview = winsaveview() | <line1>,<line2>call fzf#vim#commits(fzf#vim#with_preview({ "placeholder": "" }), <bang>0)',
 \'command! -bar -bang -range=% BCommits                  let b:fzf_winview = winsaveview() | <line1>,<line2>call fzf#vim#buffer_commits(fzf#vim#with_preview({ "placeholder": "" }), <bang>0)',
