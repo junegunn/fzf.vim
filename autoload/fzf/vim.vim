@@ -43,10 +43,10 @@ if s:is_win
   if has('nvim')
     let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
   else
-    let s:bin.preview = fnamemodify(s:bin.preview, ':8')
-    if s:is_wsl_bash
-      let s:bin.preview = substitute(substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', ''), '\', '/', 'g')
-    endif
+    let preview_path = s:is_wsl_bash
+      \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
+      \ : fnamemodify(s:bin.preview, ':8')
+    let s:bin.preview = substitute(preview_path, '\', '/', 'g')
   endif
 endif
 
