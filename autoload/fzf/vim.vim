@@ -30,9 +30,7 @@ set cpo&vim
 
 let s:min_version = '0.23.0'
 let s:is_win = has('win32') || has('win64')
-if s:is_win
-  let s:is_wsl_bash = exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$'
-endif
+let s:is_wsl_bash = s:is_win && (exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
