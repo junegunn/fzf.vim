@@ -1230,9 +1230,9 @@ function! s:commits(range, buffer_local, args)
   endif
 
   if !s:is_win && &columns > s:wide
-    let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : '--color=always'
+    let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : ''
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: ' . suffix])
+    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: --color=always ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
