@@ -42,7 +42,6 @@ if s:is_win
     \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
     \ : fnamemodify(s:bin.preview, ':8')
   let s:bin.preview = substitute(preview_path, '\', '/', 'g')
-  endif
 endif
 
 let s:wide = 120
