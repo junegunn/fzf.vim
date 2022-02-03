@@ -38,13 +38,10 @@ let s:bin = {
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 if s:is_win
-  if has('nvim')
-    let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
-  else
-    let preview_path = s:is_wsl_bash
-      \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
-      \ : fnamemodify(s:bin.preview, ':8')
-    let s:bin.preview = substitute(preview_path, '\', '/', 'g')
+  let preview_path = s:is_wsl_bash
+    \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
+    \ : fnamemodify(s:bin.preview, ':8')
+  let s:bin.preview = substitute(preview_path, '\', '/', 'g')
   endif
 endif
 
