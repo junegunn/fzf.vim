@@ -47,8 +47,9 @@ else
 endif
 
 function! fzf#vim#complete#word(...)
+  let sources = empty(&dictionary) ? '/usr/share/dict/words' : substitute(&dictionary, ',', ' ', 'g')
   return fzf#vim#complete(s:extend({
-    \ 'source': 'cat /usr/share/dict/words'},
+    \ 'source': 'cat ' . sources},
     \ get(a:000, 0, fzf#wrap())))
 endfunction
 
