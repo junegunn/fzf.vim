@@ -736,6 +736,18 @@ function! s:ag_to_qf(line, has_column)
   return dict
 endfunction
 
+function! s:ag_open_at_line(cmd, line, has_column)
+  try
+    call s:open(a:cmd, a:line.filename)
+    execute a:line.lnum
+    if a:has_column
+      call cursor(0, a:line.col)
+    endif
+    normal! zvzz
+  catch
+  endtry
+endfunction
+
 function! s:ag_handler(lines, has_column)
   if len(a:lines) < 2
     return
@@ -747,18 +759,14 @@ function! s:ag_handler(lines, has_column)
     return
   endif
 
-  let first = list[0]
-  try
-    call s:open(cmd, first.filename)
-    execute first.lnum
-    if a:has_column
-      call cursor(0, first.col)
-    endif
-    normal! zvzz
-  catch
-  endtry
-
-  call s:fill_quickfix(list)
+  if get(g:, 'ag_action_like_files', 0)
+    for line in list
+      call s:ag_open_at_line(cmd, line, a:has_column)
+    endfor
+  else
+    call s:ag_open_at_line(cmd, list[0], a:has_column)
+    call s:fill_quickfix(list)
+  endif
 endfunction
 
 " query, [[ag options], options]

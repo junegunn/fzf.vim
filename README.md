@@ -148,6 +148,10 @@ let g:fzf_tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+" [Rg \ Ag] Actions on multiple lines will have the same behavior as `Files` command.
+" Default behavior - insert option into quickfix list.
+let g:ag_action_like_files = 1
 ```
 
 ### Advanced customization
