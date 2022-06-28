@@ -1230,8 +1230,10 @@ function! s:commits(range, buffer_local, args)
 
   if !s:is_win && &columns > s:wide
     let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : ''
+    let orderfile = tempname()
+    call writefile([current], orderfile)
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show --format=format: --color=always ' . suffix])
+    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show -O'.fzf#shellescape(orderfile).' --format=format: --color=always ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
