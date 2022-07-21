@@ -632,7 +632,7 @@ function! fzf#vim#gitfiles(args, ...)
       \ : 'git diff --color=always -- {-1} '.bar.' sed 1,4d',
     \ s:bin.preview)
   let wrapped = fzf#wrap({
-  \ 'source':  'git -c color.status=always status --short --untracked-files=all',
+  \ 'source':  'git -c color.status=always status --short',
   \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
