@@ -148,6 +148,9 @@ let g:fzf_tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+
+" [Misc] Disable automatic opening of quickfix window
+let g:fzf_quickfix_open = 0
 ```
 
 ### Advanced customization
