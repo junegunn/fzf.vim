@@ -604,7 +604,7 @@ endfunction
 " ------------------------------------------------------------------
 
 function! s:get_git_root()
-  let bufdir = split(expand('%:p:h'), '[/\\]\.git\([/\\]\|$\)')[0]
+  let bufdir = substitute(split(expand('%:p:h'), '[/\\]\.git\([/\\]\|$\)')[0], '^fugitive://', '', '')
   let root = systemlist('git -C ' . fzf#shellescape(bufdir) . ' rev-parse --show-toplevel')[0]
   return v:shell_error ? '' : root
 endfunction
