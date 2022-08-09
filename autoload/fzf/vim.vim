@@ -619,6 +619,7 @@ function! fzf#vim#gitfiles(args, ...)
   if a:args != '?'
     return s:fzf('gfiles', {
     \ 'source':  prefix . 'ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
+    \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
   endif
@@ -635,6 +636,7 @@ function! fzf#vim#gitfiles(args, ...)
     \ s:bin.preview)
   let wrapped = fzf#wrap({
   \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
+  \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
   call s:remove_layout(wrapped)
