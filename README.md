@@ -294,6 +294,13 @@ endfunction
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 ```
 
+This can be further refined by letting `ripgrep` do the initial grepping, then switching 
+to `fzf` mode to filter the result list (this has the side effect that in the refining
+stage you can filter by file path too). Detailed examples can be found in the 
+[advanced fzf readme].
+
+[advanced fzf readme]: https://github.com/junegunn/fzf/blob/master/ADVANCED.md
+
 Mappings
 --------
 
