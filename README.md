@@ -6,8 +6,8 @@ Things you can do with [fzf][fzf] and Vim.
 Rationale
 ---------
 
-[fzf][fzf] in itself is not a Vim plugin, and the official repository only
-provides the [basic wrapper function][run] for Vim and it's up to the users to
+[fzf][fzf] itself is not a Vim plugin, and the official repository only
+provides the [basic wrapper function][run] for Vim. It's up to the users to
 write their own Vim commands with it. However, I've learned that many users of
 fzf are not familiar with Vimscript and are looking for the "default"
 implementation of the features they can find in the alternative Vim plugins.

@@ -605,19 +605,22 @@ endfunction
 " GFiles[?]
 " ------------------------------------------------------------------
 
-function! s:get_git_root()
-  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
-  return v:shell_error ? '' : root
+function! s:get_git_root(dir)
+  let dir = len(a:dir) ? a:dir : substitute(split(expand('%:p:h'), '[/\\]\.git\([/\\]\|$\)')[0], '^fugitive://', '', '')
+  let root = systemlist('git -C ' . fzf#shellescape(dir) . ' rev-parse --show-toplevel')[0]
+  return v:shell_error ? '' : (len(a:dir) ? fnamemodify(a:dir, ':p') : root)
 endfunction
 
 function! fzf#vim#gitfiles(args, ...)
-  let root = s:get_git_root()
+  let dir = get(get(a:, 1, {}), 'dir', '')
+  let root = s:get_git_root(dir)
   if empty(root)
     return s:warn('Not in git repo')
   endif
+  let prefix = 'git -C ' . fzf#shellescape(root) . ' '
   if a:args != '?'
     return s:fzf('gfiles', {
-    \ 'source':  'git ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
+    \ 'source':  prefix . 'ls-files '.a:args.(s:is_win ? '' : ' | uniq'),
     \ 'dir':     root,
     \ 'options': '-m --prompt "GitFiles> "'
     \}, a:000)
@@ -630,11 +633,11 @@ function! fzf#vim#gitfiles(args, ...)
   let preview = printf(
     \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? 'git diff -- {-1} '.bar.' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit '.bar.' sed 1d'
-      \ : 'git diff --color=always -- {-1} '.bar.' sed 1,4d',
+      \ ? prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
     \ s:bin.preview)
   let wrapped = fzf#wrap({
-  \ 'source':  'git -c color.status=always status --short --untracked-files=all',
+  \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
@@ -976,7 +979,7 @@ endfunction
 " ------------------------------------------------------------------
 " Commands
 " ------------------------------------------------------------------
-let s:nbs = nr2char(0x2007)
+let s:nbs = nr2char(0xa0)
 
 function! s:format_cmd(line)
   return substitute(a:line, '\C \([A-Z]\S*\) ',
@@ -1189,16 +1192,17 @@ function! s:commits_sink(lines)
 endfunction
 
 function! s:commits(range, buffer_local, args)
-  let s:git_root = s:get_git_root()
+  let s:git_root = s:get_git_root('')
   if empty(s:git_root)
     return s:warn('Not in git repository')
   endif
 
-  let source = 'git log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
-  let current = expand('%')
+  let prefix = 'git -C ' . fzf#shellescape(s:git_root) . ' '
+  let source = prefix . 'log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let current = expand('%:p')
   let managed = 0
   if !empty(current)
-    call system('git show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
+    call system(prefix . 'show '.fzf#shellescape(current).' 2> '.(s:is_win ? 'nul' : '/dev/null'))
     let managed = !v:shell_error
   endif
 
@@ -1233,9 +1237,9 @@ function! s:commits(range, buffer_local, args)
   if !s:is_win && &columns > s:wide
     let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : ''
     let orderfile = tempname()
-    call writefile([current], orderfile)
+    call writefile([current[len(s:git_root)+1:]], orderfile)
     call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs git show -O'.fzf#shellescape(orderfile).' --format=format: --color=always ' . suffix])
+    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs ' . prefix . 'show -O'.fzf#shellescape(orderfile).' --format=format: --color=always ' . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
