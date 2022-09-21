@@ -41,6 +41,10 @@ if (( START_LINE <= 0 )); then
 fi
 END_LINE="$(( START_LINE + FZF_PREVIEW_LINES - 1 ))"
 
+if command -v clp > /dev/null; then
+	CLPNAME="clp"
+fi
+
 # Sometimes bat is installed as batcat.
 if command -v batcat > /dev/null; then
   BATNAME="batcat"
@@ -48,7 +52,12 @@ elif command -v bat > /dev/null; then
   BATNAME="bat"
 fi
 
-if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
+# Use clp if it's available
+if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${CLPNAME:+x}" ]; then
+  ${CLPNAME} --highlight-line="${CENTER}" \
+             "$FILE"
+  exit $?
+elif [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
   ${BATNAME} --style="${BAT_STYLE:-numbers}" \
              --color=always \
              --pager=never \

@@ -52,6 +52,10 @@ if [ -z "$CENTER" ]; then
   CENTER=0
 fi
 
+if command -v clp > /dev/null; then
+	CLPNAME="clp"
+fi
+
 # Sometimes bat is installed as batcat.
 if command -v batcat > /dev/null; then
   BATNAME="batcat"
@@ -59,7 +63,12 @@ elif command -v bat > /dev/null; then
   BATNAME="bat"
 fi
 
-if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
+# Use clp if it's available
+if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${CLPNAME:+x}" ]; then
+  ${CLPNAME} --highlight-line="${CENTER}" \
+             "$FILE"
+  exit $?
+elif [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
   ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
       --highlight-line=$CENTER -- "$FILE"
   exit $?
