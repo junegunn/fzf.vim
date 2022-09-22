@@ -917,6 +917,9 @@ function! fzf#vim#tags(query, ...)
     return s:warn('Tags command requires perl')
   endif
   if empty(tagfiles())
+    if get(g:, 'fzf_tags_noaskgen')
+      return s:warn('No tags found')
+    endif
     call inputsave()
     echohl WarningMsg
     let gen = input('tags not found. Generate? (y/N) ')
