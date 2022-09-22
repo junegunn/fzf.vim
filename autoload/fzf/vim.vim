@@ -862,7 +862,7 @@ function! fzf#vim#buffer_tags(query, ...)
   let null = s:is_win ? 'nul' : '/dev/null'
   let sort = has('unix') && !has('win32unix') && executable('sort') ? '| sort -s -k 5' : ''
   let tag_cmds = (len(args) > 1 && type(args[0]) != type({})) ? remove(args, 0) : [
-    \ printf('ctags -f - --sort=yes --excmd=number --language-force=%s %s 2> %s %s', &filetype, escaped, null, sort),
+    \ printf('ctags -f - --sort=yes --excmd=number --language-force=%s %s 2> %s %s', get({ 'cpp': 'c++' }, &filetype, &filetype), escaped, null, sort),
     \ printf('ctags -f - --sort=yes --excmd=number %s 2> %s %s', escaped, null, sort)]
   if type(tag_cmds) != type([])
     let tag_cmds = [tag_cmds]
