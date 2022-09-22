@@ -53,11 +53,9 @@ if [ -z "$CENTER" ]; then
 fi
 
 if command -v clp > /dev/null; then
-	CLPNAME="clp"
-fi
-
-# Sometimes bat is installed as batcat.
-if command -v batcat > /dev/null; then
+  CLPNAME="clp"
+elif command -v batcat > /dev/null; then
+  # Sometimes bat is installed as batcat.
   BATNAME="batcat"
 elif command -v bat > /dev/null; then
   BATNAME="bat"
