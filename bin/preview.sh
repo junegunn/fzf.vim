@@ -27,6 +27,8 @@ if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
   exit 1
 fi
 CENTER=${CENTER/[^0-9]*/}
+START=$(($CENTER - $(($FZF_PREVIEW_LINES / 2))))
+[[ $START -lt 0 ]] && START=0
 
 # MS Win support
 if [[ "$FILE" =~ '\' ]]; then
@@ -61,7 +63,7 @@ fi
 
 if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
   ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
-      --highlight-line=$CENTER -- "$FILE"
+      --highlight-line=$CENTER --line-range=$START: -- "$FILE"
   exit $?
 fi
 
@@ -79,5 +81,5 @@ CMD=${CMD//{\}/$(printf %q "$FILE")}
 eval "$CMD" 2> /dev/null | awk "{ \
     if (NR == $CENTER) \
         { gsub(/\x1b[[0-9;]*m/, \"&$REVERSE\"); printf(\"$REVERSE%s\n$RESET\", \$0); } \
-    else printf(\"$RESET%s\n\", \$0); \
+    else if (NR >= $START) printf(\"$RESET%s\n\", \$0); \
     }"
