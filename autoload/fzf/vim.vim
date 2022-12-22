@@ -153,7 +153,7 @@ function! fzf#vim#with_preview(...)
     \ ? s:bin.preview
     \ : escape(s:bin.preview, '\'))
   else
-    let preview_cmd = fzf#shellescape(s:bin.preview)
+    let preview_cmd = 'bash ' . fzf#shellescape(s:bin.preview)
   endif
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
