@@ -618,7 +618,7 @@ function! fzf#vim#gitfiles(args, ...)
   let prefix = 'git -C ' . fzf#shellescape(root) . ' '
   if a:args != '?'
     return s:fzf('gfiles', {
-    \ 'source':  prefix . 'ls-files -z'.a:args.(s:is_win ? '' : ' | uniq'),
+    \ 'source':  prefix . 'ls-files -z --deduplicate',
     \ 'dir':     root,
     \ 'options': '-m --read0 --prompt "GitFiles> "'
     \}, a:000)
