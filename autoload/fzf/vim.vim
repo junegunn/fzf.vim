@@ -28,22 +28,54 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+function! s:get_if_linux_like_bash()
+  if s:is_win
+    let s:is_defined_win_bash = get(g:, 'fzf_preview_win_bash', '') != ''
+    if s:is_defined_win_bash
+      let bash = g:fzf_preview_win_bash
+      let s:defined_win_bash = split(system('for %A in ("'.g:fzf_preview_win_bash.'") do @echo %~sA'), "\n")[0]
+    else
+      let bash = exepath('bash')
+    endif
+
+    if exists('g:fzf_preview_win_bash_linux_like')
+      return g:fzf_preview_win_bash_linux_like
+    endif
+
+    for _re in s:known_wsl_like_bash
+      if match(bash, _re) != -1
+        return 1
+      endif
+    endfor
+  endif
+  return 0
+endfunction
+
+function! s:set_preview_bash()
+  if s:is_win && s:is_defined_win_bash
+    let s:preview_bash = s:defined_win_bash
+  else
+    let s:preview_bash = 'bash'
+  endif
+endfunction
+
+
 let s:min_version = '0.23.0'
+let s:known_wsl_like_bash = ['\cwindows[/\\]system32[/\\]bash\(.exe\)\=$']
 let s:is_win = has('win32') || has('win64')
-let s:is_wsl_bash = s:is_win && (exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$')
+let s:is_wsl_bash = s:get_if_linux_like_bash()
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+call s:set_preview_bash()
 if s:is_win
-  if has('nvim')
+  if !s:is_wsl_bash
     let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
   else
-    let preview_path = s:is_wsl_bash
-      \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
-      \ : fnamemodify(s:bin.preview, ':8')
+    let preview_path = substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
     let s:bin.preview = substitute(preview_path, '\', '/', 'g')
   endif
 endif
@@ -108,9 +140,13 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if !executable('bash')
+  if !executable(s:preview_bash)
     if !s:warned
-      call s:warn('Preview window not supported (bash not found in PATH)')
+      if s:is_win && s:is_defined_win_bash
+        call s:warn('Preview window not supported (g:fzf_preview_win_bash is not executable, Please check your config)')
+      else
+        call s:warn('Preview window not supported (bash not found in PATH)')
+      endif
       let s:warned = 1
     endif
     return spec
@@ -149,11 +185,11 @@ function! fzf#vim#with_preview(...)
     if s:is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
-    let preview_cmd = 'bash '.(s:is_wsl_bash
+    let preview_cmd = (s:preview_bash) . ' ' .(s:is_wsl_bash
     \ ? s:bin.preview
     \ : escape(s:bin.preview, '\'))
   else
-    let preview_cmd = 'bash ' . fzf#shellescape(s:bin.preview)
+    let preview_cmd = s:preview_bash . ' ' . fzf#shellescape(s:bin.preview)
   endif
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
@@ -633,6 +669,8 @@ function! fzf#vim#gitfiles(args, ...)
     return s:warn('Not in git repo')
   endif
   let prefix = 'git -C ' . fzf#shellescape(root) . ' '
+  let diff_prefix = s:is_wsl_bash ? 'git -C ' . substitute(root, '^\([A-Z]\):', '/mnt/\L\1', '') . ' ' : prefix
+
   if a:args != '?'
     let source = prefix . 'ls-files -z ' . a:args
     if s:git_version_requirement(2, 31)
@@ -650,10 +688,10 @@ function! fzf#vim#gitfiles(args, ...)
   " the options dictionary.
   let bar = s:is_win ? '^|' : '|'
   let preview = printf(
-    \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ s:preview_bash . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
-      \ : prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
+      \ ? diff_prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : diff_prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
     \ s:bin.preview)
   let wrapped = fzf#wrap({
   \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
