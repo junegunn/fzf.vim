@@ -1,32 +1,32 @@
-fzf-vim.txt	fzf-vim	Last change: May 24 2021
+fzf-vim.txt	fzf-vim	Last change: January 8 2023
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
-  fzf :heart: vim
-    Rationale
-    Why you should use fzf on Vim
-    Installation
-      Using vim-plug
-      Dependencies
-    Commands
-    Customization
-      Global options
-        Preview window
-      Command-local options
-      Advanced customization
-        Vim functions
-        Example: Customizing Files command
-        Example: git grep wrapper
-        Example: Rg command with preview window
-        Example: Advanced ripgrep integration
-    Mappings
-    Completion functions
-    Custom completion
-      Reducer example
-    Status line of terminal buffer
-      Hide statusline
-      Custom statusline
-    License
+  fzf :heart: vim                                |fzf-vim-fzfheart-vim|
+    Rationale                                    |fzf-vim-rationale|
+    Why you should use fzf on Vim                |fzf-vim-why-you-should-use-fzf-on-vim|
+    Installation                                 |fzf-vim-installation|
+      Using vim-plug                             |fzf-vim-using-vim-plug|
+      Dependencies                               |fzf-vim-dependencies|
+    Commands                                     |fzf-vim-commands|
+    Customization                                |fzf-vim-customization|
+      Global options                             |fzf-vim-global-options|
+        Preview window                           |fzf-vim-preview-window|
+      Command-local options                      |fzf-vim-command-local-options|
+      Advanced customization                     |fzf-vim-advanced-customization|
+        Vim functions                            |fzf-vim-vim-functions|
+        Example: Customizing Files command       |fzf-vim-example-customizing-files-command|
+        Example: git grep wrapper                |fzf-vim-example-git-grep-wrapper|
+        Example: Rg command with preview window  |fzf-vim-example-rg-command-with-preview-window|
+        Example: Advanced ripgrep integration    |fzf-vim-example-advanced-ripgrep-integration|
+    Mappings                                     |fzf-vim-mappings|
+    Completion functions                         |fzf-vim-completion-functions|
+    Custom completion                            |fzf-vim-custom-completion|
+      Reducer example                            |fzf-vim-reducer-example|
+    Status line of terminal buffer               |fzf-vim-status-line-of-terminal-buffer|
+      Hide statusline                            |fzf-vim-hide-statusline|
+      Custom statusline                          |fzf-vim-custom-statusline|
+    License                                      |fzf-vim-license|
 
 FZF :HEART: VIM                                           *fzf-vim-fzfheart-vim*
 ==============================================================================
@@ -39,11 +39,11 @@ Things you can do with {fzf}{1} and Vim.
 RATIONALE                                                    *fzf-vim-rationale*
 ==============================================================================
 
-{fzf}{1} in itself is not a Vim plugin, and the official repository only
-provides the {basic wrapper function}{2} for Vim and it's up to the users to
-write their own Vim commands with it. However, I've learned that many users of
-fzf are not familiar with Vimscript and are looking for the "default"
-implementation of the features they can find in the alternative Vim plugins.
+{fzf}{1} itself is not a Vim plugin, and the official repository only provides
+the {basic wrapper function}{2} for Vim. It's up to the users to write their
+own Vim commands with it. However, I've learned that many users of fzf are not
+familiar with Vimscript and are looking for the "default" implementation of
+the features they can find in the alternative Vim plugins.
 
 This repository is a bundle of fzf-based commands and mappings extracted from
 my {.vimrc}{3} to address such needs. They are not designed to be flexible or
@@ -112,9 +112,9 @@ COMMANDS                                                      *fzf-vim-commands*
         *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
                                                           *:Helptags* *:Filetypes*
 
- ------------------+-----------------------------------------------------------------------
- Command           | List                                                                  ~
- ------------------+-----------------------------------------------------------------------
+ ------------------+--------------------------------------------------------------------------------------
+ Command           | List                                                                                 ~
+ ------------------+--------------------------------------------------------------------------------------
   `:Files [PATH]`    | Files (runs  `$FZF_DEFAULT_COMMAND`  if defined)
   `:GFiles [OPTS]`   | Git files ( `git ls-files` )
   `:GFiles?`         | Git files ( `git status` )
@@ -139,7 +139,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Maps`            | Normal mode mappings
   `:Helptags`        | Help tags [1]
   `:Filetypes`       | File types
- ------------------+-----------------------------------------------------------------------
+ ------------------+--------------------------------------------------------------------------------------
 
                                                           *g:fzf_command_prefix*
 
@@ -203,8 +203,8 @@ behavior with `g:fzf_preview_window`. Here are some examples:
 A few commands in fzf.vim can be customized with global option variables shown
 below.
 
-               *g:fzf_buffers_jump* *g:fzf_commits_log_options* *g:fzf_tags_command*
-                                                         *g:fzf_commands_expect*
+            *g:fzf_commands_expect* *g:fzf_tags_command* *g:fzf_commits_log_options*
+                                                            *g:fzf_buffers_jump*
 >
     " [Buffers] Jump to the existing window if possible
     let g:fzf_buffers_jump = 1
@@ -349,16 +349,18 @@ a "fuzzy finder".
    default version.
  - `--bind 'change:reload:rg ... {q}'` will make fzf restart ripgrep process
    whenever the query string, denoted by `{q}`, is changed.
- - With `--phony` option, fzf will no longer perform search. The query string you
-   type on fzf prompt is only used for restarting ripgrep process.
- - Also note that we enabled previewer with `fzf#vim#with_preview`.
+ - With `--disabled` option, fzf will no longer perform search. The query string
+   you type on fzf prompt is only used for restarting ripgrep process.
+ - Also note that we enabled previewer with `fzf#vim#with_preview`. The last
+   argument to the function, `ctrl-/`, is the key to toggle the preview window.
 >
     function! RipgrepFzf(query, fullscreen)
       let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
       let initial_command = printf(command_fmt, shellescape(a:query))
       let reload_command = printf(command_fmt, '{q}')
-      let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
-      call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+      let spec = {'options': ['--disabled', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+      let spec = fzf#vim#with_preview(spec, 'right', 'ctrl-/')
+      call fzf#vim#grep(initial_command, 1, spec, a:fullscreen)
     endfunction
 
     command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)

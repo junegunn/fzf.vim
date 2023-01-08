@@ -279,17 +279,19 @@ a "fuzzy finder".
   default version.
 - `--bind 'change:reload:rg ... {q}'` will make fzf restart ripgrep process
   whenever the query string, denoted by `{q}`, is changed.
-- With `--phony` option, fzf will no longer perform search. The query string
-  you type on fzf prompt is only used for restarting ripgrep process.
-- Also note that we enabled previewer with `fzf#vim#with_preview`.
+- With `--disabled` option, fzf will no longer perform search. The query
+  string you type on fzf prompt is only used for restarting ripgrep process.
+- Also note that we enabled previewer with `fzf#vim#with_preview`. The last
+  argument to the function, `ctrl-/`, is the key to toggle the preview window.
 
 ```vim
 function! RipgrepFzf(query, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
   let initial_command = printf(command_fmt, shellescape(a:query))
   let reload_command = printf(command_fmt, '{q}')
-  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
-  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+  let spec = {'options': ['--disabled', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+  let spec = fzf#vim#with_preview(spec, 'right', 'ctrl-/')
+  call fzf#vim#grep(initial_command, 1, spec, a:fullscreen)
 endfunction
 
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
