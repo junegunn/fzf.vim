@@ -712,6 +712,16 @@ function! s:bufopen(lines)
   execute 'buffer' b
 endfunction
 
+function! s:bufdelete(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  for line in a:lines[1:]
+    let b = matchstr(line, '\[\zs[0-9]*\ze\]')
+    execute 'bdelete' b
+  endfor
+endfunction
+
 function! fzf#vim#_format_buffer(b)
   let name = bufname(a:b)
   let line = exists('*getbufinfo') ? getbufinfo(a:b)[0]['lnum'] : 0
@@ -738,13 +748,20 @@ endfunction
 function! fzf#vim#buffers(...)
   let [query, args] = (a:0 && type(a:1) == type('')) ?
         \ [a:1, a:000[1:]] : ['', a:000]
+  let sink = 's:bufopen'
+  let multi = '+m'
+  if type(args[-1]) == type('') && args[-1] ==# 'delete'
+    let args = args[:-2]
+    let sink = 's:bufdelete'
+    let multi = '-m'
+  endif
   let sorted = fzf#vim#_buflisted_sorted()
   let header_lines = '--header-lines=' . (bufnr('') == get(sorted, 0, 0) ? 1 : 0)
   let tabstop = len(max(sorted)) >= 4 ? 9 : 8
   return s:fzf('buffers', {
   \ 'source':  map(sorted, 'fzf#vim#_format_buffer(v:val)'),
-  \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop]
+  \ 'sink*':   s:function(sink),
+  \ 'options': [multi, '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop]
   \}, args)
 endfunction
 
