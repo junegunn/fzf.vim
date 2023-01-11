@@ -28,57 +28,37 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
-function! s:get_if_linux_like_bash()
+function! s:set_preview_bash()
+  let s:preview_bash = 'bash'
   if s:is_win
     let s:is_defined_win_bash = get(g:, 'fzf_preview_win_bash', '') != ''
     if s:is_defined_win_bash
-      let bash = g:fzf_preview_win_bash
-      let s:defined_win_bash = split(system('for %A in ("'.g:fzf_preview_win_bash.'") do @echo %~sA'), "\n")[0]
-    else
-      let bash = exepath('bash')
+      let s:preview_bash = split(system('for %A in ("'.g:fzf_preview_win_bash.'") do @echo %~sA'), "\n")[0]
     endif
 
-    if exists('g:fzf_preview_win_bash_linux_like')
-      return g:fzf_preview_win_bash_linux_like
+    let preview_path = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
+    call system(s:preview_bash . ' ' . preview_path . ' --bash-test')
+    if v:shell_error != 0
+      let preview_path = substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
+      let s:bin.preview = substitute(preview_path, '\', '/', 'g')
+      return 1
     endif
-
-    for _re in s:known_wsl_like_bash
-      if match(bash, _re) != -1
-        return 1
-      endif
-    endfor
+    let s:bin.preview = preview_path
   endif
   return 0
 endfunction
 
-function! s:set_preview_bash()
-  if s:is_win && s:is_defined_win_bash
-    let s:preview_bash = s:defined_win_bash
-  else
-    let s:preview_bash = 'bash'
-  endif
-endfunction
-
 
 let s:min_version = '0.23.0'
-let s:known_wsl_like_bash = ['\cwindows[/\\]system32[/\\]bash\(.exe\)\=$']
 let s:is_win = has('win32') || has('win64')
-let s:is_wsl_bash = s:get_if_linux_like_bash()
+let s:is_wsl_bash = s:is_win && (exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
-call s:set_preview_bash()
-if s:is_win
-  if !s:is_wsl_bash
-    let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
-  else
-    let preview_path = substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
-    let s:bin.preview = substitute(preview_path, '\', '/', 'g')
-  endif
-endif
+let s:is_linux_like_bash = s:set_preview_bash()
 
 let s:wide = 120
 let s:warned = 0
@@ -185,7 +165,7 @@ function! fzf#vim#with_preview(...)
     if s:is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
-    let preview_cmd = (s:preview_bash) . ' ' .(s:is_wsl_bash
+    let preview_cmd = (s:preview_bash) . ' ' .(s:is_linux_like_bash
     \ ? s:bin.preview
     \ : escape(s:bin.preview, '\'))
   else
@@ -669,8 +649,7 @@ function! fzf#vim#gitfiles(args, ...)
     return s:warn('Not in git repo')
   endif
   let prefix = 'git -C ' . fzf#shellescape(root) . ' '
-  let diff_prefix = s:is_wsl_bash ? 'git -C ' . substitute(root, '^\([A-Z]\):', '/mnt/\L\1', '') . ' ' : prefix
-
+  let diff_prefix = s:is_linux_like_bash ? 'git -C ' . substitute(root, '^\([A-Z]\):', '/mnt/\L\1', '') . ' ' : prefix
   if a:args != '?'
     let source = prefix . 'ls-files -z ' . a:args
     if s:git_version_requirement(2, 31)

@@ -201,13 +201,6 @@ behavior with `g:fzf_preview_window`. Here are some examples:
     " unset by default.
     " For example: Git bash
     " let g:fzf_preview_win_bash = 'C:\Program Files\Git\bin\bash.exe'
-
-    " If you are completely sure which path rule bash you are using, you can also
-    " customize the type of bash you are using, it is recommended to keep unset.
-    " Unset by default. Again, Only works in Windows.
-    " 1 for linux-like bash(e.g default bash from WSL)
-    " 0 for others(e.g Git bash)
-    " let g:fzf_preview_win_bash_linux_like = 1
 <
 
 < Command-local options >_____________________________________________________~
