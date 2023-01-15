@@ -28,26 +28,64 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
-function! s:set_preview_bash()
-  let s:preview_bash = 'bash'
-  if s:is_win
-    let s:is_defined_win_bash = get(g:, 'fzf_preview_win_bash', '') != ''
-    if s:is_defined_win_bash
-      let s:preview_bash = split(system('for %A in ("'.g:fzf_preview_win_bash.'") do @echo %~sA'), "\n")[0]
-    endif
-
-    let preview_path = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
-    call system(s:preview_bash . ' ' . preview_path . ' --bash-test')
-    if v:shell_error != 0
-      let preview_path = substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
-      let s:bin.preview = substitute(preview_path, '\', '/', 'g')
-      return 1
-    endif
-    let s:bin.preview = preview_path
+let s:winpath = {}
+function! s:winpath(path)
+  if has_key(s:winpath, a:path)
+    return s:winpath[a:path]
   endif
-  return 0
+
+  let winpath = split(system('for %A in ("'.a:path.'") do @echo %~sA'), "\n")[0]
+  let s:winpath[a:path] = winpath
+
+  return winpath
 endfunction
 
+function! s:bash()
+  if exists('s:bash')
+    return s:bash
+  endif
+
+  let custom_bash = get(g:, 'fzf_preview_bash', '')
+  let git_bash = 'C:\Program Files\Git\bin\bash.exe'
+  let candidates = filter(s:is_win ? [custom_bash, 'bash', git_bash] : [custom_bash, 'bash'], 'len(v:val)')
+
+  let found = filter(map(copy(candidates), 'exepath(v:val)'), 'len(v:val)')
+  if empty(found)
+    if !s:warned
+      call s:warn(printf('Preview window not supported (%s not found)', join(candidates, ', ')))
+      let s:warned = 1
+    endif
+    let s:bash = ''
+    return s:bash
+  endif
+
+  let s:bash = found[0]
+
+  " Make 8.3 filename via cmd.exe
+  if s:is_win
+    let s:bash = s:winpath(s:bash)
+  endif
+
+  return s:bash
+endfunction
+
+function! s:escape_for_bash(path)
+  if !s:is_win
+    return fzf#shellescape(a:path)
+  endif
+
+  if !exists('s:is_linux_like_bash')
+    call system(s:bash . ' -c "ls /mnt/[A-Z]"')
+    let s:is_linux_like_bash = v:shell_error == 0
+  endif
+
+  let path = substitute(a:path, '\', '/', 'g')
+  if s:is_linux_like_bash
+    let path = substitute(a:path, '^\([A-Z]\):', '/mnt/\L\1', '')
+  endif
+
+  return escape(path, ' ')
+endfunction
 
 let s:min_version = '0.23.0'
 let s:is_win = has('win32') || has('win64')
@@ -58,7 +96,6 @@ let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
-let s:is_linux_like_bash = s:set_preview_bash()
 
 let s:wide = 120
 let s:warned = 0
@@ -120,15 +157,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if !executable(s:preview_bash)
-    if !s:warned
-      if s:is_win && s:is_defined_win_bash
-        call s:warn('Preview window not supported (g:fzf_preview_win_bash is not executable, Please check your config)')
-      else
-        call s:warn('Preview window not supported (bash not found in PATH)')
-      endif
-      let s:warned = 1
-    endif
+  if !executable(s:bash())
     return spec
   endif
 
@@ -165,12 +194,8 @@ function! fzf#vim#with_preview(...)
     if s:is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
-    let preview_cmd = (s:preview_bash) . ' ' .(s:is_linux_like_bash
-    \ ? s:bin.preview
-    \ : escape(s:bin.preview, '\'))
-  else
-    let preview_cmd = s:preview_bash . ' ' . fzf#shellescape(s:bin.preview)
   endif
+  let preview_cmd = s:bash() . ' ' . s:escape_for_bash(s:bin.preview)
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
@@ -649,9 +674,8 @@ function! fzf#vim#gitfiles(args, ...)
     return s:warn('Not in git repo')
   endif
   let prefix = 'git -C ' . fzf#shellescape(root) . ' '
-  let diff_prefix = s:is_linux_like_bash ? 'git -C ' . substitute(root, '^\([A-Z]\):', '/mnt/\L\1', '') . ' ' : prefix
   if a:args != '?'
-    let source = prefix . 'ls-files -z ' . a:args
+    let source = 'git -C ' . fzf#shellescape(root) . ' ls-files -z ' . a:args
     if s:git_version_requirement(2, 31)
       let source .= ' --deduplicate'
     endif
@@ -666,12 +690,13 @@ function! fzf#vim#gitfiles(args, ...)
   " We're trying to access the common sink function that fzf#wrap injects to
   " the options dictionary.
   let bar = s:is_win ? '^|' : '|'
+  let diff_prefix = 'git -C ' . s:escape_for_bash(root) . ' '
   let preview = printf(
-    \ s:preview_bash . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ s:bash() . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
       \ ? diff_prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
       \ : diff_prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
-    \ s:bin.preview)
+    \ s:escape_for_bash(s:bin.preview))
   let wrapped = fzf#wrap({
   \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,

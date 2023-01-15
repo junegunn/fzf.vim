@@ -14,11 +14,6 @@ if [ "$1" = --tag ]; then
   exit $?
 fi
 
-if [ "$1" = --bash-test ]; then
-  echo "Passed"
-  exit 0
-fi
-
 IFS=':' read -r -a INPUT <<< "$1"
 FILE=${INPUT[0]}
 CENTER=${INPUT[1]}
