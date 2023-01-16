@@ -675,7 +675,7 @@ function! fzf#vim#gitfiles(args, ...)
   endif
   let prefix = 'git -C ' . fzf#shellescape(root) . ' '
   if a:args != '?'
-    let source = 'git -C ' . fzf#shellescape(root) . ' ls-files -z ' . a:args
+    let source = prefix . 'ls-files -z ' . a:args
     if s:git_version_requirement(2, 31)
       let source .= ' --deduplicate'
     endif
