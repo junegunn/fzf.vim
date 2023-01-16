@@ -40,6 +40,7 @@ function! s:winpath(path)
   return winpath
 endfunction
 
+let s:warned = 0
 function! s:bash()
   if exists('s:bash')
     return s:bash
@@ -98,7 +99,6 @@ let s:bin = {
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 
 let s:wide = 120
-let s:warned = 0
 let s:checked = 0
 
 function! s:check_requirements()
