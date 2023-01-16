@@ -48,7 +48,7 @@ call s:defs([
 \'command!      -bang -nargs=? -complete=dir Files       call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)',
 \'command!      -bang -nargs=? GitFiles                  call fzf#vim#gitfiles(<q-args>, fzf#vim#with_preview(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
 \'command!      -bang -nargs=? GFiles                    call fzf#vim#gitfiles(<q-args>, fzf#vim#with_preview(<q-args> == "?" ? { "placeholder": "" } : {}), <bang>0)',
-\'command! -bar -bang -nargs=? -complete=buffer Buffers  call fzf#vim#buffers(<q-args>, fzf#vim#with_preview({ "placeholder": "{1}" }), <bang>0)',
+\'command! -bar -bang -nargs=? -complete=buffer Buffers if range(1, bufnr('$'))->filter({_,b->buflisted(b)})->len()>1 | call fzf#vim#buffers(<q-args>, fzf#vim#with_preview({ "placeholder": "{1}" }), <bang>0)',
 \'command!      -bang -nargs=* Lines                     call fzf#vim#lines(<q-args>, <bang>0)',
 \'command!      -bang -nargs=* BLines                    call fzf#vim#buffer_lines(<q-args>, <bang>0)',
 \'command! -bar -bang Colors                             call fzf#vim#colors(<bang>0)',
