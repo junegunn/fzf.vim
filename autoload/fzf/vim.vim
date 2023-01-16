@@ -75,13 +75,13 @@ function! s:escape_for_bash(path)
   endif
 
   if !exists('s:is_linux_like_bash')
-    call system(s:bash . ' -c "ls /mnt/[A-Z]"')
+    call system(s:bash . ' -c "ls /mnt/[A-Za-z]"')
     let s:is_linux_like_bash = v:shell_error == 0
   endif
 
   let path = substitute(a:path, '\', '/', 'g')
   if s:is_linux_like_bash
-    let path = substitute(a:path, '^\([A-Z]\):', '/mnt/\L\1', '')
+    let path = substitute(path, '^\([A-Z]\):', '/mnt/\L\1', '')
   endif
 
   return escape(path, ' ')
