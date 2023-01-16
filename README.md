@@ -130,6 +130,12 @@ let g:fzf_preview_window = ['hidden,right,50%,<70(up,40%)', 'ctrl-/']
 
 " Empty value to disable preview window altogether
 let g:fzf_preview_window = []
+
+" fzf.vim needs bash to display the preview window.
+" On Windows, fzf.vim will first see if bash is in $PATH, then if
+" Git bash (C:\Program Files\Git\bin\bash.exe) is available.
+" If you want it to use a different bash, set this variable.
+" let g:fzf_preview_bash = 'C:\Git\bin\bash.exe'
 ```
 
 ### Command-local options

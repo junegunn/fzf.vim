@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: January 8 2023
+fzf-vim.txt	fzf-vim	Last change: January 15 2023
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -195,6 +195,12 @@ behavior with `g:fzf_preview_window`. Here are some examples:
 
     " Empty value to disable preview window altogether
     let g:fzf_preview_window = []
+
+    " fzf.vim needs bash to display the preview window.
+    " On Windows, fzf.vim will first see if bash is in $PATH, then if
+    " Git bash (C:\Program Files\Git\bin\bash.exe) is available.
+    " If you want it to use a different bash, set this variable.
+    " let g:fzf_preview_bash = 'C:\Git\bin\bash.exe'
 <
 
 < Command-local options >_____________________________________________________~

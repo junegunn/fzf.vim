@@ -28,6 +28,66 @@ set cpo&vim
 " Common
 " ------------------------------------------------------------------
 
+let s:winpath = {}
+function! s:winpath(path)
+  if has_key(s:winpath, a:path)
+    return s:winpath[a:path]
+  endif
+
+  let winpath = split(system('for %A in ("'.a:path.'") do @echo %~sA'), "\n")[0]
+  let s:winpath[a:path] = winpath
+
+  return winpath
+endfunction
+
+let s:warned = 0
+function! s:bash()
+  if exists('s:bash')
+    return s:bash
+  endif
+
+  let custom_bash = get(g:, 'fzf_preview_bash', '')
+  let git_bash = 'C:\Program Files\Git\bin\bash.exe'
+  let candidates = filter(s:is_win ? [custom_bash, 'bash', git_bash] : [custom_bash, 'bash'], 'len(v:val)')
+
+  let found = filter(map(copy(candidates), 'exepath(v:val)'), 'len(v:val)')
+  if empty(found)
+    if !s:warned
+      call s:warn(printf('Preview window not supported (%s not found)', join(candidates, ', ')))
+      let s:warned = 1
+    endif
+    let s:bash = ''
+    return s:bash
+  endif
+
+  let s:bash = found[0]
+
+  " Make 8.3 filename via cmd.exe
+  if s:is_win
+    let s:bash = s:winpath(s:bash)
+  endif
+
+  return s:bash
+endfunction
+
+function! s:escape_for_bash(path)
+  if !s:is_win
+    return fzf#shellescape(a:path)
+  endif
+
+  if !exists('s:is_linux_like_bash')
+    call system(s:bash . ' -c "ls /mnt/[A-Za-z]"')
+    let s:is_linux_like_bash = v:shell_error == 0
+  endif
+
+  let path = substitute(a:path, '\', '/', 'g')
+  if s:is_linux_like_bash
+    let path = substitute(path, '^\([A-Z]\):', '/mnt/\L\1', '')
+  endif
+
+  return escape(path, ' ')
+endfunction
+
 let s:min_version = '0.23.0'
 let s:is_win = has('win32') || has('win64')
 let s:is_wsl_bash = s:is_win && (exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$')
@@ -37,19 +97,8 @@ let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
-if s:is_win
-  if has('nvim')
-    let s:bin.preview = split(system('for %A in ("'.s:bin.preview.'") do @echo %~sA'), "\n")[0]
-  else
-    let preview_path = s:is_wsl_bash
-      \ ? substitute(s:bin.preview, '^\([A-Z]\):', '/mnt/\L\1', '')
-      \ : fnamemodify(s:bin.preview, ':8')
-    let s:bin.preview = substitute(preview_path, '\', '/', 'g')
-  endif
-endif
 
 let s:wide = 120
-let s:warned = 0
 let s:checked = 0
 
 function! s:check_requirements()
@@ -108,11 +157,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if !executable('bash')
-    if !s:warned
-      call s:warn('Preview window not supported (bash not found in PATH)')
-      let s:warned = 1
-    endif
+  if !executable(s:bash())
     return spec
   endif
 
@@ -149,12 +194,8 @@ function! fzf#vim#with_preview(...)
     if s:is_wsl_bash && $WSLENV !~# '[:]\?MSWINHOME\(\/[^:]*\)\?\(:\|$\)'
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
-    let preview_cmd = 'bash '.(s:is_wsl_bash
-    \ ? s:bin.preview
-    \ : escape(s:bin.preview, '\'))
-  else
-    let preview_cmd = 'bash ' . fzf#shellescape(s:bin.preview)
   endif
+  let preview_cmd = s:bash() . ' ' . s:escape_for_bash(s:bin.preview)
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
@@ -649,12 +690,13 @@ function! fzf#vim#gitfiles(args, ...)
   " We're trying to access the common sink function that fzf#wrap injects to
   " the options dictionary.
   let bar = s:is_win ? '^|' : '|'
+  let diff_prefix = 'git -C ' . s:escape_for_bash(root) . ' '
   let preview = printf(
-    \ 'bash -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ s:bash() . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
-      \ : prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
-    \ s:bin.preview)
+      \ ? diff_prefix . 'diff -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : diff_prefix . 'diff --color=always -- {-1} ' . bar . ' sed 1,4d',
+    \ s:escape_for_bash(s:bin.preview))
   let wrapped = fzf#wrap({
   \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
