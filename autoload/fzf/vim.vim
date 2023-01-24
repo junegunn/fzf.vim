@@ -1343,13 +1343,13 @@ function! s:align_pairs(list)
   let maxlen = 0
   let pairs = []
   for elem in a:list
-    let match = matchlist(elem, '^\(\S*\)\s*\(.*\)$')
-    let [_, k, v] = match[0:2]
-    let maxlen = max([maxlen, len(k)])
-    call add(pairs, [k, substitute(v, '^\*\?[@ ]\?', '', '')])
+    let match = matchlist(elem, '^\(\w\)\?\s*\(\S*\)\s*\(.*\)$')
+    let [_, m, k, v] = match[0:3]
+    let maxlen = max([maxlen, len(m) + len(k)])
+    call add(pairs, [m, k, substitute(v, '^\*\?[@ ]\?', '', '')])
   endfor
-  let maxlen = min([maxlen, 35])
-  return map(pairs, "printf('%-'.maxlen.'s', v:val[0]).' '.v:val[1]")
+  let maxlen = min([maxlen, 38])
+  return map(pairs, "(v:val[0] != \"\"?v:val[0]:\" \").' '.printf('%-'.maxlen.'s', v:val[1]).' '.v:val[2]")
 endfunction
 
 function! s:highlight_keys(str)
@@ -1366,15 +1366,24 @@ function! s:key_sink(line)
         \ substitute(key, '<[^ >]\+>', '\=eval("\"\\".submatch(0)."\"")', 'g'))
 endfunction
 
-function! fzf#vim#maps(mode, ...)
+function! fzf#vim#maps(mode='*', ...)
   let s:map_gv  = a:mode == 'x' ? 'gv' : ''
   let s:map_cnt = v:count == 0 ? '' : v:count
   let s:map_reg = empty(v:register) ? '' : ('"'.v:register)
   let s:map_op  = a:mode == 'o' ? v:operator : ''
 
-  redir => cout
-  silent execute 'verbose' a:mode.'map'
-  redir END
+  let l:cout = ''
+  if a:mode == '*'
+    for l:map in ['map', 'map!', 'tmap', 'lmap']
+        redir =>> cout
+        silent execute 'verbose ' . l:map
+        redir END
+    endfor
+  else
+    redir => cout
+    silent execute 'verbose' a:mode.'map'
+    redir END
+  endif
   let list = []
   let curr = ''
   for line in split(cout, "\n")
@@ -1383,13 +1392,14 @@ function! fzf#vim#maps(mode, ...)
       call add(list, printf('%s %s', curr, s:green(src, 'Comment')))
       let curr = ''
     else
-      if !empty(curr)
+      if !empty(curr) && curr !~ ".*No mapping.*"
         call add(list, curr)
       endif
-      let curr = line[3:]
+      " let curr = line[3:]
+      let curr = line
     endif
   endfor
-  if !empty(curr)
+  if !empty(curr) && curr !~ ".*No mapping.*"
     call add(list, curr)
   endif
   let aligned = s:align_pairs(list)

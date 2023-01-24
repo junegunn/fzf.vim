@@ -64,7 +64,7 @@ call s:defs([
 \'command! -bar -bang Windows                            call fzf#vim#windows(<bang>0)',
 \'command! -bar -bang -range=% Commits                   let b:fzf_winview = winsaveview() | <line1>,<line2>call fzf#vim#commits(fzf#vim#with_preview({ "placeholder": "" }), <bang>0)',
 \'command! -bar -bang -range=% BCommits                  let b:fzf_winview = winsaveview() | <line1>,<line2>call fzf#vim#buffer_commits(fzf#vim#with_preview({ "placeholder": "" }), <bang>0)',
-\'command! -bar -bang Maps                               call fzf#vim#maps("n", <bang>0)',
+\'command! -bar -bang Maps                               call fzf#vim#maps("*", <bang>0)',
 \'command! -bar -bang Filetypes                          call fzf#vim#filetypes(<bang>0)',
 \'command!      -bang -nargs=* History                   call s:history(<q-args>, fzf#vim#with_preview(), <bang>0)'])
 
