@@ -1267,16 +1267,19 @@ function! s:commits(range, buffer_local, args)
     let managed = !v:shell_error
   endif
 
+  let args = copy(a:args)
+  let log_opts = len(args) && type(args[0]) == type('') ? remove(args, 0) : ''
+
   if len(a:range) || a:buffer_local
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
     let source .= len(a:range)
-      \ ? printf(' -L %d,%d:%s --no-patch', a:range[0], a:range[1], fzf#shellescape(current))
-      \ : (' --follow '.fzf#shellescape(current))
+      \ ? join([printf(' -L %d,%d:%s --no-patch', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
+      \ : join([' --follow', log_opts, fzf#shellescape(current)])
     let command = 'BCommits'
   else
-    let source .= ' --graph'
+    let source .= join([' --graph', log_opts])
     let command = 'Commits'
   endif
 
@@ -1303,7 +1306,7 @@ function! s:commits(range, buffer_local, args)
     \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs ' . prefix . 'show -O'.fzf#shellescape(orderfile).' --format=format: --color=always ' . suffix])
   endif
 
-  return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, a:args)
+  return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, args)
 endfunction
 
 " Heuristically determine if the user specified a range
@@ -1320,6 +1323,7 @@ function! s:given_range(line1, line2)
   return []
 endfunction
 
+" [git-log-args], [spec (dict)], [fullscreen (bool)]
 function! fzf#vim#commits(...) range
   if exists('b:fzf_winview')
     call winrestview(b:fzf_winview)
@@ -1328,6 +1332,7 @@ function! fzf#vim#commits(...) range
   return s:commits(s:given_range(a:firstline, a:lastline), 0, a:000)
 endfunction
 
+" [git-log-args], [spec (dict)], [fullscreen (bool)]
 function! fzf#vim#buffer_commits(...) range
   if exists('b:fzf_winview')
     call winrestview(b:fzf_winview)
