@@ -52,6 +52,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
 - [fzf][fzf-main] 0.23.0 or above
 - For syntax-highlighted preview, install [bat](https://github.com/sharkdp/bat)
+  or [clp](https://github.com/jpe90/clp)
 - If [delta](https://github.com/dandavison/delta) is available, `GF?`,
   `Commits` and `BCommits` will use it to format `git diff` output.
 - `Ag` requires [The Silver Searcher (ag)][ag]
@@ -210,8 +211,9 @@ command! -bang -nargs=? -complete=dir Files
 
 It kind of works, but you probably want a nicer previewer program than `cat`.
 fzf.vim ships [a versatile preview script](bin/preview.sh) you can readily
-use. It internally executes [bat](https://github.com/sharkdp/bat) for syntax
-highlighting, so make sure to install it.
+use. It internally executes [bat](https://github.com/sharkdp/bat) or
+[clp](https://github.com/jpe90/clp) for syntax highlighting, so make sure to
+install one of them.
 
 ```vim
 command! -bang -nargs=? -complete=dir Files
