@@ -57,6 +57,10 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 - `Ag` requires [The Silver Searcher (ag)][ag]
 - `Rg` requires [ripgrep (rg)][rg]
 - `Tags` and `Helptags` require Perl
+- Git Unix Tools _**ONLY WINDOWS**_ for fzf preview, install with: 
+`choco install git.install --params "/GitAndUnixToolsOnPath"`
+after that add this line on your vimrc or init.vim 
+`let $PATH = "C:\\Program\ Files\\Git\\usr\\bin;" . $PATH`. _You must have [git bash](https://git-scm.com/) installed for it to work properly_
 
 Commands
 --------
