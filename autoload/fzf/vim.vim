@@ -739,7 +739,15 @@ function! s:bufopen(lines)
   if len(a:lines) < 2
     return
   endif
+
   let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
+
+  if a:lines[0] == 'ctrl-d'
+    execute 'silent bdelete' b
+    call fzf#vim#buffers()
+    return
+  endif
+
   if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
     let [t, w] = s:find_open_window(b)
     if t
@@ -747,6 +755,7 @@ function! s:bufopen(lines)
       return
     endif
   endif
+
   let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
     execute 'silent' cmd
@@ -783,10 +792,11 @@ function! fzf#vim#buffers(...)
   let sorted = fzf#vim#_buflisted_sorted()
   let header_lines = '--header-lines=' . (bufnr('') == get(sorted, 0, 0) ? 1 : 0)
   let tabstop = len(max(sorted)) >= 4 ? 9 : 8
+  let expect_keys = join(keys(get(g:, 'fzf_action', s:default_action)), ',')
   return s:fzf('buffers', {
   \ 'source':  map(sorted, 'fzf#vim#_format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop]
+  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop, '--header', ':: Press '.s:magenta('CTRL-D', 'Special').' to delete buffer', '--expect', 'ctrl-d,'.expect_keys]
   \}, args)
 endfunction
 
