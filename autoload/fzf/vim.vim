@@ -740,27 +740,31 @@ function! s:bufopen(lines)
     return
   endif
 
-  let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
+  for idx in range(1, len(a:lines) - 1)
+    let b = matchstr(a:lines[idx], '\[\zs[0-9]*\ze\]')
 
-  if a:lines[0] == 'ctrl-d'
-    execute 'silent bdelete' b
-    call fzf#vim#buffers()
-    return
-  endif
-
-  if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
-    let [t, w] = s:find_open_window(b)
-    if t
-      call s:jump(t, w)
-      return
+    if a:lines[0] == 'ctrl-d'
+      execute 'silent bdelete' b
+      if len(a:lines) == 2
+        call fzf#vim#buffers()
+      endif
+      continue
     endif
-  endif
 
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
-  endif
-  execute 'buffer' b
+    if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
+      let [t, w] = s:find_open_window(b)
+      if t
+        call s:jump(t, w)
+        return
+      endif
+    endif
+
+    let cmd = s:action_for(a:lines[0])
+    if !empty(cmd)
+      execute 'silent' cmd
+    endif
+    execute 'buffer' b
+  endfor
 endfunction
 
 function! fzf#vim#_format_buffer(b)
@@ -796,7 +800,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(sorted, 'fzf#vim#_format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop, '--header', ':: Press '.s:magenta('CTRL-D', 'Special').' to delete buffer', '--expect', 'ctrl-d,'.expect_keys]
+  \ 'options': ['--multi', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop, '--header', ':: Press '.s:magenta('CTRL-D', 'Special').' to delete buffer', '--expect', 'ctrl-d,'.expect_keys]
   \}, args)
 endfunction
 
