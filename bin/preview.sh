@@ -27,6 +27,9 @@ if [[ -n "$CENTER" && ! "$CENTER" =~ ^[0-9] ]]; then
   exit 1
 fi
 CENTER=${CENTER/[^0-9]*/}
+(("BOTTOMRANGE=$CENTER - ($(tput lines)/2)"))
+(("BOTTOMRANGE=$BOTTOMRANGE < 0 ? 0 : $BOTTOMRANGE"))
+(("TOPRANGE=$BOTTOMRANGE+($(tput lines))"))
 
 # MS Win support
 if [[ "$FILE" =~ '\' ]]; then
@@ -60,9 +63,9 @@ elif command -v bat > /dev/null; then
 fi
 
 if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
-  ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
-      --highlight-line=$CENTER -- "$FILE"
-  exit $?
+        ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
+                --line-range $BOTTOMRANGE:$TOPRANGE --highlight-line=$CENTER -- "$FILE"
+        exit $?
 fi
 
 FILE_LENGTH=${#FILE}
