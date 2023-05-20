@@ -1211,6 +1211,36 @@ function! fzf#vim#jumps(...)
 endfunction
 
 " ------------------------------------------------------------------
+" Changes
+" ------------------------------------------------------------------
+function! s:format_change(line)
+  return substitute(a:line, '\d\{1,2}', '\=s:yellow(submatch(0), "Number")', '')
+endfunction
+
+function! s:change_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = s:action_for(a:lines[0])
+  if !empty(cmd)
+    execute 'silent' cmd
+  endif
+  let linecol = split(a:lines[1])
+  execute 'normal! '.linecol[1].'Gzz'
+endfunction
+
+function! fzf#vim#changes(...)
+  redir => cout
+  silent changes
+  redir END
+  let list = split(cout, "\n")
+  return s:fzf('changes', {
+  \ 'source':  extend(list[0:0], map(list[1:], 's:format_change(v:val)')),
+  \ 'sink*':   s:function('s:change_sink'),
+  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Changes> "'}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Help tags
 " ------------------------------------------------------------------
 function! s:helptag_sink(line)
