@@ -107,8 +107,8 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
 *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags* *:Marks*
- *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
-                                                          *:Helptags* *:Filetypes*
+ *:Jumps* *:Changes* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands*
+                                                       *:Maps* *:Helptags* *:Filetypes*
 
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
@@ -127,6 +127,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:BTags [QUERY]`        | Tags in the current buffer
   `:Marks`                | Marks
   `:Jumps`                | Jumps
+  `:Changes`              | Changes
   `:Windows`              | Windows
   `:Locate PATTERN`       |  `locate`  command output
   `:History`              |  `v:oldfiles`  and open buffers

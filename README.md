@@ -77,6 +77,7 @@ Commands
 | `:BTags [QUERY]`       | Tags in the current buffer                                                            |
 | `:Marks`               | Marks                                                                                 |
 | `:Jumps`               | Jumps                                                                                 |
+| `:Changes`             | Changes                                                                                 |
 | `:Windows`             | Windows                                                                               |
 | `:Locate PATTERN`      | `locate` command output                                                               |
 | `:History`             | `v:oldfiles` and open buffers                                                         |
