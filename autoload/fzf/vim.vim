@@ -1233,11 +1233,13 @@ function! fzf#vim#changes(...)
   redir => cout
   silent changes
   redir END
-  let list = split(cout, "\n")
+  let s:changelist = split(cout, "\n")
+  let current = -match(s:changelist, '\v^\s*\>')
   return s:fzf('changes', {
-  \ 'source':  extend(list[0:0], map(list[1:], 's:format_change(v:val)')),
+  \ 'source':  extend(s:changelist[0:0], map(s:changelist[1:], 's:format_change(v:val)')),
   \ 'sink*':   s:function('s:change_sink'),
-  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Changes> "'}, a:000)
+  \ 'options' : '+m -x --ansi --tiebreak=index --cycle --scroll-off 999 --sync --bind start:pos:'.current.' --tac --header-lines 1 --tiebreak=begin --prompt "Changes> "',
+  \ }, a:000)
 endfunction
 
 " ------------------------------------------------------------------
