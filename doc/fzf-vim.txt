@@ -88,7 +88,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 < Dependencies >______________________________________________________________~
                                                           *fzf-vim-dependencies*
 
- - {fzf}{1} 0.23.0 or above
+ - {fzf}{1} 0.41.1 or above
  - For syntax-highlighted preview, install {bat}{5}
  - If {delta}{6} is available, `GF?`, `Commits` and `BCommits` will use it to
    format `git diff` output.
@@ -149,9 +149,10 @@ COMMANDS                                                      *fzf-vim-commands*
    - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
 (1: `Helptags` will shadow the command of the same name from {pathogen}{11}.
-But its functionality is still available via `call pathogen#helptags()`.)
+But its functionality is still available via `call pathogen#helptags()`. [↩])
 
                              {7} https://github.com/ggreer/the_silver_searcher
+                             {8} https://github.com/BurntSushi/ripgrep
                              {8} https://github.com/BurntSushi/ripgrep
                              {9} https://github.com/SirVer/ultisnips
                              {10} https://github.com/tpope/vim-fugitive
@@ -311,8 +312,8 @@ Example: git grep wrapper~
 The following example implements `GGrep` command that works similarly to
 predefined `Ag` or `Rg` using `fzf#vim#grep`.
 
- - The second argument to `fzf#vim#grep` is 0 (false), because `git grep` does
-   not print column numbers.
+                                                                         *:LINE*
+
  - We set the base directory to git root by setting `dir` attribute in spec
    dictionary.
  - {The preview script}{12} supports `grep` format (`FILE_PATH:LINE_NO:...`), so
