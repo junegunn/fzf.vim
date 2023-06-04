@@ -70,6 +70,7 @@ Commands
 | `:Colors`              | Color schemes                                                                         |
 | `:Ag [PATTERN]`        | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
 | `:Rg [PATTERN]`        | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
+| `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
 | `:Lines [QUERY]`       | Lines in loaded buffers                                                               |
 | `:BLines [QUERY]`      | Lines in the current buffer                                                           |
 | `:Tags [QUERY]`        | Tags in the project (`ctags -R`)                                                      |
@@ -164,15 +165,16 @@ let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 Each command in fzf.vim is backed by a Vim function. You can override
 a command or define a variation of it by calling its corresponding function.
 
-| Command   | Vim function                                                               |
-| ---       | ---                                                                        |
-| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                       |
-| `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`            |
-| `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                    |
-| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                          |
-| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                           |
-| `Rg`      | `fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])` |
-| ...       | ...                                                                        |
+| Command   | Vim function                                                                              |
+| ---       | ---                                                                                       |
+| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                                      |
+| `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`                           |
+| `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                                   |
+| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                                         |
+| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                                          |
+| `Rg`      | `fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])`                |
+| `RG`      | `fzf#vim#grep2(command_prefix, query, [has_column bool], [spec dict], [fullscreen bool])` |
+| ...       | ...                                                                                       |
 
 (We can see that the last two optional arguments of each function are
 identical. They are directly passed to `fzf#wrap` function. If you haven't
@@ -256,21 +258,11 @@ command! -bang -nargs=* GGrep
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 ```
 
-#### Example: `Rg` command with preview window
-
-You can see the definition of `Rg` command with `:command Rg`. With the
-information, you can redefine it with the preview window enabled. In this
-case, we're only interested in setting up the preview window, so we will omit
-the spec argument to `fzf#vim#preview`.
-
-```vim
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview(), <bang>0)
-```
-
 #### Example: Advanced ripgrep integration
+
+> The example shown here is now available as the `RG` (all uppercase) command
+> that uses `fzf#vim#grep2(command_prefix, query, has_column, ...)` function.
+> You no longer need to define it in your Vim configuration file.
 
 In the default implementation of `Rg`, ripgrep process starts only once with
 the initial query (e.g. `:Rg foo`) and fzf filters the output of the process.

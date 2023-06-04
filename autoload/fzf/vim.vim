@@ -878,6 +878,35 @@ function! fzf#vim#grep(grep_command, has_column, ...)
   endtry
 endfunction
 
+
+" command_prefix (string), initial_query (string), has_column (bool), [spec (dict)], [fullscreen (bool)]
+function! fzf#vim#grep2(command_prefix, query, has_column, ...)
+  let words = []
+  for word in split(a:command_prefix)
+    if word !~# '^[a-z]'
+      break
+    endif
+    call add(words, word)
+  endfor
+  let words = empty(words) ? ['grep'] : words
+  let name = join(words, '-')
+  let opts = {
+  \ 'source': ':',
+  \ 'column': a:has_column,
+  \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
+  \             '--disabled',
+  \             '--bind', 'start:reload:'.a:command_prefix.' '.shellescape(a:query),
+  \             '--bind', 'change:reload:'.a:command_prefix.' {q} || :',
+  \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
+  \             '--delimiter', ':', '--preview-window', '+{2}-/2']
+  \}
+  function! opts.sink(lines)
+    return s:ag_handler(a:lines, self.column)
+  endfunction
+  let opts['sink*'] = remove(opts, 'sink')
+  return s:fzf(name, opts, a:000)
+endfunction
+
 " ------------------------------------------------------------------
 " BTags
 " ------------------------------------------------------------------
