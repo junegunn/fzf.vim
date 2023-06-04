@@ -165,16 +165,16 @@ let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 Each command in fzf.vim is backed by a Vim function. You can override
 a command or define a variation of it by calling its corresponding function.
 
-| Command   | Vim function                                                                              |
-| ---       | ---                                                                                       |
-| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                                      |
-| `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`                           |
-| `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                                   |
-| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                                         |
-| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                                          |
-| `Rg`      | `fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])`                |
-| `RG`      | `fzf#vim#grep2(command_prefix, query, [has_column bool], [spec dict], [fullscreen bool])` |
-| ...       | ...                                                                                       |
+| Command   | Vim function                                                           |
+| ---       | ---                                                                    |
+| `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                   |
+| `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`        |
+| `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                |
+| `Buffers` | `fzf#vim#buffers([spec dict], [fullscreen bool])`                      |
+| `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                       |
+| `Rg`      | `fzf#vim#grep(command, [spec dict], [fullscreen bool])`                |
+| `RG`      | `fzf#vim#grep2(command_prefix, query, [spec dict], [fullscreen bool])` |
+| ...       | ...                                                                    |
 
 (We can see that the last two optional arguments of each function are
 identical. They are directly passed to `fzf#wrap` function. If you haven't
@@ -243,8 +243,6 @@ command! -bang -nargs=? -complete=dir Files
 The following example implements `GGrep` command that works similarly to
 predefined `Ag` or `Rg` using `fzf#vim#grep`.
 
-- The second argument to `fzf#vim#grep` is 0 (false), because `git grep` does
-  not print column numbers.
 - We set the base directory to git root by setting `dir` attribute in spec
   dictionary.
 - [The preview script](bin/preview.sh) supports `grep` format
@@ -254,45 +252,8 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
 ```vim
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
-  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   'git grep --line-number -- '.shellescape(<q-args>),
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
-```
-
-#### Example: Advanced ripgrep integration
-
-> The example shown here is now available as the `RG` (all uppercase) command
-> that uses `fzf#vim#grep2(command_prefix, query, has_column, ...)` function.
-> You no longer need to define it in your Vim configuration file.
-
-In the default implementation of `Rg`, ripgrep process starts only once with
-the initial query (e.g. `:Rg foo`) and fzf filters the output of the process.
-
-This is okay in most cases because fzf is quite performant even with millions
-of lines, but we can make fzf completely delegate its search responsibliity to
-ripgrep process by making it restart ripgrep whenever the query string is
-updated. In this scenario, fzf becomes a simple selector interface rather than
-a "fuzzy finder".
-
-- We will name the new command all-uppercase `RG` so we can still access the
-  default version.
-- `--bind 'change:reload:rg ... {q}'` will make fzf restart ripgrep process
-  whenever the query string, denoted by `{q}`, is changed.
-- With `--disabled` option, fzf will no longer perform search. The query
-  string you type on fzf prompt is only used for restarting ripgrep process.
-- Also note that we enabled previewer with `fzf#vim#with_preview`. The last
-  argument to the function, `ctrl-/`, is the key to toggle the preview window.
-
-```vim
-function! RipgrepFzf(query, fullscreen)
-  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
-  let initial_command = printf(command_fmt, shellescape(a:query))
-  let reload_command = printf(command_fmt, '{q}')
-  let spec = {'options': ['--disabled', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
-  let spec = fzf#vim#with_preview(spec, 'right', 'ctrl-/')
-  call fzf#vim#grep(initial_command, 1, spec, a:fullscreen)
-endfunction
-
-command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 ```
 
 Mappings

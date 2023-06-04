@@ -96,7 +96,7 @@ let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
-let s:TYPE = {'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
+let s:TYPE = {'bool': type(0), 'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 
 let s:wide = 120
 let s:checked = 0
@@ -793,22 +793,22 @@ endfunction
 " ------------------------------------------------------------------
 " Ag / Rg
 " ------------------------------------------------------------------
-function! s:ag_to_qf(line, has_column)
+function! s:ag_to_qf(line)
   let parts = matchlist(a:line, '\(.\{-}\)\s*:\s*\(\d\+\)\%(\s*:\s*\(\d\+\)\)\?\%(\s*:\(.*\)\)\?')
   let dict = {'filename': &acd ? fnamemodify(parts[1], ':p') : parts[1], 'lnum': parts[2], 'text': parts[4]}
-  if a:has_column
+  if len(parts[3])
     let dict.col = parts[3]
   endif
   return dict
 endfunction
 
-function! s:ag_handler(lines, has_column)
+function! s:ag_handler(lines)
   if len(a:lines) < 2
     return
   endif
 
   let cmd = s:action_for(a:lines[0], 'e')
-  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val, a:has_column)')
+  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val)')
   if empty(list)
     return
   endif
@@ -817,7 +817,7 @@ function! s:ag_handler(lines, has_column)
   try
     call s:open(cmd, first.filename)
     execute first.lnum
-    if a:has_column
+    if has_key(first, 'col')
       call cursor(0, first.col)
     endif
     normal! zvzz
@@ -847,8 +847,9 @@ function! fzf#vim#ag_raw(command_suffix, ...)
   return call('fzf#vim#grep', extend(['ag --nogroup --column --color '.a:command_suffix, 1], a:000))
 endfunction
 
-" command (string), has_column (bool), [spec (dict)], [fullscreen (bool)]
-function! fzf#vim#grep(grep_command, has_column, ...)
+" command (string), [spec (dict)], [fullscreen (bool)]
+function! fzf#vim#grep(grep_command, ...)
+  let args = copy(a:000)
   let words = []
   for word in split(a:grep_command)
     if word !~# '^[a-z]'
@@ -860,27 +861,31 @@ function! fzf#vim#grep(grep_command, has_column, ...)
   let name    = join(words, '-')
   let capname = join(map(words, 'toupper(v:val[0]).v:val[1:]'), '')
   let opts = {
-  \ 'column':  a:has_column,
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--delimiter', ':', '--preview-window', '+{2}-/2']
   \}
+  if len(args) && type(args[0]) == s:TYPE.bool
+    call remove(args, 0)
+  endif
+
   function! opts.sink(lines)
-    return s:ag_handler(a:lines, self.column)
+    return s:ag_handler(a:lines)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
   try
     let prev_default_command = $FZF_DEFAULT_COMMAND
     let $FZF_DEFAULT_COMMAND = a:grep_command
-    return s:fzf(name, opts, a:000)
+    return s:fzf(name, opts, args)
   finally
     let $FZF_DEFAULT_COMMAND = prev_default_command
   endtry
 endfunction
 
 
-" command_prefix (string), initial_query (string), has_column (bool), [spec (dict)], [fullscreen (bool)]
-function! fzf#vim#grep2(command_prefix, query, has_column, ...)
+" command_prefix (string), initial_query (string), [spec (dict)], [fullscreen (bool)]
+function! fzf#vim#grep2(command_prefix, query, ...)
+  let args = copy(a:000)
   let words = []
   for word in split(a:command_prefix)
     if word !~# '^[a-z]'
@@ -892,7 +897,6 @@ function! fzf#vim#grep2(command_prefix, query, has_column, ...)
   let name = join(words, '-')
   let opts = {
   \ 'source': ':',
-  \ 'column': a:has_column,
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
   \             '--bind', 'start:reload:'.a:command_prefix.' '.shellescape(a:query),
@@ -900,11 +904,14 @@ function! fzf#vim#grep2(command_prefix, query, has_column, ...)
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--delimiter', ':', '--preview-window', '+{2}-/2']
   \}
+  if len(args) && type(args[0]) == s:TYPE.bool
+    call remove(args, 0)
+  endif
   function! opts.sink(lines)
-    return s:ag_handler(a:lines, self.column)
+    return s:ag_handler(a:lines)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
-  return s:fzf(name, opts, a:000)
+  return s:fzf(name, opts, args)
 endfunction
 
 " ------------------------------------------------------------------
