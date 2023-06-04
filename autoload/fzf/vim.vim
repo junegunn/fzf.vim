@@ -1170,6 +1170,47 @@ function! fzf#vim#marks(...)
 endfunction
 
 " ------------------------------------------------------------------
+" Jumps
+" ------------------------------------------------------------------
+function! s:jump_format(line)
+  return substitute(a:line, '[0-9]\+', '\=s:yellow(submatch(0), "Number")', '')
+endfunction
+
+function! s:jump_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let cmd = s:action_for(a:lines[0])
+  if !empty(cmd)
+    execute 'silent' cmd
+  endif
+  let idx = index(s:jumplist, a:lines[1])
+  if idx == -1
+    return
+  endif
+  let current = match(s:jumplist, '\v^\s*\>')
+  let delta = idx - current
+  if delta < 0
+    execute 'normal! ' . -delta . "\<C-O>"
+  else
+    execute 'normal! ' . delta . "\<C-I>"
+  endif
+endfunction
+
+function! fzf#vim#jumps(...)
+  redir => cout
+  silent jumps
+  redir END
+  let s:jumplist = split(cout, '\n')
+  let current = -match(s:jumplist, '\v^\s*\>')
+  return s:fzf('jumps', {
+  \ 'source'  : extend(s:jumplist[0:0], map(s:jumplist[1:], 's:jump_format(v:val)')),
+  \ 'sink*'   : s:function('s:jump_sink'),
+  \ 'options' : '+m -x --ansi --tiebreak=index --cycle --scroll-off 999 --sync --bind start:pos:'.current.' --tac --header-lines 1 --tiebreak=begin --prompt "Jumps> "',
+  \ }, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Help tags
 " ------------------------------------------------------------------
 function! s:helptag_sink(line)

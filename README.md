@@ -76,6 +76,7 @@ Commands
 | `:Tags [QUERY]`        | Tags in the project (`ctags -R`)                                                      |
 | `:BTags [QUERY]`       | Tags in the current buffer                                                            |
 | `:Marks`               | Marks                                                                                 |
+| `:Jumps`               | Jumps                                                                                 |
 | `:Windows`             | Windows                                                                               |
 | `:Locate PATTERN`      | `locate` command output                                                               |
 | `:History`             | `v:oldfiles` and open buffers                                                         |
