@@ -1214,7 +1214,7 @@ endfunction
 " Changes
 " ------------------------------------------------------------------
 function! s:format_change(line)
-  return substitute(a:line, '\d\{1,2}', '\=s:yellow(submatch(0), "Number")', '')
+    return substitute(a:line, '\d\+', '\=s:yellow(submatch(0), "Number")', '')
 endfunction
 
 function! s:change_sink(lines)
@@ -1233,10 +1233,10 @@ function! fzf#vim#changes(...)
   redir => cout
   silent changes
   redir END
-  let s:changelist = split(cout, "\n")
-  let current = -match(s:changelist, '\v^\s*\>')
+  let list = split(cout, "\n")
+  let current = -match(list, '\v^\s*\>')
   return s:fzf('changes', {
-  \ 'source':  extend(s:changelist[0:0], map(s:changelist[1:], 's:format_change(v:val)')),
+  \ 'source':  extend(list[0:0], map(list[1:], 's:format_change(v:val)')),
   \ 'sink*':   s:function('s:change_sink'),
   \ 'options' : '+m -x --ansi --tiebreak=index --cycle --scroll-off 999 --sync --bind start:pos:'.current.' --tac --header-lines 1 --tiebreak=begin --prompt "Changes> "',
   \ }, a:000)
