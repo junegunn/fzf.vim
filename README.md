@@ -30,6 +30,8 @@ selector with fzf.
 Installation
 ------------
 
+To use this vim plugin, [another vim plugin][fzf-main] must also be installed first.
+
 fzf.vim depends on the basic Vim plugin of [the main fzf
 repository][fzf-main], which means you need to **set up both "fzf" and
 "fzf.vim" on Vim**. To learn more about fzf/Vim integration, see
@@ -38,12 +40,20 @@ repository][fzf-main], which means you need to **set up both "fzf" and
 [fzf-main]: https://github.com/junegunn/fzf
 [README-VIM]: https://github.com/junegunn/fzf/blob/master/README-VIM.md
 
-### Using [vim-plug](https://github.com/junegunn/vim-plug)
+### Installing with a plugin manager
 
-```vim
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-```
+This plugin follows the standard runtime path structure, and as such it can be installed with a variety of plugin managers:
+
+| Plugin Manager | Install with... |
+| ------------- | ------------- |
+| [Plug][vimplug] | `Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }`<br/>`Plug 'junegunn/fzf.vim'` |
+| [Pathogen][pathogen] | `git clone https://github.com/junegunn/fzf ~/.vim/bundle/fzf`<br/>`git clone https://github.com/junegunn/fzf.vim ~/.vim/bundle/fzf.vim` |
+| [NeoBundle][neobundle] | `NeoBundle 'junegunn/fzf'`<br/>`NeoBundle 'junegunn/fzf.vim'` |
+| [Vundle][vundle] | `Plugin 'junegunn/fzf'`<br/>`Plugin 'junegunn/fzf.vim'` |
+| [VAM][vam] | `call vam#ActivateAddons([ 'fzf' ])`<br/>`call vam#ActivateAddons([ 'fzf.vim' ])` |
+| [Dein][dein] | `call dein#add('junegunn/fzf')`<br/>`call dein#add('junegunn/fzf.vim')` |
+| [minpac][minpac] | `call minpac#add('junegunn/fzf')`<br/>`call minpac#add('junegunn/fzf.vim')` |
+| pack feature (native Vim 8 package feature)| `git clone https://github.com/junegunn/fzf ~/.vim/pack/dist/start/fzf`<br/>`git clone https://github.com/junegunn/fzf.vim ~/.vim/pack/dist/start/fzf.vim` |
 
 `fzf#install()` makes sure that you have the latest binary, but it's optional,
 so you can omit it if you use a plugin manager that doesn't support hooks.
@@ -391,3 +401,11 @@ MIT
 [ag]:    https://github.com/ggreer/the_silver_searcher
 [rg]:    https://github.com/BurntSushi/ripgrep
 [us]:    https://github.com/SirVer/ultisnips
+
+[vimplug]: https://github.com/junegunn/vim-plug
+[pathogen]: https://github.com/tpope/vim-pathogen
+[neobundle]: https://github.com/Shougo/neobundle.vim
+[vundle]: https://github.com/VundleVim/Vundle.vim
+[vam]: https://github.com/MarcWeber/vim-addon-manager
+[dein]: https://github.com/Shougo/dein.vim
+[minpac]: https://github.com/k-takata/minpac/
