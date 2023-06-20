@@ -995,7 +995,8 @@ function! s:tags_sink(lines)
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
-        call s:open(cmd, expand(abspath, 1))
+        let path    = &tagrelative == 0 ? relpath : abspath
+        call s:open(cmd, expand(path, 1))
         silent execute excmd
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
