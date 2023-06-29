@@ -1261,7 +1261,7 @@ function! s:format_win(tab, win, buf)
   let name = bufname(a:buf)
   let name = empty(name) ? '[No Name]' : name
   let active = tabpagewinnr(a:tab) == a:win
-  return (active? s:blue('> ', 'Operator') : '  ') . name . (modified? s:red(' [+]', 'Exception') : '')
+  return (active? s:blue('> ', 'Operator') : s:black('> ', 'Ignore')) . name . (modified? s:red(' [+]', 'Exception') : '')
 endfunction
 
 function! s:windows_sink(line)
