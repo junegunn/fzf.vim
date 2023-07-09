@@ -441,6 +441,17 @@ function! s:line_handler(lines)
   endif
 
   let keys = split(a:lines[1], '\t')
+  if get(g:, 'fzf_lines_jump')
+      let b = matchstr(keys[0], '[0-9][0-9]*')
+      let [t, w] = s:find_open_window(b)
+      if t
+          call s:jump(t, w)
+          execute keys[2]
+          normal! ^zvzz
+          return
+      endif
+  endif
+
   execute 'buffer' keys[0]
   execute keys[2]
   normal! ^zvzz
