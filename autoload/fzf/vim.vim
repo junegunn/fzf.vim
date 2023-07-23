@@ -713,6 +713,65 @@ function! fzf#vim#gitfiles(args, ...)
 endfunction
 
 " ------------------------------------------------------------------
+" fromqf
+" ------------------------------------------------------------------
+
+function! s:_qf_line_handler(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  normal! m'
+  let cmd = s:action_for(a:lines[0])
+  if !empty(cmd) && stridx('edit', cmd) < 0
+    execute 'silent' cmd
+  endif
+
+  let keys = split(split(a:lines[1], '\t')[0], ':')
+  echom keys
+  execute 'buffer' keys[0]
+  execute keys[1]
+  normal! ^zvzz
+endfunction
+
+function! fzf#vim#_qf_format_buffer(b)
+  let name = bufname(a:b.bufnr)
+  let line = a:b.lnum
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
+  let flag = a:b.bufnr == bufnr('')  ? s:blue('%', 'Conditional') :
+          \ (a:b.bufnr == bufnr('#') ? s:magenta('#', 'Special') : ' ')
+  let modified = getbufvar(a:b.bufnr, '&modified') ? s:red(' [+]', 'Exception') : ''
+  let readonly = getbufvar(a:b.bufnr, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
+  let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
+  let target = line == 0 ? name : name.':'.line
+  let ret=s:strip(printf("%s\t%d\t[%s] %s\t%s\t%s", target, line, s:yellow(a:b.bufnr, 'Number'), flag, name, extra))
+  return ret
+endfunction
+
+function! s:_qf_sort_buffers(...)
+  let [b1, b2] = map(copy(a:000), 'v:val')
+  " Using minus between a float and a number in a sort function causes an error
+  return b1.bufnr < b2.bufnr ? 1 : -1
+endfunction
+
+function! fzf#vim#_qf_buflisted_sorted()
+  return sort(getqflist(), 's:_qf_sort_buffers')
+endfunction
+
+function! fzf#vim#qf_buffers(...)
+  let [query, args] = (a:0 && type(a:1) == type('')) ?
+        \ [a:1, a:000[1:]] : ['', a:000]
+  let sorted = fzf#vim#_qf_buflisted_sorted()
+  let header_lines = '--header-lines=0'
+  let tabstop = 9
+  return s:fzf('buffers', {
+  \ 'source':  map(sorted, 'fzf#vim#_qf_format_buffer(v:val)'),
+  \ 'sink*':   s:function('s:_qf_line_handler'),
+  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop]
+  \}, args)
+endfunction
+
+
+" ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
 function! s:find_open_window(b)
