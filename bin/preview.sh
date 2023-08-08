@@ -15,7 +15,7 @@ if [ "$1" = --tag ]; then
 fi
 
 IFS=':' read -r -a INPUT <<< "$1"
-FILE=${INPUT[0]}
+FILE=${INPUT[0]//\\/\/}
 CENTER=${INPUT[1]}
 
 if [[ "$1" =~ ^[A-Za-z]:\\ ]]; then
