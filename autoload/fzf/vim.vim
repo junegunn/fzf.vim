@@ -195,7 +195,7 @@ function! fzf#vim#with_preview(...)
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
   endif
-  let preview_cmd = s:bash() . ' ' . s:escape_for_bash(s:bin.preview)
+  let preview_cmd = s:bash() . ' "' . s:bin.preview . '"'
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
