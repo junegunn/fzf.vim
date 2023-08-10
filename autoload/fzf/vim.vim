@@ -1301,7 +1301,7 @@ function! s:commits_sink(lines)
     return
   endif
 
-  let pat = '[0-9a-f]\{7,9}'
+  let pat = '[0-9a-f]\{7,40}'
 
   if a:lines[0] == 'ctrl-y'
     let hashes = join(filter(map(a:lines[1:], 'matchstr(v:val, pat)'), 'len(v:val)'))
