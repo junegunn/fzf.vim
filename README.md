@@ -13,8 +13,8 @@ fzf are not familiar with Vimscript and are looking for the "default"
 implementation of the features they can find in the alternative Vim plugins.
 
 This repository is a bundle of fzf-based commands and mappings extracted from
-my [.vimrc][vimrc] to address such needs. They are *not* designed to be
-flexible or configurable, and there's no guarantee of backward-compatibility.
+my .vimrc to address such needs. They are *not* designed to be flexible or
+configurable, and there's no guarantee of backward-compatibility.
 
 Why you should use fzf on Vim
 -----------------------------
@@ -387,7 +387,6 @@ MIT
 
 [fzf]:   https://github.com/junegunn/fzf
 [run]:   https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzfrun
-[vimrc]: https://github.com/junegunn/dotfiles/blob/master/vimrc
 [ag]:    https://github.com/ggreer/the_silver_searcher
 [rg]:    https://github.com/BurntSushi/ripgrep
 [us]:    https://github.com/SirVer/ultisnips
