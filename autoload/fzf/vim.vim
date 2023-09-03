@@ -374,13 +374,19 @@ function! s:warn(message)
   return 0
 endfunction
 
-function! s:fill_quickfix(list, ...)
+function! s:fill_list(list, ...)
   if len(a:list) > 1
-    call setqflist(a:list)
-    copen
+    let use_location_list = get(g:, 'fzf_use_location_list', 0)
+    if use_location_list
+      call setloclist(0, a:list)
+      lopen
+    else
+      call setqflist(a:list)
+      copen
+    endif
     wincmd p
     if a:0
-      execute a:1
+      execute (use_location_list ? 'l' : 'c') . a:1
     endif
   endif
 endfunction
@@ -504,14 +510,14 @@ function! s:buffer_line_handler(lines)
   if len(a:lines) < 2
     return
   endif
-  let qfl = []
+  let list = []
   for line in a:lines[1:]
     let chunks = split(line, "\t", 1)
     let ln = chunks[0]
     let ltxt = join(chunks[1:], "\t")
-    call add(qfl, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
+    call add(list, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
   endfor
-  call s:fill_quickfix(qfl, 'cfirst')
+  call s:fill_list(list, 'first')
   normal! m'
   let cmd = s:action_for(a:lines[0])
   if !empty(cmd)
@@ -824,7 +830,7 @@ function! s:ag_handler(lines)
   catch
   endtry
 
-  call s:fill_quickfix(list)
+  call s:fill_list(list)
 endfunction
 
 " query, [ag options], [spec (dict)], [fullscreen (bool)]
@@ -945,12 +951,12 @@ function! s:btags_sink(lines)
   if !empty(cmd)
     execute 'silent' cmd '%'
   endif
-  let qfl = []
+  let list = []
   for line in a:lines[1:]
     execute split(line, "\t")[2]
-    call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+    call add(list, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
-  call s:fill_quickfix(qfl, 'cfirst')
+  call s:fill_list(list, 'first')
   normal! zvzz
 endfunction
 
@@ -984,7 +990,7 @@ function! s:tags_sink(lines)
     return
   endif
   normal! m'
-  let qfl = []
+  let list = []
   let cmd = s:action_for(a:lines[0], 'e')
   try
     let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
@@ -997,7 +1003,7 @@ function! s:tags_sink(lines)
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
         call s:open(cmd, expand(abspath, 1))
         silent execute excmd
-        call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+        call add(list, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
         break
       catch
@@ -1007,7 +1013,7 @@ function! s:tags_sink(lines)
   finally
     let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
   endtry
-  call s:fill_quickfix(qfl, 'clast')
+  call s:fill_list(list, 'last')
   normal! zvzz
 endfunction
 
