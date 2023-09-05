@@ -444,10 +444,19 @@ function! s:line_handler(lines)
   if len(a:lines) < 2
     return
   endif
+
+  let qfl = []
+  for line in a:lines[1:]
+    let chunks = split(line, "\t", 1)
+    call add(qfl, {'bufnr': str2nr(chunks[0]), 'lnum': str2nr(chunks[2]), 'text': join(chunks[3:], "\t")})
+  endfor
+
   call s:action_for(a:lines[0])
-  let keys = split(a:lines[1], '\t')
-  execute 'buffer' keys[0]
-  execute keys[2]
+  if !s:fill_quickfix('lines', qfl)
+    let chunks = split(a:lines[1], '\t')
+    execute 'buffer' chunks[0]
+    execute chunks[2]
+  endif
   normal! ^zvzz
 endfunction
 
@@ -498,7 +507,7 @@ function! fzf#vim#lines(...)
   return s:fzf('lines', {
   \ 'source':  lines,
   \ 'sink*':   s:function('s:line_handler'),
-  \ 'options': s:reverse_list(['+m', '--tiebreak=index', '--prompt', 'Lines> ', '--ansi', '--extended', '--nth='.nth.'..', '--tabstop=1', '--query', query])
+  \ 'options': s:reverse_list(['--tiebreak=index', '--prompt', 'Lines> ', '--ansi', '--extended', '--nth='.nth.'..', '--tabstop=1', '--query', query, '--multi'])
   \}, args)
 endfunction
 
