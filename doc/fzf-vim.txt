@@ -2,31 +2,31 @@ fzf-vim.txt	fzf-vim	Last change: September 6 2023
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
-  fzf :heart: vim                                       |fzf-vim-fzfheart-vim|
-    Rationale                                           |fzf-vim-rationale|
-    Why you should use fzf on Vim                       |fzf-vim-why-you-should-use-fzf-on-vim|
-    Installation                                        |fzf-vim-installation|
-      Using vim-plug                                    |fzf-vim-using-vim-plug|
-      Dependencies                                      |fzf-vim-dependencies|
-    Commands                                            |fzf-vim-commands|
-    Customization                                       |fzf-vim-customization|
-      Global configuration options for the base plugin  |fzf-vim-global-configuration-options-for-the-base-plugin|
-      Configuration options for fzf.vim                 |fzf-vim-configuration-options-for-fzf-vim|
-        Preview window                                  |fzf-vim-preview-window|
-        Command-level options                           |fzf-vim-command-level-options|
-        List type to handle multiple selections         |fzf-vim-list-type-to-handle-multiple-selections|
-      Advanced customization                            |fzf-vim-advanced-customization|
-        Vim functions                                   |fzf-vim-vim-functions|
-        Example: Customizing Files command              |fzf-vim-example-customizing-files-command|
-        Example: git grep wrapper                       |fzf-vim-example-git-grep-wrapper|
-    Mappings                                            |fzf-vim-mappings|
-    Completion functions                                |fzf-vim-completion-functions|
-    Custom completion                                   |fzf-vim-custom-completion|
-      Reducer example                                   |fzf-vim-reducer-example|
-    Status line of terminal buffer                      |fzf-vim-status-line-of-terminal-buffer|
-      Hide statusline                                   |fzf-vim-hide-statusline|
-      Custom statusline                                 |fzf-vim-custom-statusline|
-    License                                             |fzf-vim-license|
+  fzf :heart: vim                                |fzf-vim-fzfheart-vim|
+    Rationale                                    |fzf-vim-rationale|
+    Why you should use fzf on Vim                |fzf-vim-why-you-should-use-fzf-on-vim|
+    Installation                                 |fzf-vim-installation|
+      Using vim-plug                             |fzf-vim-using-vim-plug|
+      Dependencies                               |fzf-vim-dependencies|
+    Commands                                     |fzf-vim-commands|
+    Customization                                |fzf-vim-customization|
+      Configuration options of the base plugin   |fzf-vim-configuration-options-of-the-base-plugin|
+      Configuration options for fzf.vim          |fzf-vim-configuration-options-for-fzf-vim|
+        Preview window                           |fzf-vim-preview-window|
+        Command-level options                    |fzf-vim-command-level-options|
+        List type to handle multiple selections  |fzf-vim-list-type-to-handle-multiple-selections|
+      Advanced customization                     |fzf-vim-advanced-customization|
+        Vim functions                            |fzf-vim-vim-functions|
+        Example: Customizing Files command       |fzf-vim-example-customizing-files-command|
+        Example: git grep wrapper                |fzf-vim-example-git-grep-wrapper|
+    Mappings                                     |fzf-vim-mappings|
+    Completion functions                         |fzf-vim-completion-functions|
+    Custom completion                            |fzf-vim-custom-completion|
+      Reducer example                            |fzf-vim-reducer-example|
+    Status line of terminal buffer               |fzf-vim-status-line-of-terminal-buffer|
+      Hide statusline                            |fzf-vim-hide-statusline|
+      Custom statusline                          |fzf-vim-custom-statusline|
+    License                                      |fzf-vim-license|
 
 FZF :HEART: VIM                                           *fzf-vim-fzfheart-vim*
 ==============================================================================
@@ -44,10 +44,6 @@ the {basic wrapper function}{2} for Vim. It's up to the users to write their
 own Vim commands with it. However, I've learned that many users of fzf are not
 familiar with Vimscript and are looking for the "default" implementation of
 the features they can find in the alternative Vim plugins.
-
-This repository is a bundle of fzf-based commands and mappings extracted from
-my .vimrc to address such needs. They are not designed to be flexible or
-configurable, and there's no guarantee of backward-compatibility.
 
           {1} https://github.com/junegunn/fzf
           {2} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzfrun
@@ -165,8 +161,8 @@ CUSTOMIZATION                                            *fzf-vim-customization*
 ==============================================================================
 
 
-< Global configuration options for the base plugin >__________________________~
-                      *fzf-vim-global-configuration-options-for-the-base-plugin*
+< Configuration options of the base plugin >__________________________________~
+                              *fzf-vim-configuration-options-of-the-base-plugin*
 
 Every command in fzf.vim internally calls `fzf#wrap` function of the main
 repository which supports a set of global option variables. So please read

@@ -12,10 +12,6 @@ write their own Vim commands with it. However, I've learned that many users of
 fzf are not familiar with Vimscript and are looking for the "default"
 implementation of the features they can find in the alternative Vim plugins.
 
-This repository is a bundle of fzf-based commands and mappings extracted from
-my .vimrc to address such needs. They are *not* designed to be flexible or
-configurable, and there's no guarantee of backward-compatibility.
-
 Why you should use fzf on Vim
 -----------------------------
 
@@ -106,7 +102,7 @@ pathogen#helptags()`. [↩](#a1))
 Customization
 -------------
 
-### Global configuration options for the base plugin
+### Configuration options of the base plugin
 
 Every command in fzf.vim internally calls `fzf#wrap` function of the main
 repository which supports a set of global option variables. So please read
