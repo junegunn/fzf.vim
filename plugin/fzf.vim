@@ -30,8 +30,14 @@ let s:cpo_save = &cpo
 set cpo&vim
 let s:is_win = has('win32') || has('win64')
 
+function! s:conf(name, default)
+  let conf = get(g:, 'fzf_vim', {})
+  let val = get(conf, a:name, get(g:, 'fzf_' . a:name, a:default))
+  return val
+endfunction
+
 function! s:defs(commands)
-  let prefix = get(g:, 'fzf_command_prefix', '')
+  let prefix = s:conf('command_prefix', '')
   if prefix =~# '^[^A-Z]'
     echoerr 'g:fzf_command_prefix must start with an uppercase letter'
     return
@@ -85,7 +91,7 @@ function! fzf#complete(...)
   return call('fzf#vim#complete', a:000)
 endfunction
 
-if (has('nvim') || has('terminal') && has('patch-8.0.995')) && (get(g:, 'fzf_statusline', 1) || get(g:, 'fzf_nvim_statusline', 1))
+if (has('nvim') || has('terminal') && has('patch-8.0.995')) && (s:conf('statusline', 1) || s:conf('nvim_statusline', 1))
   function! s:fzf_restore_colors()
     if exists('#User#FzfStatusLine')
       doautocmd User FzfStatusLine

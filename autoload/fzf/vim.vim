@@ -1,4 +1,4 @@
-" Copyright (c) 2017 Junegunn Choi
+" Copyright (c) 2023 Junegunn Choi
 "
 " MIT License
 "
@@ -27,6 +27,11 @@ set cpo&vim
 " ------------------------------------------------------------------
 " Common
 " ------------------------------------------------------------------
+
+function! s:conf(name, default)
+  let conf = get(g:, 'fzf_vim', {})
+  return get(conf, a:name, get(g:, 'fzf_' . a:name, a:default))
+endfunction
 
 let s:winpath = {}
 function! s:winpath(path)
@@ -166,7 +171,7 @@ function! fzf#vim#with_preview(...)
 
   " g:fzf_preview_window
   if empty(args)
-    let preview_args = get(g:, 'fzf_preview_window', ['', 'ctrl-/'])
+    let preview_args = s:conf('preview_window', ['', 'ctrl-/'])
     if empty(preview_args)
       let args = ['hidden']
     else
@@ -338,18 +343,25 @@ let s:default_action = {
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
 
-function! s:action_for(key, ...)
-  let default = a:0 ? a:1 : ''
-  let Cmd = get(get(g:, 'fzf_action', s:default_action), a:key, default)
-  return type(Cmd) == s:TYPE.string ? Cmd : default
+function! s:execute_silent(cmd)
+  silent keepjumps keepalt execute a:cmd
 endfunction
 
-function! s:open(cmd, target)
-  if stridx('edit', a:cmd) == 0 && fnamemodify(a:target, ':p') ==# expand('%:p')
-    normal! m'
+function! s:action_for(key)
+  let Cmd = get(get(g:, 'fzf_action', s:default_action), a:key, '')
+  let cmd = type(Cmd) == s:TYPE.string ? Cmd : ''
+  normal! m'
+  if len(cmd)
+    call s:execute_silent(cmd)
+  endif
+  return cmd
+endfunction
+
+function! s:open(target)
+  if fnamemodify(a:target, ':p') ==# expand('%:p')
     return
   endif
-  execute a:cmd s:escape(a:target)
+  execute 'edit' s:escape(a:target)
 endfunction
 
 function! s:align_lists(lists)
@@ -374,15 +386,13 @@ function! s:warn(message)
   return 0
 endfunction
 
-function! s:fill_quickfix(list, ...)
+function! s:fill_quickfix(name, list)
   if len(a:list) > 1
-    call setqflist(a:list)
-    copen
-    wincmd p
-    if a:0
-      execute a:1
-    endif
+    let Handler = s:conf('listproc_'.a:name, s:conf('listproc', function('fzf#vim#listproc#quickfix')))
+    call call(Handler, [a:list], {})
+    return 1
   endif
+  return 0
 endfunction
 
 function! fzf#vim#_uniq(list)
@@ -434,12 +444,7 @@ function! s:line_handler(lines)
   if len(a:lines) < 2
     return
   endif
-  normal! m'
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd) && stridx('edit', cmd) < 0
-    execute 'silent' cmd
-  endif
-
+  call s:action_for(a:lines[0])
   let keys = split(a:lines[1], '\t')
   execute 'buffer' keys[0]
   execute keys[2]
@@ -511,14 +516,10 @@ function! s:buffer_line_handler(lines)
     let ltxt = join(chunks[1:], "\t")
     call add(qfl, {'filename': expand('%'), 'lnum': str2nr(ln), 'text': ltxt})
   endfor
-  call s:fill_quickfix(qfl, 'cfirst')
-  normal! m'
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
+  call s:action_for(a:lines[0])
+  if !s:fill_quickfix('blines', qfl)
+    execute split(a:lines[1], '\t')[0]
   endif
-
-  execute split(a:lines[1], '\t')[0]
   normal! ^zvzz
 endfunction
 
@@ -740,17 +741,14 @@ function! s:bufopen(lines)
     return
   endif
   let b = matchstr(a:lines[1], '\[\zs[0-9]*\ze\]')
-  if empty(a:lines[0]) && get(g:, 'fzf_buffers_jump')
+  if empty(a:lines[0]) && s:conf('buffers_jump', 0)
     let [t, w] = s:find_open_window(b)
     if t
       call s:jump(t, w)
       return
     endif
   endif
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
-  endif
+  call s:action_for(a:lines[0])
   execute 'buffer' b
 endfunction
 
@@ -802,20 +800,25 @@ function! s:ag_to_qf(line)
   return dict
 endfunction
 
-function! s:ag_handler(lines)
+function! s:ag_handler(name, lines)
   if len(a:lines) < 2
     return
   endif
 
-  let cmd = s:action_for(a:lines[0], 'e')
   let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val)')
   if empty(list)
     return
   endif
 
+  call s:action_for(a:lines[0])
+  if s:fill_quickfix(a:name, list)
+    return
+  endif
+
+  " Single item selected
   let first = list[0]
   try
-    call s:open(cmd, first.filename)
+    call s:open(first.filename)
     execute first.lnum
     if has_key(first, 'col')
       call cursor(0, first.col)
@@ -823,8 +826,6 @@ function! s:ag_handler(lines)
     normal! zvzz
   catch
   endtry
-
-  call s:fill_quickfix(list)
 endfunction
 
 " query, [ag options], [spec (dict)], [fullscreen (bool)]
@@ -869,8 +870,8 @@ function! fzf#vim#grep(grep_command, ...)
     call remove(args, 0)
   endif
 
-  function! opts.sink(lines)
-    return s:ag_handler(a:lines)
+  function! opts.sink(lines) closure
+    return s:ag_handler(get(opts, 'name', name), a:lines)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
   try
@@ -907,8 +908,8 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   if len(args) && type(args[0]) == s:TYPE.bool
     call remove(args, 0)
   endif
-  function! opts.sink(lines)
-    return s:ag_handler(a:lines)
+  function! opts.sink(lines) closure
+    return s:ag_handler(name, a:lines)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
   return s:fzf(name, opts, args)
@@ -940,18 +941,21 @@ function! s:btags_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  normal! m'
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd '%'
-  endif
+  call s:action_for(a:lines[0])
   let qfl = []
   for line in a:lines[1:]
-    execute split(line, "\t")[2]
+    call s:execute_silent(split(line, "\t")[2])
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
   endfor
-  call s:fill_quickfix(qfl, 'cfirst')
-  normal! zvzz
+
+  if len(qfl) > 1
+    " Go back to the original position
+    normal! g`'
+    " Because 'listproc' will use 'cfirst' to go to the first item in the list
+    call s:fill_quickfix('btags', qfl)
+  else
+    normal! zvzz
+  endif
 endfunction
 
 " query, [tag commands], [spec (dict)], [fullscreen (bool)]
@@ -983,9 +987,8 @@ function! s:tags_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  normal! m'
   let qfl = []
-  let cmd = s:action_for(a:lines[0], 'e')
+  call s:action_for(a:lines[0])
   try
     let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
     for line in a:lines[1:]
@@ -995,8 +998,8 @@ function! s:tags_sink(lines)
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
-        call s:open(cmd, expand(abspath, 1))
-        silent execute excmd
+        call s:open(expand(abspath, 1))
+        call s:execute_silent(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
         break
@@ -1007,8 +1010,15 @@ function! s:tags_sink(lines)
   finally
     let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
   endtry
-  call s:fill_quickfix(qfl, 'clast')
-  normal! zvzz
+
+  if len(qfl) > 1
+    " Go back to the original position
+    normal! g`'
+    " Because 'listproc' will use 'cfirst' to go to the first item in the list
+    call s:fill_quickfix('tags', qfl)
+  else
+    normal! zvzz
+  endif
 endfunction
 
 function! fzf#vim#tags(query, ...)
@@ -1024,7 +1034,7 @@ function! fzf#vim#tags(query, ...)
     redraw
     if gen =~? '^y'
       call s:warn('Preparing tags')
-      call system(get(g:, 'fzf_tags_command', 'ctags -R'.(s:is_win ? ' --output-format=e-ctags' : '')))
+      call system(s:conf('tags_command', 'ctags -R'.(s:is_win ? ' --output-format=e-ctags' : '')))
       if empty(tagfiles())
         return s:warn('Failed to create tags')
       endif
@@ -1136,7 +1146,7 @@ function! fzf#vim#commands(...)
   return s:fzf('commands', {
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
   \ 'sink*':   s:function('s:command_sink'),
-  \ 'options': '--ansi --expect '.get(g:, 'fzf_commands_expect', 'ctrl-x').
+  \ 'options': '--ansi --expect '.s:conf('commands_expect', 'ctrl-x').
   \            ' --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 -d'.s:nbs}, a:000)
 endfunction
 
@@ -1151,10 +1161,7 @@ function! s:mark_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
-  endif
+  call s:action_for(a:lines[0])
   execute 'normal! `'.matchstr(a:lines[1], '\S').'zz'
 endfunction
 
@@ -1180,10 +1187,7 @@ function! s:jump_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  let cmd = s:action_for(a:lines[0])
-  if !empty(cmd)
-    execute 'silent' cmd
-  endif
+  call s:action_for(a:lines[0])
   let idx = index(s:jumplist, a:lines[1])
   if idx == -1
     return
@@ -1309,7 +1313,7 @@ function! s:commits_sink(lines)
   end
 
   let diff = a:lines[0] == 'ctrl-d'
-  let cmd = s:action_for(a:lines[0], 'e')
+  let cmd = s:action_for(a:lines[0])
   let buf = bufnr('')
   for idx in range(1, len(a:lines) - 1)
     let sha = matchstr(a:lines[idx], pat)
@@ -1321,7 +1325,7 @@ function! s:commits_sink(lines)
         execute 'Gdiff' sha
       else
         " Since fugitive buffers are unlisted, we can't keep using 'e'
-        let c = (cmd == 'e' && idx > 1) ? 'tab split' : cmd
+        let c = empty(cmd) ? (idx == 1 ? 'edit' : 'tab split') : cmd
         execute c FugitiveFind(sha)
       endif
     endif
@@ -1335,7 +1339,7 @@ function! s:commits(range, buffer_local, args)
   endif
 
   let prefix = 'git -C ' . fzf#shellescape(s:git_root) . ' '
-  let source = prefix . 'log '.get(g:, 'fzf_commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
+  let source = prefix . 'log '.s:conf('commits_log_options', '--color=always '.fzf#shellescape('--format=%C(auto)%h%d %s %C(green)%cr'))
   let current = expand('%:p')
   let managed = 0
   if !empty(current)

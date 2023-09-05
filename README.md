@@ -93,8 +93,8 @@ Commands
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
-- You can set `g:fzf_command_prefix` to give the same prefix to the commands
-    - e.g. `let g:fzf_command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
+- You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
+    - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
 (<a name="helptags">1</a>: `Helptags` will shadow the command of the same name
 from [pathogen][pat]. But its functionality is still available via `call
@@ -106,16 +106,27 @@ pathogen#helptags()`. [↩](#a1))
 Customization
 -------------
 
-### Global options
+### Global configuration options for the base plugin
 
 Every command in fzf.vim internally calls `fzf#wrap` function of the main
 repository which supports a set of global option variables. So please read
 through [README-VIM][README-VIM] to learn more about them.
 
+### Configuration options for fzf.vim
+
+All configuration values for this plugin are stored in `g:fzf_vim` dictionary,
+so **make sure to initialize it before assigning any configuration values to
+it**.
+
+```vim
+" Initialize configuration dictionary
+let g:fzf_vim = {}
+```
+
 #### Preview window
 
 Some commands will show the preview window on the right. You can customize the
-behavior with `g:fzf_preview_window`. Here are some examples:
+behavior with `g:fzf_vim.preview_window`. Here are some examples:
 
 ```vim
 " This is the default option:
@@ -123,40 +134,83 @@ behavior with `g:fzf_preview_window`. Here are some examples:
 "   - CTRL-/ will toggle preview window.
 " - Note that this array is passed as arguments to fzf#vim#with_preview function.
 " - To learn more about preview window options, see `--preview-window` section of `man fzf`.
-let g:fzf_preview_window = ['right,50%', 'ctrl-/']
+let g:fzf_vim.preview_window = ['right,50%', 'ctrl-/']
 
 " Preview window is hidden by default. You can toggle it with ctrl-/.
 " It will show on the right with 50% width, but if the width is smaller
 " than 70 columns, it will show above the candidate list
-let g:fzf_preview_window = ['hidden,right,50%,<70(up,40%)', 'ctrl-/']
+let g:fzf_vim.preview_window = ['hidden,right,50%,<70(up,40%)', 'ctrl-/']
 
 " Empty value to disable preview window altogether
-let g:fzf_preview_window = []
+let g:fzf_vim.preview_window = []
 
 " fzf.vim needs bash to display the preview window.
 " On Windows, fzf.vim will first see if bash is in $PATH, then if
 " Git bash (C:\Program Files\Git\bin\bash.exe) is available.
 " If you want it to use a different bash, set this variable.
-" let g:fzf_preview_bash = 'C:\Git\bin\bash.exe'
+"   let g:fzf_vim = {}
+"   let g:fzf_vim.preview_bash = 'C:\Git\bin\bash.exe'
 ```
 
-### Command-local options
-
-A few commands in fzf.vim can be customized with global option variables shown
-below.
+#### Command-level options
 
 ```vim
 " [Buffers] Jump to the existing window if possible
-let g:fzf_buffers_jump = 1
+let g:fzf_vim.buffers_jump = 1
 
 " [[B]Commits] Customize the options used by 'git log':
-let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+let g:fzf_vim.commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
 " [Tags] Command to generate tags file
-let g:fzf_tags_command = 'ctags -R'
+let g:fzf_vim.tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
-let g:fzf_commands_expect = 'alt-enter,ctrl-x'
+let g:fzf_vim.commands_expect = 'alt-enter,ctrl-x'
+```
+
+#### List type to handle multiple selections
+
+The following commands will fill the quickfix list when multiple entries are
+selected.
+
+* `Ag`
+* `Rg` / `RG`
+* `Lines / ``BLines`
+* `Tags` / `BTags`
+
+By setting `g:fzf_vim.listproc`, you can make them use location list instead.
+
+```vim
+" Default: Use quickfix list
+let g:fzf_vim.listproc = { list -> fzf#vim#listproc#quickfix(list) }
+
+" Use location list instead of quickfix list
+let g:fzf_vim.listproc = { list -> fzf#vim#listproc#location(list) }
+```
+
+You can customize the list type per command by defining variables named
+`g:fzf_vim.listproc_{command_name_in_lowercase}`.
+
+```vim
+" Command-wise customization
+let g:fzf_vim.listproc_ag = { list -> fzf#vim#listproc#quickfix(list) }
+let g:fzf_vim.listproc_rg = { list -> fzf#vim#listproc#location(list) }
+```
+
+You can further customize the behavior by providing a custom function to
+process the list instead of using the predefined `fzf#vim#listproc#quickfix`
+or `fzf#vim#listproc#location`.
+
+```vim
+" A customized version of fzf#vim#listproc#quickfix.
+" The last two lines are commented out not to move to the first entry.
+function! g:fzf_vim.listproc(list)
+  call setqflist(a:list)
+  copen
+  wincmd p
+  " cfirst
+  " normal! zvzz
+endfunction
 ```
 
 ### Advanced customization
