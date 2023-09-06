@@ -1272,9 +1272,9 @@ endfunction
 function! s:format_win(tab, win, buf)
   let modified = getbufvar(a:buf, '&modified')
   let name = bufname(a:buf)
-  let name = empty(name) ? '[No Name]' : name
+  let name = empty(name) ? s:nbs.s:nbs.'[No Name]' : ' '.s:nbs.name
   let active = tabpagewinnr(a:tab) == a:win
-  return (active? s:blue('> ', 'Operator') : '  ') . name . (modified? s:red(' [+]', 'Exception') : '')
+  return (active? s:blue('>', 'Operator') : ' ') . name . s:nbs . (modified? s:red(' [+]', 'Exception') : '')
 endfunction
 
 function! s:windows_sink(line)
@@ -1295,9 +1295,9 @@ function! fzf#vim#windows(...)
     endfor
   endfor
   return s:fzf('windows', {
-  \ 'source':  extend(['Tab Win    Name'], lines),
+  \ 'source':  extend(['Tab Win     Name'], lines),
   \ 'sink':    s:function('s:windows_sink'),
-  \ 'options': '+m --ansi --tiebreak=begin --header-lines=1'}, a:000)
+  \ 'options': '+m --ansi --tiebreak=begin --header-lines=1 -d'.s:nbs}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
