@@ -51,7 +51,7 @@ function! s:bash()
     return s:bash
   endif
 
-  let custom_bash = get(g:, 'fzf_preview_bash', '')
+  let custom_bash = s:conf('preview_bash', '')
   let git_bash = 'C:\Program Files\Git\bin\bash.exe'
   let candidates = filter(s:is_win ? [custom_bash, 'bash', git_bash] : [custom_bash, 'bash'], 'len(v:val)')
 
@@ -433,7 +433,7 @@ function! fzf#vim#files(dir, ...)
   endif
 
   let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
-  call s:merge_opts(args, get(g:, 'fzf_files_options', []))
+  call s:merge_opts(args, s:conf('files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
 
