@@ -914,7 +914,7 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   \ 'source': ':',
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
-  \             '--bind', 'start:reload:'.a:command_prefix.' '.shellescape(a:query),
+  \             '--bind', 'start:reload:'.a:command_prefix.' '.fzf#shellescape(a:query),
   \             '--bind', 'change:reload:'.a:command_prefix.' {q} || :',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--delimiter', ':', '--preview-window', '+{2}-/2']
