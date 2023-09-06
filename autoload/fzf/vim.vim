@@ -253,6 +253,10 @@ function! s:strip(str)
   return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfunction
 
+function! s:rstrip(str)
+  return substitute(a:str, '\s*$', '', 'g')
+endfunction
+
 function! s:chomp(str)
   return substitute(a:str, '\n*$', '', 'g')
 endfunction
@@ -764,14 +768,15 @@ endfunction
 function! fzf#vim#_format_buffer(b)
   let name = bufname(a:b)
   let line = exists('*getbufinfo') ? getbufinfo(a:b)[0]['lnum'] : 0
-  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":p:~:.")
+  let fullname = empty(name) ? '' : fnamemodify(name, ":p:~:.")
+  let dispname = empty(name) ? '[No Name]' : name
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-  let target = line == 0 ? name : name.':'.line
-  return s:strip(printf("%s\t%d\t[%s] %s\t%s\t%s", target, line, s:yellow(a:b, 'Number'), flag, name, extra))
+  let target = empty(name) ? '' : (line == 0 ? fullname : fullname.':'.line)
+  return s:rstrip(printf("%s\t%d\t[%s] %s\t%s\t%s", target, line, s:yellow(a:b, 'Number'), flag, dispname, extra))
 endfunction
 
 function! s:sort_buffers(...)
