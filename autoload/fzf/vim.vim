@@ -1214,7 +1214,7 @@ endfunction
 " Changes
 " ------------------------------------------------------------------
 function! s:format_change(line)
-    return substitute(a:line, '\d\+', '\=s:yellow(submatch(0), "Number")', '')
+  return substitute(a:line, '\d\+', '\=s:yellow(submatch(0), "Number")', '')
 endfunction
 
 function! s:change_sink(lines)
