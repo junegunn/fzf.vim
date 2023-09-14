@@ -1165,6 +1165,62 @@ function! fzf#vim#commands(...)
 endfunction
 
 " ------------------------------------------------------------------
+" Changes
+" ------------------------------------------------------------------
+
+function! s:format_change(bufnr, offset, item)
+  return printf("%3d  %s  %4d  %3d  %s", a:bufnr, s:yellow(printf('%6s', a:offset)), a:item.lnum, a:item.col, getbufline(a:bufnr, a:item.lnum)[0])
+endfunction
+
+function! s:changes_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+
+  call s:action_for(a:lines[0])
+  let [b, o, l, c] = split(a:lines[1])[0:3]
+
+  if o == '-'
+    execute 'buffer' b
+    call cursor(l, c)
+  elseif o[0] == '+'
+    execute 'normal!' o[1:].'g,'
+  else
+    execute 'normal!' o.'g;'
+  endif
+endfunction
+
+function! s:format_change_offset(current, index, cursor)
+  if !a:current
+    return '-'
+  endif
+
+  let offset = a:index - a:cursor + 1
+  if offset < 0
+    return '+'.-offset
+  endif
+  return offset
+endfunction
+
+function! fzf#vim#changes(...)
+  let all_changes = ["buf  offset  line  col  text"]
+  let cursor = 0
+  for bufnr in fzf#vim#_buflisted_sorted()
+    let [changes, position_or_length] = getchangelist(bufnr)
+    let current = bufnr() == bufnr
+    if current
+      let cursor = len(changes) - position_or_length
+    endif
+    let all_changes += map(reverse(changes), { idx, val -> s:format_change(bufnr, s:format_change_offset(current, idx, cursor), val) })
+  endfor
+
+  return s:fzf('changes', {
+  \ 'source':  all_changes,
+  \ 'sink*':   s:function('s:changes_sink'),
+  \ 'options': printf('+m -x --ansi --tiebreak=index --header-lines=1 --cycle --scroll-off 999 --sync --bind start:pos:%d --prompt "Changes> "', cursor)}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " Marks
 " ------------------------------------------------------------------
 function! s:format_mark(line)

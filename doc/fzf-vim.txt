@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: September 6 2023
+fzf-vim.txt	fzf-vim	Last change: September 14 2023
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -103,9 +103,9 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
-*:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags* *:Marks*
- *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits* *:Commands* *:Maps*
-                                                          *:Helptags* *:Filetypes*
+       *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags*
+ *:Changes* *:Marks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits*
+                                          *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
@@ -122,6 +122,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:BLines [QUERY]`       | Lines in the current buffer
   `:Tags [QUERY]`         | Tags in the project ( `ctags -R` )
   `:BTags [QUERY]`        | Tags in the current buffer
+  `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
   `:Jumps`                | Jumps
   `:Windows`              | Windows

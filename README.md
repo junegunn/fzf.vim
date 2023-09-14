@@ -71,6 +71,7 @@ Commands
 | `:BLines [QUERY]`      | Lines in the current buffer                                                           |
 | `:Tags [QUERY]`        | Tags in the project (`ctags -R`)                                                      |
 | `:BTags [QUERY]`       | Tags in the current buffer                                                            |
+| `:Changes`             | Changelist across all open buffers                                                    |
 | `:Marks`               | Marks                                                                                 |
 | `:Jumps`               | Jumps                                                                                 |
 | `:Windows`             | Windows                                                                               |
