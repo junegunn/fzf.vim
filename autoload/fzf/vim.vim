@@ -351,14 +351,32 @@ function! s:execute_silent(cmd)
   silent keepjumps keepalt execute a:cmd
 endfunction
 
-function! s:action_for(key)
+" [key, [filename, [stay_on_edit: 0]]]
+function! s:action_for(key, ...)
   let Cmd = get(get(g:, 'fzf_action', s:default_action), a:key, '')
   let cmd = type(Cmd) == s:TYPE.string ? Cmd : ''
-  normal! m'
-  if len(cmd)
-    call s:execute_silent(cmd)
+
+  " See If the command is the default action that opens the selected file in
+  " the current window. i.e. :edit
+  let edit = stridx('edit', cmd) == 0 " empty, e, ed, ..
+
+  " If no extra argument is given, we just execute the command and ignore
+  " errors. e.g. E471: Argument required: tab drop
+  if !a:0
+    if !edit
+      normal! m'
+      silent! call s:execute_silent(cmd)
+    endif
+  else
+    " For the default edit action, we don't execute the action if the
+    " selected file is already opened in the current window, or we are
+    " instructed to stay on the current buffer.
+    let stay = edit && (a:0 > 1 && a:2 || fnamemodify(a:1, ':p') ==# expand('%:p'))
+    if !stay
+      normal! m'
+      call s:execute_silent((len(cmd) ? cmd : 'edit').' '.s:escape(a:1))
+    endif
   endif
-  return cmd
 endfunction
 
 function! s:open(target)
@@ -824,7 +842,7 @@ function! s:ag_handler(name, lines)
     return
   endif
 
-  call s:action_for(a:lines[0])
+  call s:action_for(a:lines[0], list[0].filename, len(list) > 1)
   if s:fill_quickfix(a:name, list)
     return
   endif
@@ -832,7 +850,6 @@ function! s:ag_handler(name, lines)
   " Single item selected
   let first = list[0]
   try
-    call s:open(first.filename)
     execute first.lnum
     if has_key(first, 'col')
       call cursor(0, first.col)
@@ -1001,18 +1018,29 @@ function! s:tags_sink(lines)
   if len(a:lines) < 2
     return
   endif
+
+  " Remember the current position
+  let buf = bufnr()
+  let view = winsaveview()
+
   let qfl = []
-  call s:action_for(a:lines[0])
+  let [key; list] = a:lines
+
   try
     let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
-    for line in a:lines[1:]
+    for line in list
       try
         let parts   = split(line, '\t\zs')
         let excmd   = matchstr(join(parts[2:-2], '')[:-2], '^.\{-}\ze;\?"\t')
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
-        call s:open(expand(abspath, 1))
+
+        if len(list) == 1
+          call s:action_for(key, expand(abspath, 1))
+        else
+          call s:open(expand(abspath, 1))
+        endif
         call s:execute_silent(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
       catch /^Vim:Interrupt$/
@@ -1026,12 +1054,18 @@ function! s:tags_sink(lines)
   endtry
 
   if len(qfl) > 1
-    " Go back to the original position
-    normal! g`'
-    " Because 'listproc' will use 'cfirst' to go to the first item in the list
+    " Go back to the original position. Because 'listproc' will use 'cfirst'
+    " to go to the first item in the list.
+    call s:execute_silent('b '.buf)
+    call winrestview(view)
+
+    " However, if a non-default action is triggered, we need to open the first
+    " entry using the action, to be as backward compatible as possible.
+    call s:action_for(key, qfl[0].filename, 1)
+
     call s:fill_quickfix('tags', qfl)
   else
-    normal! zvzz
+    normal! ^zvzz
   endif
 endfunction
 
@@ -1383,7 +1417,9 @@ function! s:commits_sink(lines)
   end
 
   let diff = a:lines[0] == 'ctrl-d'
-  let cmd = s:action_for(a:lines[0])
+  let Cmd = get(get(g:, 'fzf_action', s:default_action), a:lines[0], '')
+  let cmd = type(Cmd) == s:TYPE.string ? Cmd : ''
+
   let buf = bufnr('')
   for idx in range(1, len(a:lines) - 1)
     let sha = matchstr(a:lines[idx], pat)
