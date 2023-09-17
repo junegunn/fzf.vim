@@ -88,7 +88,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
  - {fzf}{1} 0.41.1 or above
  - For syntax-highlighted preview, install {bat}{4}
  - If {delta}{5} is available, `GF?`, `Commits` and `BCommits` will use it to
-   format `git diff` output.
+   format `git diff` output.
  - `Ag` requires {The Silver Searcher (ag)}{6}
  - `Rg` requires {ripgrep (rg)}{7}
  - `Tags` and `Helptags` require Perl
@@ -110,29 +110,29 @@ COMMANDS                                                      *fzf-vim-commands*
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
  -----------------------+--------------------------------------------------------------------------------------
-  `:Files [PATH]`         | Files (runs  `$FZF_DEFAULT_COMMAND`  if defined)
-  `:GFiles [OPTS]`        | Git files ( `git ls-files` )
-  `:GFiles?`              | Git files ( `git status` )
+  `:Files [PATH]`         | Files (runs  `$FZF_DEFAULT_COMMAND`  if defined)
+  `:GFiles [OPTS]`        | Git files ( `git ls-files` )
+  `:GFiles?`              | Git files ( `git status` )
   `:Buffers`              | Open buffers
   `:Colors`               | Color schemes
-  `:Ag [PATTERN]`         | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
-  `:Rg [PATTERN]`         | {rg}{7} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
-  `:RG [PATTERN]`         | {rg}{7} search result; relaunch ripgrep on every keystroke
-  `:Lines [QUERY]`        | Lines in loaded buffers
-  `:BLines [QUERY]`       | Lines in the current buffer
-  `:Tags [QUERY]`         | Tags in the project ( `ctags -R` )
-  `:BTags [QUERY]`        | Tags in the current buffer
+  `:Ag [PATTERN]`         | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `:Rg [PATTERN]`         | {rg}{7} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
+  `:RG [PATTERN]`         | {rg}{7} search result; relaunch ripgrep on every keystroke
+  `:Lines [QUERY]`        | Lines in loaded buffers
+  `:BLines [QUERY]`       | Lines in the current buffer
+  `:Tags [QUERY]`         | Tags in the project ( `ctags -R` )
+  `:BTags [QUERY]`        | Tags in the current buffer
   `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
   `:Jumps`                | Jumps
   `:Windows`              | Windows
-  `:Locate PATTERN`       |  `locate`  command output
+  `:Locate PATTERN`       |  `locate`  command output
   `:History`              |  `v:oldfiles`  and open buffers
   `:History:`             | Command history
   `:History/`             | Search history
   `:Snippets`             | Snippets ({UltiSnips}{8})
-  `:Commits [LOG_OPTS]`   | Git commits (requires {fugitive.vim}{9})
-  `:BCommits [LOG_OPTS]`  | Git commits for the current buffer; visual-select lines to track changes in the range
+  `:Commits [LOG_OPTS]`   | Git commits (requires {fugitive.vim}{9})
+  `:BCommits [LOG_OPTS]`  | Git commits for the current buffer; visual-select lines to track changes in the range
   `:Commands`             | Commands
   `:Maps`                 | Normal mode mappings
   `:Helptags`             | Help tags [1]
@@ -145,7 +145,7 @@ COMMANDS                                                      *fzf-vim-commands*
    tab, a new split, or in a new vertical split
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
  - You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
-   - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
+   - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
 (1: `Helptags` will shadow the command of the same name from {pathogen}{10}.
 But its functionality is still available via `call pathogen#helptags()`. [↩])
@@ -244,7 +244,7 @@ selected.
 
  - `Ag`
  - `Rg` / `RG`
- - `Lines / ``BLines`
+ - `Lines / ``BLines`
  - `Tags` / `BTags`
 
                                                             *g:fzf_vim.listproc*
@@ -294,13 +294,13 @@ command or define a variation of it by calling its corresponding function.
  ----------+-----------------------------------------------------------------------
  Command   | Vim function                                                          ~
  ----------+-----------------------------------------------------------------------
-  `Files`    |  `fzf#vim#files(dir, [spec dict], [fullscreen bool])`
-  `GFiles`   |  `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`
-  `GFiles?`  |  `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`
-  `Buffers`  |  `fzf#vim#buffers([spec dict], [fullscreen bool])`
-  `Colors`   |  `fzf#vim#colors([spec dict], [fullscreen bool])`
-  `Rg`       |  `fzf#vim#grep(command, [spec dict], [fullscreen bool])`
-  `RG`       |  `fzf#vim#grep2(command_prefix, query, [spec dict], [fullscreen bool])`
+  `Files`    |  `fzf#vim#files(dir, [spec dict], [fullscreen bool])`
+  `GFiles`   |  `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`
+  `GFiles?`  |  `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`
+  `Buffers`  |  `fzf#vim#buffers([spec dict], [fullscreen bool])`
+  `Colors`   |  `fzf#vim#colors([spec dict], [fullscreen bool])`
+  `Rg`       |  `fzf#vim#grep(command, [spec dict], [fullscreen bool])`
+  `RG`       |  `fzf#vim#grep2(command_prefix, query, [spec dict], [fullscreen bool])`
  ...       | ...
  ----------+-----------------------------------------------------------------------
 
@@ -392,7 +392,7 @@ MAPPINGS                                                      *fzf-vim-mappings*
  <plug>(fzf-maps-i)               | Insert mode mappings
  <plug>(fzf-maps-x)               | Visual mode mappings
  <plug>(fzf-maps-o)               | Operator-pending mappings
- <plug>(fzf-complete-word)        |  `cat /usr/share/dict/words`
+ <plug>(fzf-complete-word)        |  `cat /usr/share/dict/words`
  <plug>(fzf-complete-path)        | Path completion using  `find`  (file + dir)
  <plug>(fzf-complete-file)        | File completion using  `find`
  <plug>(fzf-complete-line)        | Line completion (all open buffers)
@@ -416,7 +416,7 @@ COMPLETION FUNCTIONS                              *fzf-vim-completion-functions*
  -----------------------------------------+--------------------------------------
  Function                                 | Description                          ~
  -----------------------------------------+--------------------------------------
-  `fzf#vim#complete#path(command, [spec])`  | Path completion
+  `fzf#vim#complete#path(command, [spec])`  | Path completion
   `fzf#vim#complete#word([spec])`           | Word completion
   `fzf#vim#complete#line([spec])`           | Line completion (all open buffers)
   `fzf#vim#complete#buffer_line([spec])`    | Line completion (current buffer only)
