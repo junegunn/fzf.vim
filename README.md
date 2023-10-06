@@ -172,7 +172,7 @@ selected.
 
 * `Ag`
 * `Rg` / `RG`
-* `Lines / ``BLines`
+* `Lines` / `BLines`
 * `Tags` / `BTags`
 
 By setting `g:fzf_vim.listproc`, you can make them use location list instead.

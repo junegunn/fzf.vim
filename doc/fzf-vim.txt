@@ -244,7 +244,7 @@ selected.
 
  - `Ag`
  - `Rg` / `RG`
- - `Lines / ``BLines`
+ - `Lines` / `BLines`
  - `Tags` / `BTags`
 
                                                             *g:fzf_vim.listproc*
