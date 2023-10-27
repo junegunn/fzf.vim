@@ -611,8 +611,11 @@ function! fzf#vim#_recent_files()
 endfunction
 
 function! s:history_source(type)
-  let max  = histnr(a:type)
-  let fmt  = s:yellow(' %'.len(string(max)).'d ', 'Number')
+  let max = histnr(a:type)
+  if max <= 0
+    return ['No entries']
+  endif
+  let fmt = s:yellow(' %'.len(string(max)).'d ', 'Number')
   let list = filter(map(range(1, max), 'histget(a:type, - v:val)'), '!empty(v:val)')
   return extend([' :: Press '.s:magenta('CTRL-E', 'Special').' to edit'],
     \ map(list, 'printf(fmt, len(list) - v:key)." ".v:val'))
