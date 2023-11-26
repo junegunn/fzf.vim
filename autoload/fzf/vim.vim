@@ -795,6 +795,19 @@ function! fzf#vim#hgfiles(args, ...)
   return s:fzf('hgfiles-diff', wrapped, a:000)
 endfunction
 
+function! fzf#vim#vcfiles(args, ...)
+  let dir = get(get(a:, 1, {}), 'dir', '')
+  let root = s:get_git_root(dir)
+  if !empty(root)
+    return call('fzf#vim#gitfiles', [a:args] + a:000)
+  endif
+  let root = s:get_hg_root(dir)
+  if !empty(root)
+    return call('fzf#vim#hgfiles', [a:args] + a:000)
+  endif
+  return s:warn('Neither git nor hg repo')
+endfunction
+
 " ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
