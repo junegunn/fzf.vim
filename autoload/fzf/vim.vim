@@ -1351,7 +1351,7 @@ function! fzf#vim#helptags(...)
   endif
   let s:helptags_script = tempname()
 
-  call writefile(['use Fatal qw(open close); for my $filename (@ARGV) { open(my $file,q(<),$filename); while (<$file>) { /(.*?)\t(.*?)\t(.*)/; push @lines, sprintf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\t%s\n), $1, $2, $filename, $3); } close($file); } print for sort @lines;'], s:helptags_script)
+  call writefile(['for my $filename (@ARGV) { open(my $file,q(<),$filename) or die; while (<$file>) { /(.*?)\t(.*?)\t(.*)/; push @lines, sprintf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\t%s\n), $1, $2, $filename, $3); } close($file) or die; } print for sort @lines;'], s:helptags_script)
   return s:fzf('helptags', {
   \ 'source': 'perl '.fzf#shellescape(s:helptags_script).' '.join(map(tags, 'fzf#shellescape(v:val)')),
   \ 'sink':    s:function('s:helptag_sink'),
