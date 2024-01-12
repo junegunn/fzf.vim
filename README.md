@@ -54,6 +54,27 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 - `Rg` requires [ripgrep (rg)][rg]
 - `Tags` and `Helptags` require Perl
 
+### Using git
+Alternatively you can git clone this repository to any directory.
+```
+git clone https://github.com/junegunn/fzf.vim ~/.fzf.vim
+```
+
+And then to enable it on Vim by simply adding the directory to the
+`&runtimepath` in your `~/.vimrc`.
+```
+:set rtp+=~/.fzf.vim
+```
+
+As mentioned earlier `fzf.vim` depends on the main repository
+[fzf](https://github.com/junegunn/fzf), `fzf`
+[path](https://github.com/junegunn/fzf#as-vim-plugin) also should present
+on Vim's `&runtimepath`. So `~/.vimrc` should contain below two entries.
+```
+:set rtp+=~/.fzf
+:set rtp+=~/.fzf.vim
+```
+
 Commands
 --------
 
