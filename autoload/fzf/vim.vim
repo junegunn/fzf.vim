@@ -379,6 +379,16 @@ function! s:action_for(key, ...)
   endif
 endfunction
 
+let s:default_cmd_mod = {
+  \ 'ctrl-t': 'tab',
+  \ 'ctrl-x': 'horizontal',
+  \ 'ctrl-v': 'vertical' }
+
+function! s:cmd_mod_for(key)
+  let mod = get(get(g:, 'fzf_cmd_mod', s:default_cmd_mod), a:key, '')
+  return type(mod) == s:TYPE.string ? mod : ''
+endfunction
+
 function! s:open(target)
   if fnamemodify(a:target, ':p') ==# expand('%:p')
     return
@@ -1330,13 +1340,16 @@ endfunction
 " ------------------------------------------------------------------
 " Help tags
 " ------------------------------------------------------------------
-function! s:helptag_sink(line)
-  let [tag, file, path] = split(a:line, "\t")[0:2]
+function! s:helptag_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let [tag, file, path] = split(a:lines[1], "\t")[0:2]
   let rtp = fnamemodify(path, ':p:h:h')
   if stridx(&rtp, rtp) < 0
     execute 'set rtp+='.s:escape(rtp)
   endif
-  execute 'help' tag
+  execute s:cmd_mod_for(a:lines[0]) 'help' tag
 endfunction
 
 function! fzf#vim#helptags(...)
@@ -1354,7 +1367,7 @@ function! fzf#vim#helptags(...)
   call writefile(['for my $filename (@ARGV) { open(my $file,q(<),$filename) or die; while (<$file>) { /(.*?)\t(.*?)\t(.*)/; push @lines, sprintf(qq('.s:green('%-40s', 'Label').'\t%s\t%s\t%s\n), $1, $2, $filename, $3); } close($file) or die; } print for sort @lines;'], s:helptags_script)
   return s:fzf('helptags', {
   \ 'source': 'perl '.fzf#shellescape(s:helptags_script).' '.join(map(tags, 'fzf#shellescape(v:val)')),
-  \ 'sink':    s:function('s:helptag_sink'),
+  \ 'sink*':   s:function('s:helptag_sink'),
   \ 'options': ['--ansi', '+m', '--tiebreak=begin', '--with-nth', '..3']}, a:000)
 endfunction
 
