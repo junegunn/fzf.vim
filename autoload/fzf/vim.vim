@@ -1372,6 +1372,27 @@ function! fzf#vim#helptags(...)
 endfunction
 
 " ------------------------------------------------------------------
+" Man pages
+" ------------------------------------------------------------------
+function! s:manpage_sink(lines)
+  if len(a:lines) < 2
+    return
+  endif
+  let [page, section] = split(a:lines[1])[0:1]
+  if exists(":Man") != 2
+    runtime ftplugin/man.vim
+  endif
+  execute s:cmd_mod_for(a:lines[0]) 'Man' section[1:-2] page
+endfunction
+
+function! fzf#vim#manpages(...)
+  return s:fzf('manpages', {
+  \ 'source': 'man --apropos .',
+  \ 'sink*':   s:function('s:manpage_sink'),
+  \ 'options': ['--preview', 'man {1}', '--prompt=Man>']}, a:000)
+endfunction
+
+" ------------------------------------------------------------------
 " File types
 " ------------------------------------------------------------------
 function! fzf#vim#filetypes(...)
