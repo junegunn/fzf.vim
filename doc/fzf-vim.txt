@@ -103,7 +103,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
-       *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags*
+       *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags* *:HTags*
  *:Changes* *:Marks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits*
                                           *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
@@ -121,6 +121,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Lines [QUERY]`        | Lines in loaded buffers
   `:BLines [QUERY]`       | Lines in the current buffer
   `:Tags [QUERY]`         | Tags in the project ( `ctags -R` )
+  `:HTags [QUERY]`        | Tags on large tags files
   `:BTags [QUERY]`        | Tags in the current buffer
   `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
@@ -245,7 +246,7 @@ selected.
  - `Ag`
  - `Rg` / `RG`
  - `Lines` / `BLines`
- - `Tags` / `BTags`
+ - `Tags` / `BTags` / `HTags`
 
                                                             *g:fzf_vim.listproc*
 

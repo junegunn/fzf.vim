@@ -100,6 +100,7 @@ let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:bin_dir = expand('<sfile>:p:h:h:h').'/bin/'
 let s:bin = {
 \ 'preview': s:bin_dir.'preview.sh',
+\ 'tagsprefilter': s:bin_dir.'tagsprefilter.sh',
 \ 'tags':    s:bin_dir.'tags.pl' }
 let s:TYPE = {'bool': type(0), 'dict': type({}), 'funcref': type(function('call')), 'string': type(''), 'list': type([])}
 
@@ -1112,6 +1113,16 @@ function! fzf#vim#tags(query, ...)
 
   return s:fzf('tags', {
   \ 'source':  'perl '.fzf#shellescape(s:bin.tags).' '.join(map(tagfiles, 'fzf#shellescape(fnamemodify(v:val, ":p"))')),
+  \ 'sink*':   s:function('s:tags_sink'),
+  \ 'options': extend(opts, ['--nth', '1..2', '-m', '-d', '\t', '--tiebreak=begin', '--prompt', 'Tags> ', '--query', a:query])}, a:000)
+endfunction
+
+function! fzf#vim#heavytags(query, ...)
+  let tagfiles = tagfiles()
+  let opts = []
+
+  return s:fzf('heavytags', {
+  \ 'source':  s:bash() . ' ' . s:escape_for_bash(s:bin.tagsprefilter).' '.a:query.' '.join(map(tagfiles, 'fzf#shellescape(fnamemodify(v:val, ":p"))')),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'options': extend(opts, ['--nth', '1..2', '-m', '-d', '\t', '--tiebreak=begin', '--prompt', 'Tags> ', '--query', a:query])}, a:000)
 endfunction
