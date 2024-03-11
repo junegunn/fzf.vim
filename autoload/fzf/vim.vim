@@ -1110,8 +1110,9 @@ function! fzf#vim#tags(query, ...)
   endfor
   let opts = v2_limit < 0 ? ['--algo=v1'] : []
 
+  let args = insert(map(tagfiles, 'fzf#shellescape(fnamemodify(v:val, ":p"))'), fzf#shellescape(a:query), 0)
   return s:fzf('tags', {
-  \ 'source':  'perl '.fzf#shellescape(s:bin.tags).' '.join(map(tagfiles, 'fzf#shellescape(fnamemodify(v:val, ":p"))')),
+  \ 'source':  join(['perl', fzf#shellescape(s:bin.tags), join(args)]),
   \ 'sink*':   s:function('s:tags_sink'),
   \ 'options': extend(opts, ['--nth', '1..2', '-m', '-d', '\t', '--tiebreak=begin', '--prompt', 'Tags> ', '--query', a:query])}, a:000)
 endfunction
