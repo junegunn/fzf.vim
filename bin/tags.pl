@@ -10,7 +10,7 @@ foreach my $file (@ARGV) {
     open $lines, $file;
   } else {
     # https://perldoc.perl.org/perlopentut#Expressing-the-command-as-a-list
-    open $lines, '-|', 'readtags', '-t', $file, '-e', '-p', $prefix;
+    open $lines, '-|', 'readtags', '-t', $file, '-e', '-p', '-', $prefix;
   }
   while (<$lines>) {
     unless (/^\!/) {
