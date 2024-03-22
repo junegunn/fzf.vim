@@ -1029,7 +1029,7 @@ function! s:tags_sink(lines)
   endif
 
   " Remember the current position
-  let buf = bufnr()
+  let buf = bufnr('')
   let view = winsaveview()
 
   let qfl = []
@@ -1251,7 +1251,7 @@ function! fzf#vim#changes(...)
   let cursor = 0
   for bufnr in fzf#vim#_buflisted_sorted()
     let [changes, position_or_length] = getchangelist(bufnr)
-    let current = bufnr() == bufnr
+    let current = bufnr('') == bufnr
     if current
       let cursor = len(changes) - position_or_length
     endif
