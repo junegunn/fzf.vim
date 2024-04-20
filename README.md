@@ -240,6 +240,7 @@ a command or define a variation of it by calling its corresponding function.
 | `Files`   | `fzf#vim#files(dir, [spec dict], [fullscreen bool])`                             |
 | `GFiles`  | `fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])`                  |
 | `GFiles?` | `fzf#vim#gitfiles('?', [spec dict], [fullscreen bool])`                          |
+  `GBranch` | `fzf#vim#gitfiles_branch(git_options, [spec dict], [fullscreen bool])`           |
 | `Buffers` | `fzf#vim#buffers([query string], [bufnrs list], [spec dict], [fullscreen bool])` |
 | `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                                 |
 | `Rg`      | `fzf#vim#grep(command, [spec dict], [fullscreen bool])`                          |

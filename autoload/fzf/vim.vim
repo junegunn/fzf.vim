@@ -747,6 +747,35 @@ function! fzf#vim#gitfiles(args, ...)
   return s:fzf('gfiles-diff', wrapped, a:000)
 endfunction
 
+
+" ------------------------------------------------------------------
+" GitBranch
+" ------------------------------------------------------------------
+function! fzf#vim#gitfiles_branch(...)
+  let dir = get(get(a:, 1, {}), 'dir', '')
+  let root = s:get_git_root(dir)
+  if empty(root)
+    return s:warn('Not in git repo')
+  endif
+
+  let prefix = 'git -C ' . fzf#shellescape(root) . ' '
+
+  " Get the current branch
+  let current_branch = system(prefix . 'rev-parse --abbrev-ref HEAD')
+  let current_branch = substitute(current_branch, '\n', '', '')
+
+  " Get the list of changed files in the current branch
+  let source = prefix . 'diff --stat $(git merge-base HEAD origin ' . current_branch . ') --name-only'
+  let options = '-m --read0 --prompt "GitBranch> "'
+
+  return s:fzf('gbranch', {
+  \ 'source':  source,
+  \ 'dir':     root,
+  \ 'options': options
+  \}, a:000)
+endfunction
+
+
 " ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
