@@ -751,28 +751,38 @@ endfunction
 " ------------------------------------------------------------------
 " GitBranch
 " ------------------------------------------------------------------
-function! fzf#vim#gitfiles_branch(...)
+function! fzf#vim#gitfiles_branch(args, ...)
   let dir = get(get(a:, 1, {}), 'dir', '')
   let root = s:get_git_root(dir)
   if empty(root)
     return s:warn('Not in git repo')
   endif
 
-  let prefix = 'git -C ' . fzf#shellescape(root) . ' '
+  if a:args != '?'
+    " Get the list of changed files in the current branch
+    let source = 'git diff --stat $(git merge-base HEAD origin) --name-only'
+    let options = '--prompt "GitBranch> "'
 
-  " Get the current branch
-  let current_branch = system(prefix . 'rev-parse --abbrev-ref HEAD')
-  let current_branch = substitute(current_branch, '\n', '', '')
+    return s:fzf('gbranch', {
+    \ 'source':  source,
+    \ 'dir':     root,
+    \ 'options': options
+    \}, a:000)
+  endif
 
-  " Get the list of changed files in the current branch
-  let source = prefix . 'diff --stat $(git merge-base HEAD origin ' . current_branch . ') --name-only'
-  let options = '-m --read0 --prompt "GitBranch> "'
-
-  return s:fzf('gbranch', {
-  \ 'source':  source,
+  let wrapped = fzf#wrap({
+  \ 'source':  'git diff --stat --',
   \ 'dir':     root,
-  \ 'options': options
-  \}, a:000)
+  \ 'options': ['--ansi', '--patch', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranch?> ', '--preview', preview]
+  \})
+  call s:remove_layout(wrapped)
+  let wrapped.common_sink = remove(wrapped, 'sink*')
+  function! wrapped.newsink(lines)
+    let lines = extend(a:lines[0:0], map(a:lines[1:], 'substitute(v:val[3:], ".* -> ", "", "")'))
+    return self.common_sink(lines)
+  endfunction
+  let wrapped['sink*'] = remove(wrapped, 'newsink')
+  return s:fzf('gbranch-diff', wrapped, a:000)
 endfunction
 
 
