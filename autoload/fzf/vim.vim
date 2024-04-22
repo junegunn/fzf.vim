@@ -757,7 +757,15 @@ function! fzf#vim#git_branch_files(args, ...)
   if empty(root)
     return s:warn('Not in git repo')
   endif
-  let prefix = 'git diff --stat $(git merge-base HEAD origin)'
+
+  " We extract the base-branch using sed and git rev-parse on ref HEAD
+  " This help us to extract the base branch that can be 'master' 'main' or something else.
+  let base_branch = 'git show-branch | grep "\\*" | grep -v "$(git rev-parse --abbrev-ref HEAD)" | head -n1 | sed "s/.*\\[//;s/\\].*//"'
+
+  " The Prefix command is then build by composing the diff stats on the current branch HEAD
+  " from the base-branch
+  let prefix = 'git diff --stat $(git merge-base HEAD $('.base_branch.'))'
+
   if a:args != '?'
     " Get the list of changed files in the current branch
     let source = prefix . '--name-only'
@@ -781,7 +789,7 @@ function! fzf#vim#git_branch_files(args, ...)
   let wrapped = fzf#wrap({
   \ 'source':  prefix . ' --',
   \ 'dir':     root,
-  \ 'options': ['--ansi', '--patch', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranchFiles?> ', '--preview', preview]
+  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranchFiles?> ', '--preview', preview]
   \})
   call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')
