@@ -757,10 +757,10 @@ function! fzf#vim#git_branch_files(args, ...)
   if empty(root)
     return s:warn('Not in git repo')
   endif
-
+  let prefix = 'git diff --stat $(git merge-base HEAD origin) ' . fzf#shellescape(root) . ' '
   if a:args != '?'
     " Get the list of changed files in the current branch
-    let source = 'git diff --stat $(git merge-base HEAD origin) --name-only'
+    let source = prefix . '--name-only'
     let options = '--prompt "GitBranchFiles> "'
 
     return s:fzf('gbranchfiles', {
@@ -770,8 +770,16 @@ function! fzf#vim#git_branch_files(args, ...)
     \}, a:000)
   endif
 
+  let bar = s:is_win ? '^|' : '|'
+  let diff_prefix = prefix . ' --patch '
+  let preview = printf(
+    \ s:bash() . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ executable('delta')
+      \ ? diff_prefix . '-- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : diff_prefix . '--color=always -- {-1} ' . bar . ' sed 1,4d',
+    \ s:escape_for_bash(s:bin.preview))
   let wrapped = fzf#wrap({
-  \ 'source':  'git diff --stat $(git merge-base HEAD origin) --',
+  \ 'source':  prefix . ' --',
   \ 'dir':     root,
   \ 'options': ['--ansi', '--patch', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranchFiles?> ', '--preview', preview]
   \})
