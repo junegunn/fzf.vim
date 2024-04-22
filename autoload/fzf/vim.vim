@@ -779,12 +779,11 @@ function! fzf#vim#git_branch_files(args, ...)
   endif
 
   let bar = s:is_win ? '^|' : '|'
-  let diff_prefix = prefix . ' --patch '
   let preview = printf(
     \ s:bash() . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
     \ executable('delta')
-      \ ? diff_prefix . '-- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
-      \ : diff_prefix . '--color=always -- {-1} ' . bar . ' sed 1,4d',
+      \ ? prefix . ' --patch -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : prefix . ' --patch --color=always -- {-1} ' . bar . ' sed 1,4d',
     \ s:escape_for_bash(s:bin.preview))
   let wrapped = fzf#wrap({
   \ 'source':  prefix,
