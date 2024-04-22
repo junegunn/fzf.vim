@@ -757,7 +757,7 @@ function! fzf#vim#git_branch_files(args, ...)
   if empty(root)
     return s:warn('Not in git repo')
   endif
-  let prefix = 'git diff --stat $(git merge-base HEAD origin) ' . fzf#shellescape(root) . ' '
+  let prefix = 'git diff --stat $(git merge-base HEAD origin)'
   if a:args != '?'
     " Get the list of changed files in the current branch
     let source = prefix . '--name-only'
