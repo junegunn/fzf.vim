@@ -768,8 +768,8 @@ function! fzf#vim#git_branch_files(args, ...)
 
   if a:args != '?'
     " Get the list of changed files in the current branch
-    let source = prefix . '--name-only'
-    let options = '--prompt "GitBranchFiles> "'
+    let source = prefix . ' --name-only'
+    let options = ' --prompt "GitBranchFiles> "'
 
     return s:fzf('gbranchfiles', {
     \ 'source':  source,
@@ -787,7 +787,7 @@ function! fzf#vim#git_branch_files(args, ...)
       \ : diff_prefix . '--color=always -- {-1} ' . bar . ' sed 1,4d',
     \ s:escape_for_bash(s:bin.preview))
   let wrapped = fzf#wrap({
-  \ 'source':  prefix . ' --',
+  \ 'source':  prefix,
   \ 'dir':     root,
   \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranchFiles?> ', '--preview', preview]
   \})
