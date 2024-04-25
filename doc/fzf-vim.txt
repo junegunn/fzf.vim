@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: October 14 2023
+fzf-vim.txt	fzf-vim	Last change: April 25 2024
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -92,12 +92,17 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
  - `Ag` requires {The Silver Searcher (ag)}{6}
  - `Rg` requires {ripgrep (rg)}{7}
  - `Tags` and `Helptags` require Perl
-
+ - `Tags PREFIX` requires `readtags` command from {Universal Ctags}{8}
+>
+    # Installing dependencies using Homebrew
+    brew install fzf bat ripgrep the_silver_searcher perl universal-ctags
+<
                              {1} https://github.com/junegunn/fzf
                              {4} https://github.com/sharkdp/bat
                              {5} https://github.com/dandavison/delta
                              {6} https://github.com/ggreer/the_silver_searcher
                              {7} https://github.com/BurntSushi/ripgrep
+                             {8} https://ctags.io/
 
 
 COMMANDS                                                      *fzf-vim-commands*
@@ -120,7 +125,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:RG [PATTERN]`         | {rg}{7} search result; relaunch ripgrep on every keystroke
   `:Lines [QUERY]`        | Lines in loaded buffers
   `:BLines [QUERY]`       | Lines in the current buffer
-  `:Tags [QUERY]`         | Tags in the project ( `ctags -R` )
+  `:Tags [PREFIX]`        | Tags in the project ( `ctags -R` )
   `:BTags [QUERY]`        | Tags in the current buffer
   `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
@@ -130,8 +135,8 @@ COMMANDS                                                      *fzf-vim-commands*
   `:History`              |  `v:oldfiles`  and open buffers
   `:History:`             | Command history
   `:History/`             | Search history
-  `:Snippets`             | Snippets ({UltiSnips}{8})
-  `:Commits [LOG_OPTS]`   | Git commits (requires {fugitive.vim}{9})
+  `:Snippets`             | Snippets ({UltiSnips}{9})
+  `:Commits [LOG_OPTS]`   | Git commits (requires {fugitive.vim}{10})
   `:BCommits [LOG_OPTS]`  | Git commits for the current buffer; visual-select lines to track changes in the range
   `:Commands`             | Commands
   `:Maps`                 | Normal mode mappings
@@ -147,15 +152,15 @@ COMMANDS                                                      *fzf-vim-commands*
  - You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
    - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
 
-(1: `Helptags` will shadow the command of the same name from {pathogen}{10}.
+(1: `Helptags` will shadow the command of the same name from {pathogen}{11}.
 But its functionality is still available via `call pathogen#helptags()`. [↩])
 
                              {6} https://github.com/ggreer/the_silver_searcher
                              {7} https://github.com/BurntSushi/ripgrep
                              {7} https://github.com/BurntSushi/ripgrep
-                             {8} https://github.com/SirVer/ultisnips
-                             {9} https://github.com/tpope/vim-fugitive
-                             {10} https://github.com/tpope/vim-pathogen
+                             {9} https://github.com/SirVer/ultisnips
+                             {10} https://github.com/tpope/vim-fugitive
+                             {11} https://github.com/tpope/vim-pathogen
 
 
 CUSTOMIZATION                                            *fzf-vim-customization*
@@ -335,7 +340,7 @@ Want a preview window?
         \ call fzf#vim#files(<q-args>, {'options': ['--layout=reverse', '--info=inline', '--preview', 'cat {}']}, <bang>0)
 <
 It kind of works, but you probably want a nicer previewer program than `cat`.
-fzf.vim ships {a versatile preview script}{11} you can readily use. It
+fzf.vim ships {a versatile preview script}{12} you can readily use. It
 internally executes {bat}{4} for syntax highlighting, so make sure to install
 it.
 >
@@ -356,7 +361,7 @@ You can just omit the spec argument if you only want the previewer.
     command! -bang -nargs=? -complete=dir Files
         \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 <
-                                            {11} bin/preview.sh
+                                            {12} bin/preview.sh
                                             {4} https://github.com/sharkdp/bat
 
 
@@ -370,7 +375,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
 
  - We set the base directory to git root by setting `dir` attribute in spec
    dictionary.
- - {The preview script}{11} supports `grep` format (`FILE_PATH:LINE_NO:...`), so
+ - {The preview script}{12} supports `grep` format (`FILE_PATH:LINE_NO:...`), so
    we can just wrap the spec with `fzf#vim#with_preview` as before to enable
    previewer.
 >
@@ -379,7 +384,7 @@ predefined `Ag` or `Rg` using `fzf#vim#grep`.
       \   'git grep --line-number -- '.fzf#shellescape(<q-args>),
       \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 <
-                                                           {11} bin/preview.sh
+                                                           {12} bin/preview.sh
 
 
 MAPPINGS                                                      *fzf-vim-mappings*
@@ -478,10 +483,10 @@ following exceptions:
 STATUS LINE OF TERMINAL BUFFER          *fzf-vim-status-line-of-terminal-buffer*
 ==============================================================================
 
-When fzf starts in a terminal buffer (see {fzf/README-VIM.md}{12}), you may
+When fzf starts in a terminal buffer (see {fzf/README-VIM.md}{13}), you may
 want to customize the statusline of the containing buffer.
 
-{12} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
+{13} https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer
 
 
 < Hide statusline >___________________________________________________________~
