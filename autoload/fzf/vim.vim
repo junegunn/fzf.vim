@@ -936,12 +936,13 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   endfor
   let words = empty(words) ? ['grep'] : words
   let name = join(words, '-')
+  let fallback = s:is_win ? '' : ' || :'
   let opts = {
   \ 'source': ':',
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
   \             '--bind', 'start:reload:'.a:command_prefix.' '.fzf#shellescape(a:query),
-  \             '--bind', 'change:reload:'.a:command_prefix.' {q} || :',
+  \             '--bind', 'change:reload:'.a:command_prefix.' {q}'.fallback,
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--delimiter', ':', '--preview-window', '+{2}-/2']
   \}
