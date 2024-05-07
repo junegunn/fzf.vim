@@ -938,7 +938,7 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   let name = join(words, '-')
   let fallback = s:is_win ? '' : ' || :'
   let opts = {
-  \ 'source': ':',
+  \ 'source': s:is_win ? 'cd .' : ':',
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
   \             '--bind', 'start:reload:'.a:command_prefix.' '.fzf#shellescape(a:query),
