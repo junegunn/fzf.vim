@@ -56,16 +56,16 @@ if [ -z "$CENTER" ]; then
 fi
 
 # Sometimes bat is installed as batcat.
-if [[ -z "$BATNAME" ]]; then
+if [[ -z "$BATCAT" ]]; then
   if command -v batcat > /dev/null; then
-    BATNAME="batcat"
+    BATCAT="batcat"
   elif command -v bat > /dev/null; then
-    BATNAME="bat"
+    BATCAT="bat"
   fi
 fi
 
-if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
-  ${BATNAME} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
+if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATCAT:+x}" ]; then
+  ${BATCAT} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
       --highlight-line=$CENTER -- "$FILE"
   exit $?
 fi
