@@ -77,7 +77,7 @@ fi
 
 DEFAULT_COMMAND="highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
 CMD=${FZF_PREVIEW_COMMAND:-$DEFAULT_COMMAND}
-CMD=${CMD//{\}/$(printf %q "$FILE")}
+CMD=${CMD//{\}/"$(printf %q "$FILE")"}
 
 eval "$CMD" 2> /dev/null | awk "{ \
     if (NR == $CENTER) \
