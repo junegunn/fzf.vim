@@ -56,10 +56,12 @@ if [ -z "$CENTER" ]; then
 fi
 
 # Sometimes bat is installed as batcat.
-if command -v batcat > /dev/null; then
-  BATNAME="batcat"
-elif command -v bat > /dev/null; then
-  BATNAME="bat"
+if [[ -z "$BATNAME" ]]; then
+  if command -v batcat > /dev/null; then
+    BATNAME="batcat"
+  elif command -v bat > /dev/null; then
+    BATNAME="bat"
+  fi
 fi
 
 if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATNAME:+x}" ]; then
