@@ -1218,7 +1218,11 @@ endfunction
 " ------------------------------------------------------------------
 
 function! s:format_change(bufnr, offset, item)
-  return printf("%3d  %s  %4d  %3d  %s", a:bufnr, s:yellow(printf('%6s', a:offset)), a:item.lnum, a:item.col, getbufline(a:bufnr, a:item.lnum)[0])
+  let buflines = getbufline(a:bufnr, a:item.lnum)
+  if empty(buflines)
+    return ''
+  endif
+  return printf("%3d  %s  %4d  %3d  %s", a:bufnr, s:yellow(printf('%6s', a:offset)), a:item.lnum, a:item.col, buflines[0])
 endfunction
 
 function! s:changes_sink(lines)
@@ -1260,7 +1264,7 @@ function! fzf#vim#changes(...)
     if current
       let cursor = len(changes) - position_or_length
     endif
-    let all_changes += map(reverse(changes), { idx, val -> s:format_change(bufnr, s:format_change_offset(current, idx, cursor), val) })
+    let all_changes += filter(map(reverse(changes), { idx, val -> s:format_change(bufnr, s:format_change_offset(current, idx, cursor), val) }), '!empty(v:val)')
   endfor
 
   return s:fzf('changes', {
