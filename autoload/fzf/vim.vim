@@ -1464,6 +1464,7 @@ function! s:commits(range, buffer_local, args)
 
   let args = copy(a:args)
   let log_opts = len(args) && type(args[0]) == type('') ? remove(args, 0) : ''
+  let with_preview = !s:is_win && &columns > s:wide
 
   if len(a:range) || a:buffer_local
     if !managed
@@ -1471,9 +1472,9 @@ function! s:commits(range, buffer_local, args)
     endif
     if len(a:range)
       let source .= join([printf(' -L %d,%d:%s --no-patch', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
-      if !s:is_win && &columns > s:wide
+      if with_preview
         let previewparams = join([printf('log -L %d,%d:%s', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
-        let previewfilter = ' | awk /commit.$(echo {} | grep -o "[a-f0-9]\{7,\}" | head -1)/'."'{flag=1;print;next} /^[^ ]*commit [a-f0-9]+[^ ]*$/{flag=0} flag' "
+        let previewfilter = " | awk '/commit {1}/ {flag=1;print;next} /^[^ ]*commit/{flag=0} flag' "
         let previewcmd = prefix . previewparams .' --color=always '. previewfilter
       endif
     else
@@ -1500,7 +1501,7 @@ function! s:commits(range, buffer_local, args)
     let options.options[-1] .= ',ctrl-d'
   endif
 
-  if !s:is_win && &columns > s:wide
+  if with_preview
     if !len(a:range)
       let orderfile = tempname()
       call writefile([current[len(s:git_root)+1:]], orderfile)
