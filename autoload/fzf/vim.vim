@@ -1474,14 +1474,22 @@ function! s:commits(range, buffer_local, args)
 
   let args = copy(a:args)
   let log_opts = len(args) && type(args[0]) == type('') ? remove(args, 0) : ''
+  let with_preview = !s:is_win && &columns > s:wide
 
   if len(a:range) || a:buffer_local
     if !managed
       return s:warn('The current buffer is not in the working tree')
     endif
-    let source .= len(a:range)
-      \ ? join([printf(' -L %d,%d:%s --no-patch', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
-      \ : join([' --follow', log_opts, fzf#shellescape(current)])
+    if len(a:range)
+      let source .= join([printf(' -L %d,%d:%s --no-patch', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
+      if with_preview
+        let previewparams = join([printf('log -L %d,%d:%s', a:range[0], a:range[1], fzf#shellescape(current)), log_opts])
+        let previewfilter = " | awk '/commit {1}/ {flag=1;print;next} /^[^ ]*commit/{flag=0} flag' "
+        let previewcmd = prefix . previewparams .' --color=always '. previewfilter
+      endif
+    else
+      let source .= join([' --follow', log_opts, fzf#shellescape(current)])
+    endif
     let command = 'BCommits'
   else
     let source .= join([' --graph', log_opts])
@@ -1503,12 +1511,14 @@ function! s:commits(range, buffer_local, args)
     let options.options[-1] .= ',ctrl-d'
   endif
 
-  if !s:is_win && &columns > s:wide
+  if with_preview
+    if !len(a:range)
+      let orderfile = tempname()
+      call writefile([current[len(s:git_root)+1:]], orderfile)
+      let previewcmd = 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs ' . prefix . 'show -O'.fzf#shellescape(orderfile).' --format=format: --color=always '
+    endif
     let suffix = executable('delta') ? '| delta --width $FZF_PREVIEW_COLUMNS' : ''
-    let orderfile = tempname()
-    call writefile([current[len(s:git_root)+1:]], orderfile)
-    call extend(options.options,
-    \ ['--preview', 'echo {} | grep -o "[a-f0-9]\{7,\}" | head -1 | xargs ' . prefix . 'show -O'.fzf#shellescape(orderfile).' --format=format: --color=always ' . suffix])
+    call extend(options.options, ['--preview', previewcmd . suffix])
   endif
 
   return s:fzf(a:buffer_local ? 'bcommits' : 'commits', options, args)
