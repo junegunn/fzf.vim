@@ -834,7 +834,11 @@ endfunction
 " ------------------------------------------------------------------
 function! s:ag_to_qf(line)
   let parts = matchlist(a:line, '\(.\{-}\)\s*:\s*\(\d\+\)\%(\s*:\s*\(\d\+\)\)\?\%(\s*:\(.*\)\)\?')
-  let dict = {'filename': &acd ? fnamemodify(parts[1], ':p') : parts[1], 'lnum': parts[2], 'text': parts[4]}
+  let file = &acd ? fnamemodify(parts[1], ':p') : parts[1]
+  if has('win32unix') && file !~ '/'
+    let file = substitute(file, '\', '/', 'g')
+  endif
+  let dict = {'filename': file, 'lnum': parts[2], 'text': parts[4]}
   if len(parts[3])
     let dict.col = parts[3]
   endif
