@@ -53,7 +53,7 @@ function! s:bash()
 
   let custom_bash = s:conf('preview_bash', '')
   let git_bash = 'C:\Program Files\Git\bin\bash.exe'
-  let scoop_git_bash = exists('$GIT_INSTALL_ROOT') ? '$GIT_INSTALL_ROOT' . '\bin\bash.exe' : ''
+  let scoop_git_bash = exists('$GIT_INSTALL_ROOT') ? $GIT_INSTALL_ROOT . '\bin\bash.exe' : ''
   let candidates = filter(s:is_win ? [custom_bash, git_bash, scoop_git_bash, 'bash'] : [custom_bash, 'bash'], 'len(v:val)')
 
   let found = filter(map(copy(candidates), 'exepath(v:val)'), 'len(v:val)')
