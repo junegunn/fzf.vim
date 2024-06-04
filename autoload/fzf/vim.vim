@@ -163,7 +163,7 @@ function! fzf#vim#with_preview(...)
     call remove(args, 0)
   endif
 
-  if !executable(s:bash())
+  if (has('win32') && &shell !~? '\v<(ba)?sh>') || !executable(s:bash())
     return spec
   endif
 
