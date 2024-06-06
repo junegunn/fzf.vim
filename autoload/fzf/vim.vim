@@ -851,7 +851,17 @@ function! s:ag_handler(name, lines)
     return
   endif
 
-  let list = map(filter(a:lines[1:], 'len(v:val)'), 's:ag_to_qf(v:val)')
+  let multi_line = min([s:conf('grep_multi_line', 0), 2])
+  let lines = []
+  if multi_line && executable('perl')
+    for idx in range(1, len(a:lines), multi_line + 1)
+      call add(lines, join(a:lines[idx:idx + multi_line + 1], ''))
+    endfor
+  else
+    let lines = a:lines[1:]
+  endif
+
+  let list = map(filter(lines, 'len(v:val)'), 's:ag_to_qf(v:val)')
   if empty(list)
     return
   endif
@@ -893,6 +903,19 @@ function! fzf#vim#ag_raw(command_suffix, ...)
   return call('fzf#vim#grep', extend(['ag --nogroup --column --color '.a:command_suffix, 1], a:000))
 endfunction
 
+function! s:grep_multi_line(opts)
+  " TODO: Non-global option
+  let multi_line = s:conf('grep_multi_line', 0)
+  if multi_line && executable('perl')
+    let opts = copy(a:opts)
+    let opts.options = extend(copy(opts.options), ['--read0', '--highlight-line'])
+    let delim = multi_line > 1 ? '\n\0' : '\0'
+    return [opts, printf(" | perl -pe 's/\\n/%s/; s/^([^:]+:){2,3}/$&\\n  /'", delim)]
+  endif
+
+  return [a:opts, '']
+endfunction
+
 " command (string), [spec (dict)], [fullscreen (bool)]
 function! fzf#vim#grep(grep_command, ...)
   let args = copy(a:000)
@@ -919,9 +942,11 @@ function! fzf#vim#grep(grep_command, ...)
     return s:ag_handler(get(opts, 'name', name), a:lines)
   endfunction
   let opts['sink*'] = remove(opts, 'sink')
+  let [opts, suffix] = s:grep_multi_line(opts)
+  let command = a:grep_command . suffix
   try
     let prev_default_command = $FZF_DEFAULT_COMMAND
-    let $FZF_DEFAULT_COMMAND = a:grep_command
+    let $FZF_DEFAULT_COMMAND = command
     return s:fzf(name, opts, args)
   finally
     let $FZF_DEFAULT_COMMAND = prev_default_command
@@ -946,11 +971,15 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   \ 'source': s:is_win ? 'cd .' : ':',
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
-  \             '--bind', 'start:reload:'.a:command_prefix.' '.fzf#shellescape(a:query),
-  \             '--bind', 'change:reload:'.a:command_prefix.' {q}'.fallback,
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
   \             '--delimiter', ':', '--preview-window', '+{2}-/2']
   \}
+
+  let [opts, suffix] = s:grep_multi_line(opts)
+  let suffix = escape(suffix, '{')
+  call extend(opts.options, ['--bind', 'start:reload:'.a:command_prefix.' '.fzf#shellescape(a:query).suffix])
+  call extend(opts.options, ['--bind', 'change:reload:'.a:command_prefix.' {q}'.suffix.fallback])
+
   if len(args) && type(args[0]) == s:TYPE.bool
     call remove(args, 0)
   endif
