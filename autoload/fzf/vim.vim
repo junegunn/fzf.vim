@@ -1367,7 +1367,7 @@ function! fzf#vim#jumps(...)
   return s:fzf('jumps', {
   \ 'source'  : extend(s:jumplist[0:0], map(s:jumplist[1:], 's:jump_format(v:val)')),
   \ 'sink*'   : s:function('s:jump_sink'),
-  \ 'options' : '+m -x --ansi --tiebreak=index --cycle --scroll-off 999 --sync --bind start:pos:'.current.' --tac --header-lines 1 --tiebreak=begin --prompt "Jumps> "',
+  \ 'options' : ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off', '999', '--sync', '--bind', 'start:pos:'.current, '--tac', '--header-lines', '1', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{2}-/2'],
   \ }, a:000)
 endfunction
 
