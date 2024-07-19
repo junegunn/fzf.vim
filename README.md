@@ -64,7 +64,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 
 ### Dependencies
 
-- [fzf][fzf-main] 0.41.1 or above
+- [fzf][fzf-main] 0.54.0 or above
 - For syntax-highlighted preview, install [bat](https://github.com/sharkdp/bat)
 - If [delta](https://github.com/dandavison/delta) is available, `GF?`,
   `Commits` and `BCommits` will use it to format `git diff` output.
