@@ -1374,7 +1374,7 @@ function! fzf#vim#jumps(...)
     if jump.col
       let loc .= ':'.jump.col
     endif
-    let line = printf('%-4d %s %s', idx+1, loc.':', getbufoneline(jump.bufnr, jump.lnum))
+    let line = printf('%-2d %s %s', idx+1, loc.':', getbufoneline(jump.bufnr, jump.lnum))
     call add(s:jumplist, line)
   endfor
   let s:jump_current = pos
