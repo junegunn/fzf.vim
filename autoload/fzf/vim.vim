@@ -1337,37 +1337,52 @@ endfunction
 " Jumps
 " ------------------------------------------------------------------
 function! s:jump_format(line)
-  return substitute(a:line, '[0-9]\+', '\=s:yellow(submatch(0), "Number")', '')
+  let line = substitute(a:line, '[0-9]\+', '\=s:yellow(submatch(0), "Number")', '')
+  let line = substitute(line, '\s.\{-}\ze:[0-9]\+:', '\=s:green(submatch(0), "Directory")', '')
+  let line = substitute(line, '\%(:[0-9]\+\)\+:', '\=s:black(submatch(0), "NonText")', '')
+  return line
 endfunction
 
 function! s:jump_sink(lines)
   if len(a:lines) < 2
     return
   endif
-  call s:action_for(a:lines[0])
-  let idx = index(s:jumplist, a:lines[1])
-  if idx == -1
-    return
-  endif
-  let current = match(s:jumplist, '\v^\s*\>')
-  let delta = idx - current
+  keepjumps call s:action_for(a:lines[0])
+  let idx = str2nr(a:lines[1])
+  let delta = idx - s:jump_current - 1
   if delta < 0
     execute 'normal! ' . -delta . "\<C-O>"
   else
     execute 'normal! ' . delta . "\<C-I>"
   endif
+  normal! zvzz
 endfunction
 
 function! fzf#vim#jumps(...)
-  redir => cout
-  silent jumps
-  redir END
-  let s:jumplist = split(cout, '\n')
-  let current = -match(s:jumplist, '\v^\s*\>')
+  let [jumps, pos] = getjumplist()
+  if empty(jumps)
+    return s:warn('No jumps')
+  endif
+  let s:jumplist = []
+  for idx in range(len(jumps))
+    let jump = jumps[idx]
+    let loc = expand('#'.jump.bufnr.':p:~:.')
+    if empty(loc)
+      let loc = '[No Name]'
+    endif
+    let loc .= ':'.jump.lnum
+    if jump.col
+      let loc .= ':'.jump.col
+    endif
+    let line = printf('%-2d %s: %s', idx+1, loc, getbufoneline(jump.bufnr, jump.lnum))
+    call add(s:jumplist, line)
+  endfor
+  let s:jump_current = pos
+  let current = -pos-1
   return s:fzf('jumps', {
-  \ 'source'  : extend(s:jumplist[0:0], map(s:jumplist[1:], 's:jump_format(v:val)')),
+  \ 'source'  : map(s:jumplist, 's:jump_format(v:val)'),
   \ 'sink*'   : s:function('s:jump_sink'),
-  \ 'options' : '+m -x --ansi --tiebreak=index --cycle --scroll-off 999 --sync --bind start:pos:'.current.' --tac --header-lines 1 --tiebreak=begin --prompt "Jumps> "',
+  \ 'options' : ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off=999', '--sync', '--bind', 'start:pos('.current.')+offset-middle', '--tac', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{3}-/2', '--tabstop=2', '--delimiter', '[:\s]+'],
   \ }, a:000)
 endfunction
 

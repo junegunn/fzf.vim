@@ -47,7 +47,9 @@ fi
 
 FILE="${FILE/#\~\//$HOME/}"
 if [ ! -r "$FILE" ]; then
-  echo "File not found ${FILE}"
+  if [[ "${INPUT[0]}" != '[No Name]' ]]; then
+    echo "File not found ${FILE}"
+  fi
   exit 1
 fi
 

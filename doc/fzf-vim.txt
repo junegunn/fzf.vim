@@ -85,7 +85,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 < Dependencies >______________________________________________________________~
                                                           *fzf-vim-dependencies*
 
- - {fzf}{1} 0.41.1 or above
+ - {fzf}{1} 0.54.0 or above
  - For syntax-highlighted preview, install {bat}{4}
  - If {delta}{5} is available, `GF?`, `Commits` and `BCommits` will use it to
    format `git diff` output.
