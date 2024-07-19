@@ -3,7 +3,8 @@
 <!-- Check all that apply [x] -->
 
 - [ ] I have fzf 0.54.0 or above
-    - `:echo system(fzf#exec() .. ' --version')`
+    - Check `:echo system(fzf#exec() .. ' --version')`
+    - If you don't have the latest version, `:call fzf#install()` to download it
 - [ ] I have read through https://github.com/junegunn/fzf.vim/blob/master/README.md
 - [ ] I have read through https://github.com/junegunn/fzf/blob/master/README-VIM.md
 - [ ] I have read through the manual page of fzf (`man fzf`)
