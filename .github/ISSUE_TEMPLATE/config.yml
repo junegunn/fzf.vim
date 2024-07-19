@@ -1,0 +1,49 @@
+---
+name: Issue Template
+description: Report a problem or bug related to fzf.vim to help us improve
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the version of fzf used by running
+
+        ```vim
+        :echo system(fzf#exec() .. ' --version')
+        ```
+
+        If you don't have the latest version, run the following code to download it
+
+        ```vim
+        :call fzf#install()
+        ```
+
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      options:
+        - label: I have fzf 0.54.0 or later
+          required: true
+        - label: I have searched through the existing issues
+          required: true
+
+  - type: input
+    attributes:
+      label: Output of `:echo system(fzf#exec() .. ' --version')`
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: OS
+      options:
+        - label: Linux
+        - label: macOS
+        - label: Windows
+        - label: Etc.
+
+  - type: textarea
+    attributes:
+      label: Problem / Steps to reproduce
+    validations:
+      required: true
