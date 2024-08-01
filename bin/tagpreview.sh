@@ -32,7 +32,7 @@ fi
 
 CENTER="$("${VIMNAME}" -R -i NONE -u NONE -e -m -s "${FILE}" \
               -c "set nomagic" \
-              -c "${EXCMD}" \
+              -c "silent ${EXCMD}" \
               -c 'let l=line(".") | new | put =l | print | qa!')" || exit
 
 START_LINE="$(( CENTER - FZF_PREVIEW_LINES / 2 ))"
