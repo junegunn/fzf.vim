@@ -578,16 +578,46 @@ endfunction
 " ------------------------------------------------------------------
 " Colors
 " ------------------------------------------------------------------
+function! s:colors_exit(code)
+  if exists('s:colors_name')
+    if a:code > 0 && s:colors_name != g:colors_name
+      execute 'colo' s:colors_name
+    endif
+    unlet s:colors_name
+  endif
+  call fzf#vim#ipc#stop()
+endfunction
+
 function! fzf#vim#colors(...)
   let colors = split(globpath(&rtp, "colors/*.vim"), "\n")
   if has('packages')
     let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
   endif
-  return s:fzf('colors', {
-  \ 'source':  fzf#vim#_uniq(map(colors, "substitute(fnamemodify(v:val, ':t'), '\\..\\{-}$', '', '')")),
+  let colors = fzf#vim#_uniq(map(colors, "fnamemodify(v:val, ':t')[:-5]"))
+
+  " Put the current colorscheme at the top
+  if exists('g:colors_name')
+    let s:colors_name = g:colors_name
+    let colors = [g:colors_name] + filter(colors, 'g:colors_name != v:val')
+  endif
+
+  let spec = {
+  \ 'source':  colors,
   \ 'sink':    'colo',
-  \ 'options': '+m --prompt="Colors> "'
-  \}, a:000)
+  \ 'options': ['+m', '--prompt', 'Colors> ']
+  \}
+
+  if !a:1 " We can't set up IPC in fullscreen mode in Vim
+    let fifo = fzf#vim#ipc#start({ msg -> execute('colo '.msg) })
+    if len(fifo)
+      call extend(spec.options, ['--no-tmux', '--no-padding', '--no-margin', '--bind', 'focus:execute-silent:echo {} > '.fifo])
+      let spec.exit = s:function('s:colors_exit')
+      let maxwidth = max(map(copy(colors), 'strwidth(v:val)'))
+      let spec.window = { 'width': maxwidth + 8, 'height': len(colors) + 5 }
+    endif
+  endif
+
+  call s:fzf('colors', spec, a:000)
 endfunction
 
 " ------------------------------------------------------------------
