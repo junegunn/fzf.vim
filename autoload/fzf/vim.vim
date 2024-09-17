@@ -1190,8 +1190,15 @@ endfunction
 " Snippets (UltiSnips)
 " ------------------------------------------------------------------
 function! s:inject_snippet(line)
+  let ve = &ve
+  set ve=onemore
+  let del = empty(matchstr(getline('.'), '\%' . (col('.') - 1) . 'c\S')) ? "" : "\<c-w>"
   let snip = split(a:line, "\t")[0]
-  execute 'normal! a'.s:strip(snip)."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
+  execute 'normal! i'.del.s:strip(snip)
+  execute 'normal! l'
+  call UltiSnips#CursorMoved()  " sync UltiSnips state after inserting text
+  call UltiSnips#ExpandSnippet()
+  let &ve = ve
 endfunction
 
 function! fzf#vim#snippets(...)
