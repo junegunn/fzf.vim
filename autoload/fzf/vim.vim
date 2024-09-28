@@ -1148,7 +1148,7 @@ function! fzf#vim#tags(query, ...)
     return s:warn('Tags command requires perl')
   endif
   if len(a:query) && !executable('readtags')
-    return s:warn('readtags from universal-ctags is required to pre-filter tags with a prefix')
+    return s:warn('readtags from universal-ctags is required to pre-filter tags with a query')
   endif
 
   if empty(tagfiles())

@@ -71,7 +71,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 - `Ag` requires [The Silver Searcher (ag)][ag]
 - `Rg` requires [ripgrep (rg)][rg]
 - `Tags` and `Helptags` require Perl
-- `Tags PREFIX` requires `readtags` command from [Universal Ctags](https://ctags.io/)
+- `Tags QUERY` requires `readtags` command from [Universal Ctags](https://ctags.io/)
 
 ```sh
 # Installing dependencies using Homebrew
@@ -93,7 +93,7 @@ Commands
 | `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
 | `:Lines [QUERY]`       | Lines in loaded buffers                                                               |
 | `:BLines [QUERY]`      | Lines in the current buffer                                                           |
-| `:Tags [PREFIX]`       | Tags in the project (`ctags -R`)                                                      |
+| `:Tags [QUERY]`        | Tags in the project (`ctags -R`)                                                      |
 | `:BTags [QUERY]`       | Tags in the current buffer                                                            |
 | `:Changes`             | Changelist across all open buffers                                                    |
 | `:Marks`               | Marks                                                                                 |
