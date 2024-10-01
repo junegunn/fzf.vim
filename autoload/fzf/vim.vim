@@ -885,7 +885,7 @@ function! s:ag_handler(name, lines)
   let lines = []
   if multi_line && executable('perl')
     for idx in range(1, len(a:lines), multi_line + 1)
-      call add(lines, join(a:lines[idx:idx + multi_line + 1], ''))
+      call add(lines, join(a:lines[idx:idx + multi_line], ''))
     endfor
   else
     let lines = a:lines[1:]
