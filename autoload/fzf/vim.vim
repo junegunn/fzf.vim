@@ -712,6 +712,19 @@ endfunction
 
 function! s:get_git_root(dir)
   let dir = len(a:dir) ? a:dir : substitute(split(expand('%:p:h'), '[/\\]\.git\([/\\]\|$\)')[0], '^fugitive://', '', '')
+
+  " Handle pseudo-filename in Neovim terminal buffers.
+  " I.e., where dir is of the following format:
+  "     term:///home/username/gitrepo://12345:/bin
+  " , but we need the following:
+  "     /home/username/gitrepo
+  let termDir = matchstr(dir, '^term://\zs.*\ze//[0-9]\+:.*')
+  echom termDir
+  if len(termDir) > 0
+    " Get the absolute path
+    let dir = fnamemodify(termDir, ':p')
+  endif
+
   let root = systemlist('git -C ' . fzf#shellescape(dir) . ' rev-parse --show-toplevel')[0]
   return v:shell_error ? '' : (len(a:dir) ? fnamemodify(a:dir, ':p') : root)
 endfunction
