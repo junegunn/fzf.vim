@@ -180,7 +180,7 @@ let g:fzf_vim.preview_window = []
 let g:fzf_vim.buffers_jump = 1
 
 " [Ag|Rg|RG] Display path on a separate line for narrow screens (default: 0)
-" * Requires Perl and fzf 0.53.0 or later
+" * Requires Perl and fzf 0.56.0 or later
 let g:fzf_vim.grep_multi_line = 0
    " PATH:LINE:COL:LINE
 let g:fzf_vim.grep_multi_line = 1
@@ -189,7 +189,7 @@ let g:fzf_vim.grep_multi_line = 1
 let g:fzf_vim.grep_multi_line = 2
    " PATH:LINE:COL:
    " LINE
-   " (empty line)
+   " (empty line between items using --gap option)
 
 " [[B]Commits] Customize the options used by 'git log':
 let g:fzf_vim.commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'

@@ -94,7 +94,7 @@ function! s:escape_for_bash(path)
   return escape(path, ' ')
 endfunction
 
-let s:min_version = '0.53.0'
+let s:min_version = '0.56.0'
 let s:is_win = has('win32') || has('win64')
 let s:is_wsl_bash = s:is_win && (exepath('bash') =~? 'Windows[/\\]system32[/\\]bash.exe$')
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
@@ -881,7 +881,7 @@ function! s:ag_handler(name, lines)
     return
   endif
 
-  let multi_line = min([s:conf('grep_multi_line', 0), 2])
+  let multi_line = min([s:conf('grep_multi_line', 0), 1])
   let lines = []
   if multi_line && executable('perl')
     for idx in range(1, len(a:lines), multi_line + 1)
@@ -938,9 +938,12 @@ function! s:grep_multi_line(opts)
   let multi_line = s:conf('grep_multi_line', 0)
   if multi_line && executable('perl')
     let opts = copy(a:opts)
-    let opts.options = extend(copy(opts.options), ['--read0', '--highlight-line'])
-    let delim = multi_line > 1 ? '\n\0' : '\0'
-    return [opts, printf(" | perl -pe 's/\\n/%s/; s/^([^:]+:){2,3}/$&\\n  /'", delim)]
+    let extra = ['--read0', '--highlight-line']
+    if multi_line > 1
+      call extend(extra, ['--gap', multi_line - 1])
+    endif
+    let opts.options = extend(copy(opts.options), extra)
+    return [opts, printf(" | perl -pe 's/\\n/%s/; s/^([^:]+:){2,3}/$&\\n  /'", '\0')]
   endif
 
   return [a:opts, '']
