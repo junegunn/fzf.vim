@@ -455,7 +455,7 @@ function! fzf#vim#files(dir, ...)
     let dir = s:shortpath()
   endif
 
-  let args.options = ['-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
+  let args.options = ['--scheme', 'path', '-m', '--prompt', strwidth(dir) < &columns / 2 - 20 ? dir : '> ']
   call s:merge_opts(args, s:conf('files_options', []))
   return s:fzf('files', args, a:000)
 endfunction
@@ -748,7 +748,7 @@ function! fzf#vim#gitfiles(args, ...)
     return s:fzf('gfiles', {
     \ 'source':  source,
     \ 'dir':     root,
-    \ 'options': '-m --read0 --prompt "GitFiles> "'
+    \ 'options': '--scheme path -m --read0 --prompt "GitFiles> "'
     \}, a:000)
   endif
 
@@ -766,7 +766,7 @@ function! fzf#vim#gitfiles(args, ...)
   let wrapped = fzf#wrap({
   \ 'source':  prefix . '-c color.status=always status --short --untracked-files=all',
   \ 'dir':     root,
-  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
+  \ 'options': ['--scheme', 'path', '--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitFiles?> ', '--preview', preview]
   \})
   call s:remove_layout(wrapped)
   let wrapped.common_sink = remove(wrapped, 'sink*')
