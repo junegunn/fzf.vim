@@ -856,7 +856,7 @@ function! fzf#vim#buffers(...)
   return s:fzf('buffers', {
   \ 'source':  map(sorted, 'fzf#vim#_format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}-/2', '--tabstop', tabstop]
+  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}/2', '--tabstop', tabstop]
   \}, args)
 endfunction
 
@@ -965,7 +965,7 @@ function! fzf#vim#grep(grep_command, ...)
   let opts = {
   \ 'options': ['--ansi', '--prompt', capname.'> ',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--delimiter', ':', '--preview-window', '+{2}-/2']
+  \             '--delimiter', ':', '--preview-window', '+{2}/2']
   \}
   if len(args) && type(args[0]) == s:TYPE.bool
     call remove(args, 0)
@@ -1005,7 +1005,7 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--delimiter', ':', '--preview-window', '+{2}-/2']
+  \             '--delimiter', ':', '--preview-window', '+{2}/2']
   \}
 
   let [opts, suffix] = s:grep_multi_line(opts)
@@ -1082,7 +1082,7 @@ function! fzf#vim#buffer_tags(query, ...)
     return s:fzf('btags', {
     \ 'source':  s:btags_source(tag_cmds),
     \ 'sink*':   s:function('s:btags_sink'),
-    \ 'options': s:reverse_list(['-m', '-d', '\t', '--with-nth', '1,4..', '-n', '1', '--prompt', 'BTags> ', '--query', a:query, '--preview-window', '+{3}-/2'])}, args)
+    \ 'options': s:reverse_list(['-m', '-d', '\t', '--with-nth', '1,4..', '-n', '1', '--prompt', 'BTags> ', '--query', a:query, '--preview-window', '+{3}/2'])}, args)
   catch
     return s:warn(v:exception)
   endtry
@@ -1415,7 +1415,7 @@ function! fzf#vim#jumps(...)
   return s:fzf('jumps', {
   \ 'source'  : map(s:jumplist, 's:jump_format(v:val)'),
   \ 'sink*'   : s:function('s:jump_sink'),
-  \ 'options' : ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off=999', '--sync', '--bind', 'start:pos('.current.')+offset-middle', '--tac', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{3}-/2', '--tabstop=2', '--delimiter', '[:\s]+'],
+  \ 'options' : ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off=999', '--sync', '--bind', 'start:pos('.current.')+offset-middle', '--tac', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{3}/2', '--tabstop=2', '--delimiter', '[:\s]+'],
   \ }, a:000)
 endfunction
 
