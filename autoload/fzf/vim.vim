@@ -712,7 +712,12 @@ endfunction
 
 function! s:get_git_root(dir)
   let dir = len(a:dir) ? a:dir : substitute(split(expand('%:p:h'), '[/\\]\.git\([/\\]\|$\)')[0], '^fugitive://', '', '')
-  let root = systemlist('git -C ' . fzf#shellescape(dir) . ' rev-parse --show-toplevel')[0]
+  if &shell ==# 'cmd'
+    let dir = fzf#shellescape(dir)
+  elseif &shell ==# 'pwsh'
+    let dir = '"'.dir.'"'
+  endif
+  let root = systemlist('git -C ' . dir . ' rev-parse --show-toplevel')[0]
   return v:shell_error ? '' : (len(a:dir) ? fnamemodify(a:dir, ':p') : root)
 endfunction
 
