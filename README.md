@@ -183,6 +183,19 @@ let g:fzf_vim.tags_command = 'ctags -R'
 let g:fzf_vim.commands_expect = 'alt-enter,ctrl-x'
 ```
 
+#### Command-level fzf options
+
+You can set fzf options for each command by setting
+`g:fzf_vim.{command}_options`.
+
+```vim
+" In string
+let g:fzf_vim.buffers_options = '--style full --border-label " Open Buffers "'
+
+" In list (No need to quote or escape values)
+let g:fzf_vim.buffers_options = ['--style', 'full', '--border-label', ' Open Buffers ']
+```
+
 #### List type to handle multiple selections
 
 The following commands will fill the quickfix list when multiple entries are

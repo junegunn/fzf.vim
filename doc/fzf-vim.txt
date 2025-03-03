@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: October 29 2024
+fzf-vim.txt	fzf-vim	Last change: March 3 2025
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -14,6 +14,7 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
       Configuration options for fzf.vim          |fzf-vim-configuration-options-for-fzf-vim|
         Preview window                           |fzf-vim-preview-window|
         Command-level options                    |fzf-vim-command-level-options|
+        Command-level fzf options                |fzf-vim-command-level-fzf-options|
         List type to handle multiple selections  |fzf-vim-list-type-to-handle-multiple-selections|
       Advanced customization                     |fzf-vim-advanced-customization|
         Vim functions                            |fzf-vim-vim-functions|
@@ -228,7 +229,7 @@ Command-level options~
 *g:fzf_vim.commands_expect* *g:fzf_vim.tags_command* *g:fzf_vim.commits_log_options*
                                                         *g:fzf_vim.buffers_jump*
 >
-    " [Buffers] Jump to the existing window if possible
+    " [Buffers] Jump to the existing window if possible (default: 0)
     let g:fzf_vim.buffers_jump = 1
 
     " [Ag|Rg|RG] Display path on a separate line for narrow screens (default: 0)
@@ -251,6 +252,19 @@ Command-level options~
 
     " [Commands] --expect expression for directly executing the command
     let g:fzf_vim.commands_expect = 'alt-enter,ctrl-x'
+<
+
+Command-level fzf options~
+                                             *fzf-vim-command-level-fzf-options*
+
+You can set fzf options for each command by setting
+`g:fzf_vim.{command}_options`.
+>
+    " In string
+    let g:fzf_vim.buffers_options = '--style full --border-label " Open Buffers "'
+
+    " In list (No need to quote or escape values)
+    let g:fzf_vim.buffers_options = ['--style', 'full', '--border-label', ' Open Buffers ']
 <
 
 List type to handle multiple selections~
@@ -382,8 +396,6 @@ Example: git grep wrapper~
 
 The following example implements `GGrep` command that works similarly to
 predefined `Ag` or `Rg` using `fzf#vim#grep`.
-
-                                                                         *:LINE*
 
  - We set the base directory to git root by setting `dir` attribute in spec
    dictionary.
