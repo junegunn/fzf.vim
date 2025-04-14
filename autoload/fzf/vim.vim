@@ -369,7 +369,7 @@ function! s:action_for(key, ...)
   " errors. e.g. E471: Argument required: tab drop
   if !a:0
     if !edit
-      normal! m'
+      call setpos("''", getpos('.'))
       silent! call s:execute_silent(cmd)
     endif
   else
@@ -378,7 +378,7 @@ function! s:action_for(key, ...)
     " instructed to stay on the current buffer.
     let stay = edit && (a:0 > 1 && a:2 || fnamemodify(a:1, ':p') ==# expand('%:p'))
     if !stay
-      normal! m'
+      call setpos("''", getpos('.'))
       call s:execute_silent((len(cmd) ? cmd : 'edit').' '.s:escape(a:1))
     endif
   endif
