@@ -1052,15 +1052,32 @@ function! s:btags_source(tag_cmds)
   return map(s:align_lists(map(lines, 'split(v:val, "\t")')), 'join(v:val, "\t")')
 endfunction
 
+function! s:end_tagstack_with(tagname, from_position)
+  let winid = win_getid()
+  let stack = gettagstack(winid)
+  let item = {
+    \ 'bufnr': a:from_position[0],
+    \ 'from': a:from_position,
+    \ 'tagname': a:tagname}
+  let stack['items'] = [item]
+  return settagstack(winid, stack, 't')
+endfunction
+
 function! s:btags_sink(lines)
   if len(a:lines) < 2
     return
   endif
+  let tagname = ''
+  let from_position = [bufnr()] + getcurpos()[1:]
   call s:action_for(a:lines[0])
   let qfl = []
   for line in a:lines[1:]
-    call s:execute_silent(split(line, "\t")[2])
+    let parts = split(line, "\t")
+    call s:execute_silent(parts[2])
     call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+    if empty(tagname)
+      let tagname = trim(parts[0])
+    endif
   endfor
 
   if len(qfl) > 1
@@ -1070,6 +1087,9 @@ function! s:btags_sink(lines)
     call s:fill_quickfix('btags', qfl)
   else
     normal! zvzz
+  endif
+  if !empty(tagname)
+    call s:end_tagstack_with(tagname, from_position)
   endif
 endfunction
 
@@ -1106,6 +1126,8 @@ function! s:tags_sink(lines)
   " Remember the current position
   let buf = bufnr('')
   let view = winsaveview()
+  let tagname = ''
+  let from_position = [buf] + getcurpos()[1:]
 
   let qfl = []
   let [key; list] = a:lines
@@ -1127,6 +1149,9 @@ function! s:tags_sink(lines)
         endif
         call s:execute_silent(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+        if empty(tagname)
+          let tagname = trim(parts[0])
+        endif
       catch /^Vim:Interrupt$/
         break
       catch
@@ -1150,6 +1175,9 @@ function! s:tags_sink(lines)
     call s:fill_quickfix('tags', qfl)
   else
     normal! ^zvzz
+  endif
+  if !empty(tagname)
+    call s:end_tagstack_with(tagname, from_position)
   endif
 endfunction
 
