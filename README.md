@@ -83,8 +83,8 @@ Commands
 | `:Windows`             | Windows                                                                               |
 | `:Locate PATTERN`      | `locate` command output                                                               |
 | `:History`             | `v:oldfiles` and open buffers                                                         |
-| `:History:`            | Command history                                                                       |
-| `:History/`            | Search history                                                                        |
+| `:History:`            | Command history (`CTRL-E` to edit command line without execute)                       |
+| `:History/`            | Search history  (`CTRL-E` to edit command line without search)                        |
 | `:Snippets`            | Snippets ([UltiSnips][us])                                                            |
 | `:Commits [LOG_OPTS]`  | Git commits (requires [fugitive.vim][f])                                              |
 | `:BCommits [LOG_OPTS]` | Git commits for the current buffer; visual-select lines to track changes in the range |
