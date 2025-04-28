@@ -785,6 +785,60 @@ function! fzf#vim#gitfiles(args, ...)
   return s:fzf('gfiles-diff', wrapped, a:000)
 endfunction
 
+
+" ------------------------------------------------------------------
+" GitBranchFiles
+" ------------------------------------------------------------------
+function! fzf#vim#git_branch_files(args, ...)
+  let dir = get(get(a:, 1, {}), 'dir', '')
+  let root = s:get_git_root(dir)
+  if empty(root)
+    return s:warn('Not in git repo')
+  endif
+
+  " We extract the base-branch using sed and git rev-parse on ref HEAD
+  " This help us to extract the base branch that can be 'master' 'main' or something else.
+  let base_branch = 'git show-branch | grep "\\*" | grep -v "$(git rev-parse --abbrev-ref HEAD)" | head -n1 | sed "s/.*\\[//;s/\\].*//"'
+
+  " The Prefix command is then build by composing the diff stats on the current branch HEAD
+  " from the base-branch
+  let prefix = 'git diff --stat $(git merge-base HEAD $('.base_branch.'))'
+
+  if a:args != '?'
+    " Get the list of changed files in the current branch
+    let source = prefix . ' --name-only'
+    let options = ' --prompt "GitBranchFiles> "'
+
+    return s:fzf('gbranchfiles', {
+    \ 'source':  source,
+    \ 'dir':     root,
+    \ 'options': options
+    \}, a:000)
+  endif
+
+  let bar = s:is_win ? '^|' : '|'
+  let preview = printf(
+    \ s:bash() . ' -c "if [[ {1} =~ M ]]; then %s; else %s {-1}; fi"',
+    \ executable('delta')
+      \ ? prefix . ' --patch -- {-1} ' . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit ' . bar . ' sed 1d'
+      \ : prefix . ' --patch --color=always -- {-1} ' . bar . ' sed 1,4d',
+    \ s:escape_for_bash(s:bin.preview))
+  let wrapped = fzf#wrap({
+  \ 'source':  prefix,
+  \ 'dir':     root,
+  \ 'options': ['--ansi', '--multi', '--nth', '2..,..', '--tiebreak=index', '--prompt', 'GitBranchFiles?> ', '--preview', preview]
+  \})
+  call s:remove_layout(wrapped)
+  let wrapped.common_sink = remove(wrapped, 'sink*')
+  function! wrapped.newsink(lines)
+    let lines = extend(a:lines[0:0], map(a:lines[1:], 'substitute(v:val[3:], ".* -> ", "", "")'))
+    return self.common_sink(lines)
+  endfunction
+  let wrapped['sink*'] = remove(wrapped, 'newsink')
+  return s:fzf('gbranchfiles-diff', wrapped, a:000)
+endfunction
+
+
 " ------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------
