@@ -1362,11 +1362,22 @@ function! s:mark_sink(lines)
   execute 'normal! `'.matchstr(a:lines[1], '\S').'zz'
 endfunction
 
-function! fzf#vim#marks(...)
+function! fzf#vim#marks(initial_marks, ...)
   redir => cout
-  silent marks
+  if empty(a:initial_marks)
+    silent marks
+  else
+    execute 'silent! marks' a:initial_marks
+  endif
   redir END
+
   let list = split(cout, "\n")
+
+  " If 1st entry is not header, i.e. errors then just display header
+  if list[0] != 'mark line  col file/text'
+    let list = ['mark line  col file/text']
+  endif
+
   return s:fzf('marks', {
   \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
