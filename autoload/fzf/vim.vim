@@ -1376,9 +1376,9 @@ function! fzf#vim#marks(...) abort
 
   let list = split(cout, "\n")
 
-  " If first line is not the expected header, fallback to header only
+  " If first line is not the expected header, no marks found
   if len(list) == 0 || list[0] !=# 'mark line  col file/text'
-    let list = ['mark line  col file/text']
+    return s:warn('No marks found')
   endif
 
   return s:fzf('marks', {
