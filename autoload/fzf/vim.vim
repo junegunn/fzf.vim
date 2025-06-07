@@ -1362,15 +1362,29 @@ function! s:mark_sink(lines)
   execute 'normal! `'.matchstr(a:lines[1], '\S').'zz'
 endfunction
 
-function! fzf#vim#marks(...)
+function! fzf#vim#marks(...) abort
+  let [initial_marks, extra] = (a:0 && type(a:1) == type('')) ?
+      \ [a:1, a:000[1:]] : ['', a:000]
+
   redir => cout
-  silent marks
+  if empty(initial_marks)
+    silent marks
+  else
+    execute 'silent! marks' initial_marks
+  endif
   redir END
+
   let list = split(cout, "\n")
+
+  " If first line is not the expected header, no marks found
+  if len(list) == 0 || list[0] !=# 'mark line  col file/text'
+    return s:warn('No marks found')
+  endif
+
   return s:fzf('marks', {
-  \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
+  \ 'source':  extend([list[0]], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
-  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, a:000)
+  \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, extra)
 endfunction
 
 " ------------------------------------------------------------------
