@@ -1363,17 +1363,8 @@ function! s:mark_sink(lines)
 endfunction
 
 function! fzf#vim#marks(...) abort
-  let initial_marks = ''
-  let extra = []
-
-  if len(a:000) > 0
-    if type(a:000[0]) == type('')
-      let initial_marks = a:000[0]
-      let extra = a:000[1:]
-    elseif type(a:000[0]) == type({})
-      let extra = a:000
-    endif
-  endif
+  let [initial_marks, extra] = (a:0 && type(a:1) == type('')) ?
+      \ [a:1, a:000[1:]] : ['', a:000]
 
   redir => cout
   if empty(initial_marks)
