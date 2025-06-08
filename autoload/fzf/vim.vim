@@ -1008,7 +1008,7 @@ function! fzf#vim#grep2(command_prefix, query, ...)
   let name = join(words, '-')
   let fallback = s:is_win ? '' : ' || :'
   let opts = {
-  \ 'source': s:is_win ? 'cd .' : ':',
+  \ 'source':  s:is_win ? 'cd .' : ':',
   \ 'options': ['--ansi', '--prompt', toupper(name).'> ', '--query', a:query,
   \             '--disabled',
   \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
@@ -1378,7 +1378,7 @@ function! fzf#vim#marks(...) abort
   endif
 
   return s:fzf('marks', {
-  \ 'source': extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
+  \ 'source':  extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
   \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, extra)
 endfunction
@@ -1430,9 +1430,9 @@ function! fzf#vim#jumps(...)
   let s:jump_current = pos
   let current = -pos-1
   return s:fzf('jumps', {
-  \ 'source'  : map(s:jumplist, 's:jump_format(v:val)'),
-  \ 'sink*'   : s:function('s:jump_sink'),
-  \ 'options' : ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off=999', '--sync', '--bind', 'start:pos('.current.')+offset-middle', '--tac', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{3}/2', '--tabstop=2', '--delimiter', '[:\s]+'],
+  \ 'source':  map(s:jumplist, 's:jump_format(v:val)'),
+  \ 'sink*':   s:function('s:jump_sink'),
+  \ 'options': ['+m', '-x', '--ansi', '--tiebreak=index', '--cycle', '--scroll-off=999', '--sync', '--bind', 'start:pos('.current.')+offset-middle', '--tac', '--tiebreak=begin', '--prompt', 'Jumps> ', '--preview-window', '+{3}/2', '--tabstop=2', '--delimiter', '[:\s]+'],
   \ }, a:000)
 endfunction
 
