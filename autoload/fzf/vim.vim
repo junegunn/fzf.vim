@@ -1367,11 +1367,7 @@ function! fzf#vim#marks(...) abort
       \ [a:1, a:000[1:]] : ['', a:000]
 
   redir => cout
-  if empty(initial_marks)
-    silent marks
-  else
-    execute 'silent! marks' initial_marks
-  endif
+  execute 'silent! marks' initial_marks
   redir END
 
   let list = split(cout, "\n")
