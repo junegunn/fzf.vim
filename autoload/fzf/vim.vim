@@ -1382,7 +1382,7 @@ function! fzf#vim#marks(...) abort
   endif
 
   return s:fzf('marks', {
-  \ 'source':  extend([list[0]], map(list[1:], 's:format_mark(v:val)')),
+  \ 'source': extend(list[0:0], map(list[1:], 's:format_mark(v:val)')),
   \ 'sink*':   s:function('s:mark_sink'),
   \ 'options': '+m -x --ansi --tiebreak=index --header-lines 1 --tiebreak=begin --prompt "Marks> "'}, extra)
 endfunction
