@@ -1373,7 +1373,7 @@ function! fzf#vim#marks(...) abort
   let list = split(cout, "\n")
 
   " If first line is not the expected header, no marks found
-  if len(list) == 0 || list[0] !=# 'mark line  col file/text'
+  if empty(list) || list[0] =~# '^E'
     return s:warn('No marks found')
   endif
 
