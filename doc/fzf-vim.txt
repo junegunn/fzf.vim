@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: March 3 2025
+fzf-vim.txt	fzf-vim	Last change: June 8 2025
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -110,8 +110,8 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
        *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags*
- *:Changes* *:Marks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits*
-                                          *:Commands* *:Maps* *:Helptags* *:Filetypes*
+   *:Changes* *:Marks* *:BMarks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits*
+                                *:BCommits* *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
@@ -130,6 +130,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:BTags [QUERY]`        | Tags in the current buffer
   `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
+  `:BMarks`               | Marks in the current buffer
   `:Jumps`                | Jumps
   `:Windows`              | Windows
   `:Locate PATTERN`       |  `locate`  command output
