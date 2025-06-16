@@ -425,8 +425,17 @@ endfunction
 function! fzf#vim#_uniq(list)
   let visited = {}
   let ret = []
+  if exists("g:fzf_history_files_ignored") == 0
+      let g:fzf_history_files_ignored = []
+  endif
   for l in a:list
-    if !empty(l) && !has_key(visited, l)
+    let skip = 0
+    for i in g:fzf_history_files_ignored
+        if len(matchstr(l,i)) > 0
+            let skip=1
+        endif
+    endfor
+    if !empty(l) && !has_key(visited, l) && skip == 0
       call add(ret, l)
       let visited[l] = 1
     endif
