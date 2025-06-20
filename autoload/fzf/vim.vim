@@ -669,9 +669,8 @@ function! s:history_sink(type, lines)
   let key  = a:lines[0]
   let item = matchstr(a:lines[1], ' *[0-9]\+ *\zs.*')
   if key == 'ctrl-e'
-    call histadd(a:type, item)
     redraw
-    call feedkeys(a:type."\<up>", 'n')
+    call feedkeys(a:type.item, 'nt')
   else
     if a:type == ':'
       call histadd(a:type, item)
@@ -1236,9 +1235,9 @@ function! s:command_sink(lines)
   endif
   let cmd = matchstr(a:lines[1], s:tab.'\zs\S*\ze'.s:tab)
   if empty(a:lines[0])
-    call feedkeys(':'.cmd.(a:lines[1][0] == '!' ? '' : ' '), 'n')
+    call feedkeys(':'.cmd.(a:lines[1][0] == '!' ? '' : ' '), 'nt')
   else
-    call feedkeys(':'.cmd."\<cr>", 'n')
+    call feedkeys(':'.cmd."\<cr>", 'nt')
   endif
 endfunction
 
