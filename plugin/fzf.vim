@@ -76,7 +76,8 @@ call s:defs([
 \'command! -bar -bang -nargs=* -range=% BCommits                let b:fzf_winview = winsaveview() | <line1>,<line2>call fzf#vim#buffer_commits(<q-args>, fzf#vim#with_preview({ "placeholder": "" }), <bang>0)',
 \'command! -bar -bang Maps                                      call fzf#vim#maps("n", <bang>0)',
 \'command! -bar -bang Filetypes                                 call fzf#vim#filetypes(<bang>0)',
-\'command!      -bang -nargs=* History                          call s:history(<q-args>, fzf#vim#with_preview(), <bang>0)'])
+\'command!      -bang -nargs=* History                          call s:history(<q-args>, fzf#vim#with_preview(), <bang>0)',
+\'command!      -bang -nargs=* References                       call fzf#vim#alefindreferences(<q-args>)'])
 
 function! s:history(arg, extra, bang)
   let bang = a:bang || a:arg[len(a:arg)-1] == '!'
@@ -161,4 +162,3 @@ onoremap <silent> <plug>(fzf-maps-o) <c-c>:<c-u>call fzf#vim#maps('o', 0)<cr>
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
-

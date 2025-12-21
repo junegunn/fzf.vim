@@ -94,6 +94,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
  - `Rg` requires {ripgrep (rg)}{7}
  - `Tags` and `Helptags` require Perl
  - `Tags PREFIX` requires `readtags` command from {Universal Ctags}{8}
+ - `References` requires `:ALEFindReferences` command from {ALE}{9}
 >
     # Installing dependencies using Homebrew
     brew install fzf bat ripgrep the_silver_searcher perl universal-ctags
@@ -110,7 +111,7 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
       *:Ag* *:BCommits* *:BLines* *:BMarks* *:BTags* *:Buffers* *:Changes* *:Colors* *:Commands*
            *:Commits* *:Files* *:Filetypes* *:GFiles* *:Helptags* *:History* *:Jumps* *:Lines*
-                         *:Locate* *:Maps* *:Marks* *:RG* *:Rg* *:Snippets* *:Tags* *:Windows*
+             *:Locate* *:Maps* *:Marks* *:References* *:RG* *:Rg* *:Snippets* *:Tags* *:Windows*
 
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
@@ -138,6 +139,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Locate PATTERN`       |  `locate`  command output
   `:Maps`                 | Normal mode mappings
   `:Marks`                | Marks
+  `:References`           | References to the symbol under the cursor (requires {ALE}{12}'s |ALEFindReferences|)
   `:RG [PATTERN]`         | {rg}{7} search result; relaunch ripgrep on every keystroke
   `:Rg [PATTERN]`         | {rg}{7} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
   `:Snippets`             | Snippets ({UltiSnips}{9})
@@ -162,6 +164,7 @@ But its functionality is still available via `call pathogen#helptags()`. [↩])
                              {9} https://github.com/SirVer/ultisnips
                              {10} https://github.com/tpope/vim-fugitive
                              {11} https://github.com/tpope/vim-pathogen
+                             {12} https://github.com/dense-analysis/ale
 
 
 CUSTOMIZATION                                            *fzf-vim-customization*

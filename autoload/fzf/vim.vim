@@ -1832,5 +1832,21 @@ function! fzf#vim#complete(...)
 endfunction
 
 " ------------------------------------------------------------------
+" References (ALE)
+" ------------------------------------------------------------------
+"
+function! fzf#vim#alefindreferences(...)
+  if !exists(':ALEFindReferences')
+    return s:warn('ALE not found')
+  endif
+  let l:args = copy(a:000)
+  if index(a:000, '-fzf') == -1
+    call add(l:args, '-fzf')
+  endif
+
+  return call("ale#references#Find", l:args)
+endfunction
+
+" ------------------------------------------------------------------
 let &cpo = s:cpo_save
 unlet s:cpo_save

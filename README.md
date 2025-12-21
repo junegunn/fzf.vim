@@ -102,6 +102,7 @@ Commands
 | `:Locate PATTERN`      | `locate` command output                                                               |
 | `:Maps`                | Normal mode mappings                                                                  |
 | `:Marks`               | Marks                                                                                 |
+| `:References`          | [ALE][ale] `:ALEFindReferences` symbol search result
 | `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
 | `:Rg [PATTERN]`        | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
 | `:Snippets`            | Snippets ([UltiSnips][us])                                                            |
@@ -487,3 +488,4 @@ MIT
 [ag]:    https://github.com/ggreer/the_silver_searcher
 [rg]:    https://github.com/BurntSushi/ripgrep
 [us]:    https://github.com/SirVer/ultisnips
+[ale]:    https://github.com/dense-analysis/ale
