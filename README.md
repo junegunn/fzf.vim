@@ -79,34 +79,34 @@ Commands
 
 | Command                | List                                                                                  |
 | ---                    | ---                                                                                   |
+| `:Ag [PATTERN]`        | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
+| `:BCommits [LOG_OPTS]` | Git commits for the current buffer; visual-select lines to track changes in the range |
+| `:BLines [QUERY]`      | Lines in the current buffer                                                           |
+| `:BMarks`              | Marks in the current buffer                                                           |
+| `:BTags [QUERY]`       | Tags in the current buffer                                                            |
+| `:Buffers`             | Open buffers                                                                          |
+| `:Changes`             | Changelist across all open buffers                                                    |
+| `:Colors`              | Color schemes                                                                         |
+| `:Commands`            | Commands                                                                              |
+| `:Commits [LOG_OPTS]`  | Git commits (requires [fugitive.vim][f])                                              |
 | `:Files [PATH]`        | Files (runs `$FZF_DEFAULT_COMMAND` if defined)                                        |
+| `:Filetypes`           | File types                                                                            |
 | `:GFiles [OPTS]`       | Git files (`git ls-files`)                                                            |
 | `:GFiles?`             | Git files (`git status`)                                                              |
-| `:Buffers`             | Open buffers                                                                          |
-| `:Colors`              | Color schemes                                                                         |
-| `:Ag [PATTERN]`        | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
-| `:Rg [PATTERN]`        | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
-| `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
-| `:Lines [QUERY]`       | Lines in loaded buffers                                                               |
-| `:BLines [QUERY]`      | Lines in the current buffer                                                           |
-| `:Tags [PREFIX]`       | Tags in the project (`ctags -R`)                                                      |
-| `:BTags [QUERY]`       | Tags in the current buffer                                                            |
-| `:Changes`             | Changelist across all open buffers                                                    |
-| `:Marks`               | Marks                                                                                 |
-| `:BMarks`              | Marks in the current buffer                                                           |
-| `:Jumps`               | Jumps                                                                                 |
-| `:Windows`             | Windows                                                                               |
-| `:Locate PATTERN`      | `locate` command output                                                               |
-| `:History`             | `v:oldfiles` and open buffers                                                         |
-| `:History:`            | Command history                                                                       |
-| `:History/`            | Search history                                                                        |
-| `:Snippets`            | Snippets ([UltiSnips][us])                                                            |
-| `:Commits [LOG_OPTS]`  | Git commits (requires [fugitive.vim][f])                                              |
-| `:BCommits [LOG_OPTS]` | Git commits for the current buffer; visual-select lines to track changes in the range |
-| `:Commands`            | Commands                                                                              |
-| `:Maps`                | Normal mode mappings                                                                  |
 | `:Helptags`            | Help tags <sup id="a1">[1](#helptags)</sup>                                           |
-| `:Filetypes`           | File types
+| `:History/`            | Search history                                                                        |
+| `:History:`            | Command history                                                                       |
+| `:History`             | `v:oldfiles` and open buffers                                                         |
+| `:Jumps`               | Jumps                                                                                 |
+| `:Lines [QUERY]`       | Lines in loaded buffers                                                               |
+| `:Locate PATTERN`      | `locate` command output                                                               |
+| `:Maps`                | Normal mode mappings                                                                  |
+| `:Marks`               | Marks                                                                                 |
+| `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
+| `:Rg [PATTERN]`        | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
+| `:Snippets`            | Snippets ([UltiSnips][us])                                                            |
+| `:Tags [PREFIX]`       | Tags in the project (`ctags -R`)                                                      |
+| `:Windows`             | Windows                                                                               |
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split
