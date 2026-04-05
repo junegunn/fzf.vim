@@ -263,7 +263,11 @@ function! s:chomp(str)
 endfunction
 
 function! s:escape(path)
-  let path = fnameescape(a:path)
+  let path = a:path
+  if s:is_win
+    let path = substitute(path, '\\\ze[()]', '/', 'g')
+  endif
+  let path = fnameescape(path)
   return s:is_win ? escape(path, '$') : path
 endfunction
 
