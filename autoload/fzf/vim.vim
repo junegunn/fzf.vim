@@ -713,6 +713,59 @@ endfunction
 " GFiles[?]
 " ------------------------------------------------------------------
 
+function! fzf#vim#gfiles(bang, count, args) abort
+  " When count is negative, fall back to the original GFiles behavior
+  if a:count < 0
+    return fzf#vim#gitfiles(a:args, fzf#vim#with_preview(a:args == '?' ? { 'placeholder': '' } : {}), a:bang)
+  endif
+
+  let root = s:get_git_root('')
+  if empty(root)
+    return s:warn('Not in git repo')
+  endif
+
+  " Count 0 behaves like :GFiles? (git status)
+  if a:count == 0
+    return fzf#vim#gitfiles('?', fzf#vim#with_preview({ 'placeholder': '' }), a:bang)
+  endif
+
+  " Positive count: files changed in the last {count} commits
+  let filter = s:is_win ? 'findstr /v "^$"' : 'sed -e /^$/d'
+  let prefix = 'git -C ' . fzf#shellescape(root) . ' '
+  let source = prefix . 'log HEAD --max-count='.a:count.
+        \ ' --diff-filter=MA --name-only --pretty=format: | '.filter
+
+  let opts = ['--scheme', 'path', '--prompt', 'GitFiles?> ']
+
+  if executable('git') && executable(s:bash())
+    let bar = s:is_win ? '^|' : '|'
+    let diff_prefix = 'git -C ' . s:escape_for_bash(root) . ' '
+    if executable('delta')
+      let diff =
+            \ diff_prefix
+            \ . 'diff --color=always HEAD~'.a:count.'..HEAD -- {-1} '
+            \ . bar . ' delta --width $FZF_PREVIEW_COLUMNS --file-style=omit '
+            \ . bar . ' sed 1d'
+    else
+      let diff =
+            \ diff_prefix
+            \ . 'diff --color=always HEAD~'.a:count.'..HEAD -- {-1} '
+            \ . bar . ' sed 1,4d'
+    endif
+    let preview_cmd = s:bash() . ' -c "'.diff.'"'
+    call extend(opts, [
+          \ '--preview',        preview_cmd,
+          \ '--preview-window', 'right,50%,<70(up,40%)',
+          \ ])
+  endif
+
+  return s:fzf('gfiles-diff', {
+  \ 'source':  source,
+  \ 'dir':     root,
+  \ 'options': opts
+  \}, [a:bang])
+endfunction
+
 function! s:get_git_root(dir)
   if empty(a:dir) && exists('*FugitiveWorkTree')
     return FugitiveWorkTree()

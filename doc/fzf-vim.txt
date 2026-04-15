@@ -117,7 +117,9 @@ COMMANDS                                                      *fzf-vim-commands*
  Command                | List                                                                                 ~
  -----------------------+--------------------------------------------------------------------------------------
   `:Files [PATH]`         | Files (runs  `$FZF_DEFAULT_COMMAND`  if defined)
-  `:GFiles [OPTS]`        | Git files ( `git ls-files` )
+  `:[count]GFiles [OPTS]` | Git files ( `git ls-files` )
+                          | With [count] > 0, restrict to files changed in the last [count] commits; 0 is
+                          | equivalent to `:GFiles?` (also available by passing `?` as [OPTS])
   `:GFiles?`              | Git files ( `git status` )
   `:Buffers`              | Open buffers
   `:Colors`               | Color schemes
