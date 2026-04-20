@@ -36,10 +36,20 @@ repository][fzf-main], which means you need to **set up both "fzf" and
 
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
+Add following to your `.vimrc` or `nvim.init`:
+
 ```vim
+call plug#begin('~/.vim/plugged')
+
+... other plugins
+
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+
+call plug#end()
 ```
+
+And then call `:PlugInstall` once.
 
 `fzf#install()` makes sure that you have the latest binary, but it's optional,
 so you can omit it if you use a plugin manager that doesn't support hooks.
