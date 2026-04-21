@@ -92,6 +92,7 @@ Commands
 | `:Commands`            | Commands                                                                              |
 | `:Maps`                | Normal mode mappings                                                                  |
 | `:Helptags`            | Help tags <sup id="a1">[1](#helptags)</sup>                                           |
+| `:Manpages`            | Man pages                                                                             |
 | `:Filetypes`           | File types
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
