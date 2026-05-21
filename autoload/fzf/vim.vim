@@ -823,6 +823,22 @@ function! s:bufopen(lines)
   execute 'buffer' b
 endfunction
 
+function! s:buffers_exit(code)
+  if !exists('s:buffers_delete_file')
+    return
+  endif
+  let path = s:buffers_delete_file
+  unlet s:buffers_delete_file
+  let lines = filereadable(path) ? readfile(path) : []
+  call delete(path)
+  for line in lines
+    let b = matchstr(line, '\[\zs[0-9]*\ze\]')
+    if !empty(b)
+      silent! execute 'bdelete' b
+    endif
+  endfor
+endfunction
+
 function! fzf#vim#_format_buffer(b)
   let name = bufname(a:b)
   let line = exists('*getbufinfo') ? getbufinfo(a:b)[0]['lnum'] : 0
@@ -859,11 +875,14 @@ function! fzf#vim#buffers(...)
   let sorted = sort(buffers, 's:sort_buffers')
   let header_lines = '--header-lines=' . (bufnr('') == get(sorted, 0, 0) ? 1 : 0)
   let tabstop = len(max(sorted)) >= 4 ? 9 : 8
-  return s:fzf('buffers', {
+  let s:buffers_delete_file = tempname()
+  let spec = {
   \ 'source':  map(sorted, 'fzf#vim#_format_buffer(v:val)'),
   \ 'sink*':   s:function('s:bufopen'),
-  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}/2', '--tabstop', tabstop]
-  \}, args)
+  \ 'exit':    s:function('s:buffers_exit'),
+  \ 'options': ['+m', '-x', '--tiebreak=index', header_lines, '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}/2', '--tabstop', tabstop, '--bind', 'shift-delete:execute-silent(echo {} >> '.s:buffers_delete_file.')+exclude', '--header', '• Press '.s:magenta('SHIFT-DELETE', 'Special').' to unload buffer', '--header-border=horizontal', '--header-lines-border=line', '--no-separator', '--inline-info']
+  \}
+  return s:fzf('buffers', spec, args)
 endfunction
 
 " ------------------------------------------------------------------
