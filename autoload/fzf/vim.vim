@@ -1302,7 +1302,7 @@ function! fzf#vim#commands(...)
   \ 'source':  extend(extend(list[0:0], map(list[1:], 's:format_cmd(v:val)')), s:excmds()),
   \ 'sink*':   s:function('s:command_sink'),
   \ 'options': '--ansi --expect '.s:conf('commands_expect', 'ctrl-x').
-  \            " --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 --tabstop=1 -d "\t" --list-border --header-border inline --inline-info --no-separator"}, a:000)
+  \            ' --tiebreak=index --header-lines 1 -x --prompt "Commands> " -n2,3,2..3 --tabstop=1 -d "\t" --list-border --header-border inline --inline-info --no-separator'}, a:000)
 endfunction
 
 " ------------------------------------------------------------------
