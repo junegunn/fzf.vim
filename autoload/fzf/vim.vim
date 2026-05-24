@@ -699,7 +699,7 @@ function! fzf#vim#search_history(...)
   return s:fzf('history-search', {
   \ 'source':  s:history_source('/'),
   \ 'sink*':   s:function('s:search_history_sink'),
-  \ 'options': '+m --ansi --prompt="Hist/> " --header-lines=1 --expect=ctrl-e --tiebreak=index'}, a:000)
+  \ 'options': '+m --ansi --prompt="Hist/> " --inline-info --header-lines=1 --header-border=horizontal --no-separator --expect=ctrl-e --tiebreak=index'}, a:000)
 endfunction
 
 function! fzf#vim#history(...)
