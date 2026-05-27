@@ -1101,8 +1101,10 @@ function! fzf#vim#buffer_tags(query, ...)
   let null = s:is_win ? 'nul' : '/dev/null'
   let sort = has('unix') && !has('win32unix') && executable('sort') ? '| sort -s -k 5' : ''
   let tag_cmds = (len(args) > 1 && type(args[0]) != type({})) ? remove(args, 0) : [
-    \ printf('ctags -f - --sort=yes --excmd=number --language-force=%s %s 2> %s %s', get({ 'cpp': 'c++' }, &filetype, &filetype), escaped, null, sort),
-    \ printf('ctags -f - --sort=yes --excmd=number %s 2> %s %s', escaped, null, sort)]
+    "\ printf('ctags -f - --sort=yes --excmd=number --language-force=%s %s 2> %s %s', get({ 'cpp': 'c++' }, &filetype, &filetype), escaped, null, sort),
+    "\ printf('ctags -f - --sort=yes --excmd=number %s 2> %s %s', escaped, null, sort)]
+    \ printf('ctags -f - --sort=yes --excmd=number --language-force=%s %s %s', get({ 'cpp': 'c++' }, &filetype, &filetype), escaped, sort),
+    \ printf('ctags -f - --sort=yes --excmd=number %s %s', escaped, sort)]
   if type(tag_cmds) != type([])
     let tag_cmds = [tag_cmds]
   endif
@@ -1218,27 +1220,174 @@ function! fzf#vim#tags(query, ...)
 endfunction
 
 " ------------------------------------------------------------------
-" Snippets (UltiSnips)
+" Snippets (UltiSnips) or snipmate
 " ------------------------------------------------------------------
 function! s:inject_snippet(line)
   let snip = split(a:line, "\t")[0]
-  execute 'normal! a'.s:strip(snip)."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
+  let snip = s:strip(snip)
+  
+  " Use UltiSnips if available, otherwise use SnipMate
+  if exists(':UltiSnipsEdit')
+    execute 'normal! a'.snip."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
+  else
+    call feedkeys("a".snip."\<C-R>=snipMate#TriggerSnippet()\<CR>", 'n')
+  endif
 endfunction
 
 function! fzf#vim#snippets(...)
-  if !exists(':UltiSnipsEdit')
-    return s:warn('UltiSnips not found')
+  " Check for UltiSnips first
+  if exists(':UltiSnipsEdit')
+    let list = UltiSnips#SnippetsInCurrentScope()
+    if empty(list)
+      return s:warn('No snippets available here')
+    endif
+    let aligned = sort(s:align_lists(items(list)))
+    let colored = map(aligned, 's:yellow(v:val[0])."\t".v:val[1]')
+    return s:fzf('snippets', {
+    \ 'source':  colored,
+    \ 'options': '--ansi --tiebreak=index +m -n 1,.. -d "\t"',
+    \ 'sink':    s:function('s:inject_snippet')}, a:000)
   endif
-  let list = UltiSnips#SnippetsInCurrentScope()
+  
+  " Fall back to SnipMate
+  if !exists('g:loaded_snips')
+    return s:warn('SnipMate not found')
+  endif
+  
+  " Get scopes
+  let scopes = []
+  if exists('g:snipMate') && has_key(g:snipMate, 'get_scopes')
+    try
+      let scopes = call(g:snipMate['get_scopes'], [])
+      " Ensure scopes is a list
+      if type(scopes) != type([])
+        let scopes = []
+      endif
+    catch /.*/
+      let scopes = []
+    endtry
+  endif
+  
+  " If still empty, use default method to get scopes
+  if empty(scopes)
+    let scopes = []
+    if &filetype != ''
+      let scopes = split(&filetype, '\.')
+    endif
+    if &syntax != '' && &syntax != &filetype
+      call add(scopes, &syntax)
+    endif
+    call add(scopes, '_')
+  endif
+  
+  " Filter out empty scopes
+  let filtered_scopes = []
+  for scope in scopes
+    if type(scope) == type('') && scope != ''
+      call add(filtered_scopes, scope)
+    endif
+  endfor
+  let scopes = filtered_scopes
+  
+  " If no valid scope, add default
+  if empty(scopes)
+    let scopes = ['_']
+  endif
+  
+  " Force load snippets
+  let snippets = {}
+  
+  try
+    " Only read snippet files related to current scope
+    for scope in scopes
+      " Try .snippets files
+      let snip_files = split(globpath(&runtimepath, 'snippets/' . scope . '.snippets'), '\n')
+      " Also try directory format
+      let snip_files += split(globpath(&runtimepath, 'snippets/' . scope . '/*.snippets'), '\n')
+      
+      for file in snip_files
+        if filereadable(file)
+          let lines = readfile(file)
+          let i = 0
+          while i < len(lines)
+            let line = lines[i]
+            " Match snippet definition line
+            if line =~# '^snippet\s'
+              let parts = matchlist(line, '^snippet\s\+\(\S\+\)\s*\(.*\)$')
+              if len(parts) >= 3
+                let trigger = parts[1]
+                let desc = parts[2]
+                
+                " Read snippet content (multi-line)
+                let content = []
+                let i += 1
+                while i < len(lines)
+                  let content_line = lines[i]
+                  " Snippet content starts with tab or space, ends when encountering non-indented line or new snippet
+                  if content_line =~# '^\t' || content_line =~# '^  '
+                    call add(content, substitute(content_line, '^\t', '', ''))
+                  elseif content_line =~# '^\s*$'
+                    " Empty lines are also part of snippet content
+                    call add(content, '')
+                  else
+                    " Encountered non-indented line, exit
+                    let i -= 1
+                    break
+                  endif
+                  let i += 1
+                endwhile
+                
+                " Save snippet
+                if !has_key(snippets, trigger)
+                  if desc != ''
+                    let snippets[trigger] = desc
+                  elseif !empty(content)
+                    " If no description, use first line of content as description
+                    let snippets[trigger] = content[0]
+                  else
+                    let snippets[trigger] = trigger
+                  endif
+                endif
+              endif
+            endif
+            let i += 1
+          endwhile
+        endif
+      endfor
+    endfor
+  catch /.*/
+    echom 'Error reading snippets: ' . v:exception
+  endtry
+  
+  if empty(snippets)
+    echom 'Current filetype: ' . &filetype
+    echom 'Scopes searched: ' . join(scopes, ', ')
+    echom 'Files found: ' . string(split(globpath(&runtimepath, 'snippets/' . scopes[0] . '.snippets'), '\n'))
+    return s:warn('No snippets available for this filetype. Try :SnipMateOpenSnippetFiles')
+  endif
+  
+  " Format list
+  let list = []
+  for trigger in sort(keys(snippets))
+    let desc = snippets[trigger]
+    if len(desc) > 50
+      let desc = desc[:47] . '...'
+    endif
+    call add(list, [trigger, desc])
+  endfor
+  
   if empty(list)
-    return s:warn('No snippets available here')
+    return s:warn('No snippets could be formatted')
   endif
-  let aligned = sort(s:align_lists(items(list)))
+  
+  let aligned = s:align_lists(list)
   let colored = map(aligned, 's:yellow(v:val[0])."\t".v:val[1]')
-  return s:fzf('snippets', {
+  
+  call fzf#run(fzf#wrap('snippets', {
   \ 'source':  colored,
-  \ 'options': '--ansi --tiebreak=index +m -n 1,.. -d "\t"',
-  \ 'sink':    s:function('s:inject_snippet')}, a:000)
+  \ 'options': '--ansi --tiebreak=index +m -n 1,.. -d "\t" --prompt="Snippets> "',
+  \ 'sink':    function('s:inject_snippet')
+  \ }))
 endfunction
 
 " ------------------------------------------------------------------
