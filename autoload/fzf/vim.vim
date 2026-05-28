@@ -611,7 +611,7 @@ function! fzf#vim#colors(...)
   \ 'options': ['+m', '--prompt', 'Colors> ']
   \}
 
-  if !a:1 " We can't set up IPC in fullscreen mode in Vim
+  if a:0 && type(a:1) != s:TYPE.dict && !a:1 " We can't set up IPC in fullscreen mode in Vim
     let fifo = fzf#vim#ipc#start({ msg -> execute('colo '.msg) })
     if len(fifo)
       call extend(spec.options, ['--no-tmux', '--no-padding', '--no-margin', '--bind', 'focus:execute-silent:echo {} > '.fifo])
