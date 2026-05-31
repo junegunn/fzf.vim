@@ -688,11 +688,7 @@ function! s:colors_exit(code)
 endfunction
 
 function! fzf#vim#colors(...)
-  let colors = split(globpath(&rtp, "colors/*.vim"), "\n")
-  if has('packages')
-    let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
-  endif
-  let colors = fzf#vim#_uniq(map(colors, "fnamemodify(v:val, ':t')[:-5]"))
+  let colors = getcompletion('', 'color')
 
   " Put the current colorscheme at the top
   if exists('g:colors_name')
