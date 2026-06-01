@@ -693,7 +693,9 @@ function! fzf#vim#colors(...)
     let colors = getcompletion('', 'color')
   else
     let colors = split(globpath(&rtp, "colors/*.vim"), "\n")
-    let colors += split(globpath(&rtp, "colors/*.lua"), "\n")
+    if has('nvim')
+      let colors += split(globpath(&rtp, "colors/*.lua"), "\n")
+    endif
     if has('packages')
       let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
     endif
