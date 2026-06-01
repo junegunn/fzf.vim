@@ -688,7 +688,17 @@ function! s:colors_exit(code)
 endfunction
 
 function! fzf#vim#colors(...)
-  let colors = getcompletion('', 'color')
+  " getcompletion is available from Vim 7.4
+  if exists('*getcompletion')
+    let colors = getcompletion('', 'color')
+  else
+    let colors = split(globpath(&rtp, "colors/*.vim"), "\n")
+    let colors += split(globpath(&rtp, "colors/*.lua"), "\n")
+    if has('packages')
+      let colors += split(globpath(&packpath, "pack/*/opt/*/colors/*.vim"), "\n")
+    endif
+    let colors = fzf#vim#_uniq(map(colors, "fnamemodify(v:val, ':t')[:-5]"))
+  endif
 
   " Put the current colorscheme at the top
   if exists('g:colors_name')
