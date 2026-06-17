@@ -2,15 +2,15 @@
 
 use strict;
 
-my $prefix = shift @ARGV;
+my $query = shift @ARGV;
 
 foreach my $file (@ARGV) {
   my $lines;
-  if ($prefix eq "") {
+  if ($query eq "") {
     open $lines, $file;
   } else {
     # https://perldoc.perl.org/perlopentut#Expressing-the-command-as-a-list
-    open $lines, '-|', 'readtags', '-t', $file, '-e', '-p', '-', $prefix;
+    open $lines, '-|', 'readtags', '-t', $file, '-e', '-p', '-Q', "(#/^[^[:space:]]*$query\$/ \$name)", '-l';
   }
   while (<$lines>) {
     unless (/^\!/) {
