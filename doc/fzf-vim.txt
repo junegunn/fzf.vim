@@ -1,4 +1,4 @@
-fzf-vim.txt	fzf-vim	Last change: April 25 2024
+fzf-vim.txt	fzf-vim	Last change: May 31 2026
 FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-toc*
 ==============================================================================
 
@@ -14,6 +14,7 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
       Configuration options for fzf.vim          |fzf-vim-configuration-options-for-fzf-vim|
         Preview window                           |fzf-vim-preview-window|
         Command-level options                    |fzf-vim-command-level-options|
+        Command-level fzf options                |fzf-vim-command-level-fzf-options|
         List type to handle multiple selections  |fzf-vim-list-type-to-handle-multiple-selections|
       Advanced customization                     |fzf-vim-advanced-customization|
         Vim functions                            |fzf-vim-vim-functions|
@@ -109,8 +110,8 @@ COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
        *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags*
- *:Changes* *:Marks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits* *:BCommits*
-                                          *:Commands* *:Maps* *:Helptags* *:Filetypes*
+   *:Changes* *:Marks* *:BMarks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits*
+                                *:BCommits* *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
  -----------------------+--------------------------------------------------------------------------------------
  Command                | List                                                                                 ~
@@ -129,6 +130,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:BTags [QUERY]`        | Tags in the current buffer
   `:Changes`              | Changelist across all open buffers
   `:Marks`                | Marks
+  `:BMarks`               | Marks in the current buffer
   `:Jumps`                | Jumps
   `:Windows`              | Windows
   `:Locate PATTERN`       |  `locate`  command output
@@ -148,6 +150,11 @@ COMMANDS                                                      *fzf-vim-commands*
 
  - Most commands support CTRL-T / CTRL-X / CTRL-V key bindings to open in a new
    tab, a new split, or in a new vertical split
+ - Most commands support ALT-ENTER to insert the selected items into the
+   current buffer instead of opening them. The inserted text depends on the
+   command: file path (Files, GFiles, Buffers, History, Locate), line content
+   (Lines, BLines, Marks, Changes), matched text (Rg, Ag, Grep), tag name
+   (Tags, BTags), or commit hash (Commits, BCommits)
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
  - You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
    - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
@@ -222,14 +229,38 @@ behavior with `g:fzf_vim.preview_window`. Here are some examples:
     "   let g:fzf_vim.preview_bash = 'C:\Git\bin\bash.exe'
 <
 
+Paste key~
+                                                            *fzf-vim-paste-key*
+                                                            *g:fzf_vim.paste_key*
+
+Most commands support a key to insert the selected items into the current
+buffer instead of opening them. Customize it with `g:fzf_vim.paste_key`.
+>
+    " Key to insert the selected items into the current buffer
+    " (default: 'alt-enter')
+    let g:fzf_vim.paste_key = 'alt-enter'
+<
+
 Command-level options~
                                                  *fzf-vim-command-level-options*
 
 *g:fzf_vim.commands_expect* *g:fzf_vim.tags_command* *g:fzf_vim.commits_log_options*
                                                         *g:fzf_vim.buffers_jump*
 >
-    " [Buffers] Jump to the existing window if possible
+    " [Buffers] Jump to the existing window if possible (default: 0)
     let g:fzf_vim.buffers_jump = 1
+
+    " [Ag|Rg|RG] Display path on a separate line for narrow screens (default: 0)
+    " * Requires Perl and fzf 0.56.0 or later
+    let g:fzf_vim.grep_multi_line = 0
+       " PATH:LINE:COL:LINE
+    let g:fzf_vim.grep_multi_line = 1
+       " PATH:LINE:COL:
+       " LINE
+    let g:fzf_vim.grep_multi_line = 2
+       " PATH:LINE:COL:
+       " LINE
+       " (empty line between items using --gap option)
 
     " [[B]Commits] Customize the options used by 'git log':
     let g:fzf_vim.commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
@@ -239,6 +270,19 @@ Command-level options~
 
     " [Commands] --expect expression for directly executing the command
     let g:fzf_vim.commands_expect = 'alt-enter,ctrl-x'
+<
+
+Command-level fzf options~
+                                             *fzf-vim-command-level-fzf-options*
+
+You can set fzf options for each command by setting
+`g:fzf_vim.{command}_options`.
+>
+    " In string
+    let g:fzf_vim.buffers_options = '--style full --border-label " Open Buffers "'
+
+    " In list (No need to quote or escape values)
+    let g:fzf_vim.buffers_options = ['--style', 'full', '--border-label', ' Open Buffers ']
 <
 
 List type to handle multiple selections~
@@ -370,8 +414,6 @@ Example: git grep wrapper~
 
 The following example implements `GGrep` command that works similarly to
 predefined `Ag` or `Rg` using `fzf#vim#grep`.
-
-                                                                         *:LINE*
 
  - We set the base directory to git root by setting `dir` attribute in spec
    dictionary.

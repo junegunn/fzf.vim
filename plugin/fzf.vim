@@ -67,7 +67,8 @@ call s:defs([
 \'command! -bar -bang Snippets                                  call fzf#vim#snippets(<bang>0)',
 \'command! -bar -bang Commands                                  call fzf#vim#commands(<bang>0)',
 \'command! -bar -bang Jumps                                     call fzf#vim#jumps(fzf#vim#with_preview({ "placeholder": "{2..4}"}), <bang>0)',
-\'command! -bar -bang Marks                                     call fzf#vim#marks(<bang>0)',
+\'command! -bar -bang -nargs=* Marks                            call fzf#vim#marks(<q-args>, <bang>0)',
+\'command! -bar -bang -nargs=* BMarks                           call fzf#vim#marks("abcdefghijklmnopqrstuvwxyz", <bang>0)',
 \'command! -bar -bang Changes                                   call fzf#vim#changes(<bang>0)',
 \'command! -bar -bang Helptags                                  call fzf#vim#helptags(fzf#vim#with_preview({ "placeholder": "--tag {2}:{3}:{4}" }), <bang>0)',
 \'command! -bar -bang Windows                                   call fzf#vim#windows(fzf#vim#with_preview({ "placeholder": "{2}" }), <bang>0)',
@@ -97,14 +98,20 @@ if (has('nvim') || has('terminal') && has('patch-8.0.995')) && (s:conf('statusli
     if exists('#User#FzfStatusLine')
       doautocmd User FzfStatusLine
     else
-      if $TERM !~ "256color"
-        highlight default fzf1 ctermfg=1 ctermbg=8 guifg=#E12672 guibg=#565656
-        highlight default fzf2 ctermfg=2 ctermbg=8 guifg=#BCDDBD guibg=#565656
-        highlight default fzf3 ctermfg=7 ctermbg=8 guifg=#D9D9D9 guibg=#565656
+      " Do not display statusline when fzf is running in a floating window
+      " (e.g. nvim-fzf)
+      if has('nvim') && len(nvim_win_get_config(0).relative)
+        return
+      endif
+
+      if has('termguicolors') && &termguicolors || $TERM =~ "256color"
+        highlight default fzf1 ctermfg=161 ctermbg=238 guifg=#E12672 guibg=#565656 gui=nocombine
+        highlight default fzf2 ctermfg=151 ctermbg=238 guifg=#BCDDBD guibg=#565656 gui=nocombine
+        highlight default fzf3 ctermfg=252 ctermbg=238 guifg=#D9D9D9 guibg=#565656 gui=nocombine
       else
-        highlight default fzf1 ctermfg=161 ctermbg=238 guifg=#E12672 guibg=#565656
-        highlight default fzf2 ctermfg=151 ctermbg=238 guifg=#BCDDBD guibg=#565656
-        highlight default fzf3 ctermfg=252 ctermbg=238 guifg=#D9D9D9 guibg=#565656
+        highlight default fzf1 ctermfg=1 ctermbg=8 guifg=#E12672 guibg=#565656 gui=nocombine
+        highlight default fzf2 ctermfg=2 ctermbg=8 guifg=#BCDDBD guibg=#565656 gui=nocombine
+        highlight default fzf3 ctermfg=7 ctermbg=8 guifg=#D9D9D9 guibg=#565656 gui=nocombine
       endif
       setlocal statusline=%#fzf1#\ >\ %#fzf2#fz%#fzf3#f
     endif

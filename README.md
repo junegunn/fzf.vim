@@ -1,21 +1,3 @@
-<div align="center">
-<sup>Special thanks to:</sup>
-<br>
-<br>
-<a href="https://warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=fzfvim_20240209">
-  <div>
-    <img src="https://raw.githubusercontent.com/junegunn/i/master/warp.png" width="300" alt="Warp">
-  </div>
-  <b>Warp is a modern, Rust-based terminal with AI built in so you and your team can build great software, faster.</b>
-  <div>
-    <sup>Visit warp.dev to learn more.</sup>
-  </div>
-</a>
-<br>
-<hr>
-</div>
-<br>
-
 fzf :heart: vim
 ===============
 
@@ -97,6 +79,7 @@ Commands
 | `:BTags [QUERY]`       | Tags in the current buffer                                                            |
 | `:Changes`             | Changelist across all open buffers                                                    |
 | `:Marks`               | Marks                                                                                 |
+| `:BMarks`              | Marks in the current buffer                                                           |
 | `:Jumps`               | Jumps                                                                                 |
 | `:Windows`             | Windows                                                                               |
 | `:Locate PATTERN`      | `locate` command output                                                               |
@@ -113,6 +96,12 @@ Commands
 
 - Most commands support `CTRL-T` / `CTRL-X` / `CTRL-V` key
   bindings to open in a new tab, a new split, or in a new vertical split
+- Most commands support `ALT-ENTER` to insert the selected items into the
+  current buffer instead of opening them. The inserted text depends on the
+  command: file path (`:Files`, `:GFiles`, `:Buffers`, `:History`, `:Locate`),
+  line content (`:Lines`, `:BLines`, `:Marks`, `:Changes`), matched text
+  (`:Rg`, `:Ag`, `:Grep`), tag name (`:Tags`, `:BTags`), or commit hash
+  (`:Commits`, `:BCommits`)
 - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
 - You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
     - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
@@ -173,6 +162,17 @@ let g:fzf_vim.preview_window = []
 "   let g:fzf_vim.preview_bash = 'C:\Git\bin\bash.exe'
 ```
 
+#### Paste key
+
+Most commands support a key to insert the selected items into the current
+buffer instead of opening them (see the command list above for what each
+command inserts). Customize it with `g:fzf_vim.paste_key`.
+
+```vim
+" Key to insert the selected items into the current buffer (default: 'alt-enter')
+let g:fzf_vim.paste_key = 'alt-enter'
+```
+
 #### Command-level options
 
 ```vim
@@ -180,7 +180,7 @@ let g:fzf_vim.preview_window = []
 let g:fzf_vim.buffers_jump = 1
 
 " [Ag|Rg|RG] Display path on a separate line for narrow screens (default: 0)
-" * Requires Perl and fzf 0.53.0 or later
+" * Requires Perl and fzf 0.56.0 or later
 let g:fzf_vim.grep_multi_line = 0
    " PATH:LINE:COL:LINE
 let g:fzf_vim.grep_multi_line = 1
@@ -189,7 +189,7 @@ let g:fzf_vim.grep_multi_line = 1
 let g:fzf_vim.grep_multi_line = 2
    " PATH:LINE:COL:
    " LINE
-   " (empty line)
+   " (empty line between items using --gap option)
 
 " [[B]Commits] Customize the options used by 'git log':
 let g:fzf_vim.commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
@@ -199,6 +199,19 @@ let g:fzf_vim.tags_command = 'ctags -R'
 
 " [Commands] --expect expression for directly executing the command
 let g:fzf_vim.commands_expect = 'alt-enter,ctrl-x'
+```
+
+#### Command-level fzf options
+
+You can set fzf options for each command by setting
+`g:fzf_vim.{command}_options`.
+
+```vim
+" In string
+let g:fzf_vim.buffers_options = '--style full --border-label " Open Buffers "'
+
+" In list (No need to quote or escape values)
+let g:fzf_vim.buffers_options = ['--style', 'full', '--border-label', ' Open Buffers ']
 ```
 
 #### List type to handle multiple selections
