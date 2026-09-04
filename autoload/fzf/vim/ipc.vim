@@ -28,6 +28,9 @@ function! s:warn(message)
   return 0
 endfunction
 
+" Channels in flight, keyed by fifo path, so concurrent fzf runs do not clash
+let s:channels = {}
+
 function! fzf#vim#ipc#start(Callback)
   if !exists('*job_start') && !exists('*jobstart')
     call s:warn('job_start/jobstart function not supported')
@@ -39,57 +42,95 @@ function! fzf#vim#ipc#start(Callback)
     return ''
   endif
 
-  call fzf#vim#ipc#stop()
-
-  let g:fzf_ipc = { 'fifo': tempname(), 'callback': a:Callback }
-  if !filereadable(g:fzf_ipc.fifo)
-    call system('mkfifo '..shellescape(g:fzf_ipc.fifo))
-    if v:shell_error
+  let fifo = tempname()
+  call system('mkfifo '.shellescape(fifo))
+  if v:shell_error
+    if !exists('s:mkfifo_failed')
+      let s:mkfifo_failed = 1
       call s:warn('Failed to create fifo')
     endif
+    return ''
   endif
 
-  call fzf#vim#ipc#restart()
+  let s:channels[fifo] = { 'fifo': fifo, 'callback': a:Callback }
+  call fzf#vim#ipc#restart(fifo)
+  if !s:running(s:channels[fifo].job)
+    call fzf#vim#ipc#stop(fifo)
+    return ''
+  endif
 
-  return g:fzf_ipc.fifo
+  return fifo
 endfunction
 
-function! fzf#vim#ipc#restart()
-  if !exists('g:fzf_ipc')
+" Nvim hands over everything one read produced, which can be several messages
+" as well as the trailing empty element. Vim's out_cb passes one line at a
+" time, so deliver line by line and both behave the same.
+function! s:deliver(Callback, lines)
+  for line in a:lines
+    if !empty(line)
+      call call(a:Callback, [line])
+    endif
+  endfor
+endfunction
+
+" The reader is gone, so leaving the channel registered would block the next
+" write on a fifo nothing reads
+function! s:drop(fifo)
+  if has_key(s:channels, a:fifo)
+    call delete(remove(s:channels, a:fifo).fifo)
+  endif
+endfunction
+
+function! fzf#vim#ipc#restart(fifo)
+  if !has_key(s:channels, a:fifo)
     throw 'fzf#vim#ipc not started'
   endif
 
-  let Callback = g:fzf_ipc.callback
+  let chan = s:channels[a:fifo]
+  let Callback = chan.callback
+  let fifo = a:fifo
   if exists('*job_start')
-    let g:fzf_ipc.job = job_start(
-          \ ['cat', g:fzf_ipc.fifo],
-          \ {'out_cb': { _, msg -> call(Callback, [msg]) },
-          \  'exit_cb': { _, status -> status == 0 ? fzf#vim#ipc#restart() : '' }}
+    let chan.job = job_start(
+          \ ['cat', fifo],
+          \ {'out_cb': { _, msg -> has_key(s:channels, fifo) ? call(Callback, [msg]) : '' },
+          \  'exit_cb': { _, status -> status == 0 && has_key(s:channels, fifo) ? fzf#vim#ipc#restart(fifo) : s:drop(fifo) }}
           \ )
   else
-    let eof = ['']
-    let g:fzf_ipc.job = jobstart(
-          \ ['cat', g:fzf_ipc.fifo],
+    let chan.job = jobstart(
+          \ ['cat', fifo],
           \ {'stdout_buffered': 1,
-          \  'on_stdout': { j, msg, e -> msg != eof ? call(Callback, msg) : '' },
-          \  'on_exit': { j, status, e -> status == 0 ? fzf#vim#ipc#restart() : '' }}
+          \  'on_stdout': { j, msg, e -> has_key(s:channels, fifo) ? s:deliver(Callback, msg) : '' },
+          \  'on_exit': { j, status, e -> status == 0 && has_key(s:channels, fifo) ? fzf#vim#ipc#restart(fifo) : s:drop(fifo) }}
           \ )
   endif
 endfunction
 
-function! fzf#vim#ipc#stop()
-  if !exists('g:fzf_ipc')
+" Whether the job handle refers to a live job. Nvim returns -1 or 0 instead of
+" a handle when it cannot start one
+function! s:running(job)
+  if exists('*job_status')
+    return job_status(a:job) ==# 'run'
+  endif
+  return a:job > 0
+endfunction
+
+function! fzf#vim#ipc#stop(fifo)
+  if !has_key(s:channels, a:fifo)
     return
   endif
 
-  let job = g:fzf_ipc.job
-  if exists('*job_stop')
-    call job_stop(job)
-  else
-    call jobstop(job)
-    call jobwait([job])
-  endif
+  " Drop it first, so the exit handler does not restart the job
+  let chan = remove(s:channels, a:fifo)
+  " Never throw from here, this runs as part of fzf's exit handling
+  try
+    if exists('*job_stop')
+      call job_stop(chan.job)
+    else
+      call jobstop(chan.job)
+      call jobwait([chan.job])
+    endif
+  catch
+  endtry
 
-  call delete(g:fzf_ipc.fifo)
-  unlet g:fzf_ipc
+  call delete(chan.fifo)
 endfunction
