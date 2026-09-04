@@ -155,6 +155,14 @@ COMMANDS                                                      *fzf-vim-commands*
    command: file path (Files, GFiles, Buffers, History, Locate), line content
    (Lines, BLines, Marks, Changes), matched text (Rg, Ag, Grep), tag name
    (Tags, BTags), or commit hash (Commits, BCommits)
+ - Most commands support CTRL-O to open the current entry in the window fzf
+   was started from, leaving fzf open, so you can look through several
+   entries in a single run (Files, GFiles, GFiles?, Buffers, History, Locate,
+   Rg, Ag, Grep, Lines, BLines, Tags, BTags, Marks, Changes, Commits,
+   BCommits). Requires fzf 0.74.4 or later, and is not offered in fullscreen
+   mode, with a layout that leaves no other window (enew, tabnew), on
+   Windows, or when the key is already used by g:fzf_vim.paste_key,
+   g:fzf_action, or the command itself, as CTRL-ALT-X is in :Buffers
  - Bang-versions of the commands (e.g. `Ag!`) will open fzf in fullscreen
  - You can set `g:fzf_vim.command_prefix` to give the same prefix to the commands
    - e.g. `let g:fzf_vim.command_prefix = 'Fzf'` and you have `FzfFiles`, etc.
@@ -239,6 +247,26 @@ buffer instead of opening them. Customize it with `g:fzf_vim.paste_key`.
     " Key to insert the selected items into the current buffer
     " (default: 'alt-enter')
     let g:fzf_vim.paste_key = 'alt-enter'
+<
+
+Show key~
+                                                            *fzf-vim-show-key*
+                                                            *g:fzf_vim.show_key*
+
+Most commands support a key that opens the current entry in the window fzf was
+started from and leaves fzf open, so you can look through several entries in
+one run. It is labelled Show in the footer to set it apart from Enter Open,
+which opens the entry and closes fzf. Customize it with `g:fzf_vim.show_key`,
+or set it to an empty string to turn the key off. A comma-separated list binds
+every key in it. It takes the key over from `$FZF_DEFAULT_OPTS`, so pick
+another key or turn it off to keep a binding of your own.
+>
+    " Key to open the current entry, leaving fzf open
+    " (default: 'ctrl-o')
+    let g:fzf_vim.show_key = 'ctrl-o'
+
+    " Use CTRL-O and double-click
+    let g:fzf_vim.show_key = 'ctrl-o,double-click'
 <
 
 Command-level options~
