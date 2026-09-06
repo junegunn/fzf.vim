@@ -13,6 +13,10 @@ FZF-VIM - TABLE OF CONTENTS                                *fzf-vim* *fzf-vim-to
       Configuration options of the base plugin   |fzf-vim-configuration-options-of-the-base-plugin|
       Configuration options for fzf.vim          |fzf-vim-configuration-options-for-fzf-vim|
         Preview window                           |fzf-vim-preview-window|
+        Paste key                                |fzf-vim-paste-key|
+        Show key                                 |fzf-vim-show-key|
+        Key hints                                |fzf-vim-key-hints|
+        Global fzf options                       |fzf-vim-global-fzf-options|
         Command-level options                    |fzf-vim-command-level-options|
         Command-level fzf options                |fzf-vim-command-level-fzf-options|
         List type to handle multiple selections  |fzf-vim-list-type-to-handle-multiple-selections|
@@ -267,6 +271,28 @@ another key or turn it off to keep a binding of your own.
 
     " Use CTRL-O and double-click
     let g:fzf_vim.show_key = 'ctrl-o,double-click'
+<
+
+Key hints~
+                                                           *fzf-vim-key-hints*
+
+Most commands show a footer listing the keys they bind, so you can see what
+Show, Open, HSplit and the rest are without leaving fzf. It is fzf's footer,
+so `--no-footer` hides it:
+>
+    let g:fzf_vim.options = '--no-footer'
+<
+
+Global fzf options~
+                                                  *fzf-vim-global-fzf-options*
+                                                  *g:fzf_vim.options*
+
+You can set fzf options for all commands with `g:fzf_vim.options`.
+`g:fzf_vim.{command}_options` takes precedence over it.
+
+For example, add `--no-footer` to hide the key hints.
+>
+    let g:fzf_vim.options = '--no-footer'
 <
 
 Command-level options~

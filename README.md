@@ -201,6 +201,27 @@ let g:fzf_vim.show_key = 'ctrl-o'
 let g:fzf_vim.show_key = 'ctrl-o,double-click'
 ```
 
+#### Key hints
+
+Most commands show a footer listing the keys they bind, so you can see what
+`Show`, `Open`, `HSplit` and the rest are without leaving fzf. It is fzf's
+footer, so `--no-footer` hides it:
+
+```vim
+let g:fzf_vim.options = '--no-footer'
+```
+
+#### Global fzf options
+
+You can set fzf options for all commands with `g:fzf_vim.options`.
+`g:fzf_vim.{command}_options` takes precedence over it.
+
+For example, add `--no-footer` to hide the key hints.
+
+```vim
+let g:fzf_vim.options = '--no-footer'
+```
+
 #### Command-level options
 
 ```vim

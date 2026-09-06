@@ -400,6 +400,9 @@ function! s:fzf(name, opts, extra)
   let extra  = copy(extra)
   let eopts  = has_key(extra, 'options') ? remove(extra, 'options') : ''
   let merged = extend(copy(a:opts), extra)
+  " Global fzf options
+  call s:merge_opts(merged, s:conf('options', []))
+
   call s:merge_opts(merged, eopts)
 
   " Command-level fzf options
