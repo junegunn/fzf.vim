@@ -498,7 +498,10 @@ function! fzf#vim#paste(items) abort
     return s:warn('Cannot paste into a nomodifiable buffer')
   endif
   let line = getline('.')
-  let idx = empty(line) ? 0 : col('.')
+  " col('.') is the first byte of the character under the cursor. Skip the
+  " whole character so that a multibyte character is not split in half.
+  let cursor = col('.') - 1
+  let idx = empty(line) ? 0 : cursor + strlen(matchstr(line, '.', cursor))
   let head = strpart(line, 0, idx)
   let tail = strpart(line, idx)
   let pad = (!empty(head) && head !~ '\s$') ? ' ' : ''
