@@ -1418,7 +1418,7 @@ function! fzf#vim#buffers(...)
   let spec._hint = [['C-A-X', 'Unload', ['ctrl-alt-x']]]
   let options = ['+m', '-x', '--tiebreak=index', '--ansi', '-d', '\t', '--with-nth', '3..', '-n', '2,1..2', '--prompt', 'Buf> ', '--query', query, '--preview-window', '+{2}/2', '--tabstop', tabstop, '--bind', 'ctrl-alt-x:execute-silent(echo {} >> '.fzf#shellescape(delete_file).')+exclude']
   if bufnr('') == first
-    call extend(options, ['--sync', '--bind', 'start:pos:2'])
+    call extend(options, ['--sync', '--bind', 'start:pos(2),change:best'])
   endif
   call s:merge_opts(spec, options)
   return s:fzf('buffers', spec, args)
