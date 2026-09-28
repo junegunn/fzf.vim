@@ -1748,7 +1748,7 @@ function! s:btags_sink(from, lines)
     normal! g`'
     " Because 'listproc' will use 'cfirst' to go to the first item in the list
     call s:fill_quickfix('btags', qfl)
-  else
+  elseif len(qfl) == 1
     normal! zvzz
   endif
   if !empty(tagname)
@@ -1799,6 +1799,7 @@ function! s:tags_sink(from, lines)
   let tagname = ''
 
   let qfl = []
+  let opened = 0
   let [key; list] = a:lines
 
   try
@@ -1822,6 +1823,7 @@ function! s:tags_sink(from, lines)
         else
           call s:open(abspath)
         endif
+        let opened = 1
         call s:execute_tag_address(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
         if empty(tagname)
@@ -1848,7 +1850,18 @@ function! s:tags_sink(from, lines)
     call s:action_for(key, qfl[0].filename, 1)
 
     call s:fill_quickfix('tags', qfl)
-  else
+  elseif opened
+    " Entries opened in the loop take the action only when one was selected, so
+    " the last one standing of a multi-selection still owes the key its action.
+    " The loop opened it in the starting window, which goes back as it was first
+    if len(qfl) == 1 && len(list) > 1
+      call s:execute_silent('b '.buf)
+      call winrestview(view)
+      call s:action_for(key, qfl[0].filename)
+      call cursor(qfl[0].lnum, 1)
+    endif
+    " An address that no longer matches still opened the file, so open the fold
+    " it landed in and centre it
     normal! ^zvzz
   endif
   if !empty(tagname)
