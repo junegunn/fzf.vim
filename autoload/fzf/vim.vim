@@ -1652,6 +1652,17 @@ endfunction
 " ------------------------------------------------------------------
 " BTags
 " ------------------------------------------------------------------
+" ctags leaves a tab inside a pattern as it found it, and splitting the line on
+" tabs would cut the address short, leaving a fragment that matches some other
+" line. '\t' matches the same text and keeps the field the line's third. Only the
+" ';"' terminator says where the address ends, so a line without one is left as
+" it is rather than guessed at
+function! s:tabs_in_address(line)
+  return substitute(a:line, '^\%([^\t]*\t\)\{2}\zs'.s:tag_address_part
+        \ .'\%(;'.s:tag_address_part.'\)*\ze;"\t',
+        \ '\=substitute(submatch(0), "\t", ''\\t'', "g")', '')
+endfunction
+
 function! s:btags_source(tag_cmds)
   if !filereadable(expand('%'))
     throw 'Save the file first'
@@ -1668,7 +1679,8 @@ function! s:btags_source(tag_cmds)
   elseif empty(lines)
     throw 'No tags found'
   endif
-  return map(s:align_lists(map(lines, 'split(v:val, "\t")')), 'join(v:val, "\t")')
+  return map(s:align_lists(map(map(lines, 's:tabs_in_address(v:val)'),
+        \ 'split(v:val, "\t")')), 'join(v:val, "\t")')
 endfunction
 
 " Position to return to with CTRL-T. Captured before fzf opens, because the
