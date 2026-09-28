@@ -534,6 +534,49 @@ function! s:execute_silent(cmd)
   silent keepjumps keepalt execute a:cmd
 endfunction
 
+" A tag address can be any Ex command, and a tags file can come from an
+" untrusted source, so run it in a sandbox as a builtin tag jump does. ':sandbox'
+" as a modifier only covers the command up to the first '|', so hand the address
+" to ':execute', which keeps all of it inside the sandbox
+function! s:execute_tag_address(excmd)
+  silent keepjumps keepalt sandbox execute a:excmd
+endfunction
+
+" The same, as a command for a win_execute() list
+function! s:sandboxed(cmd)
+  return 'sandbox execute '.string(a:cmd)
+endfunction
+
+" Address of a tag, given the rest of the line after the file name, or, with
+" 'whole' off, the address field alone as :BTags reads it. Only the forms a tags
+" file is meant to hold, a line number and a search pattern, chained with ';' for
+" '--excmd=combine' and cut at the ';"' terminator as Vim's find_extra() does.
+" Returns an empty string for anything else, which is then not run.
+"
+" A pattern holding a tab reaches :BTags cut short. Where earlier parts parsed,
+" keep those, since a line number beats half a pattern. A fragment on its own is
+" an address only where the whole line is in hand, as in a helptags file, whose
+" '/*:Ag*' carries no terminator. ctags always terminates, so on the field alone
+" a fragment is the cut, and it would match some other line. Running to the end
+" of the line it takes any '|' or ';' with it, so it cannot chain a command.
+let s:tag_address_part = '\%(\d\+\|/\%(\\.\|[^/\\]\)*/\|?\%(\\.\|[^?\\]\)*?\)'
+let s:tag_address_open = '\%(/\%(\\.\|[^/\\\t]\)*\|?\%(\\.\|[^?\\\t]\)*\)'
+function! s:tag_address(rest, whole)
+  " :BTags aligns its columns, so its field arrives padded, and a tags file with
+  " CRLF endings leaves a carriage return, which s:strip() keeps
+  let rest = substitute(a:rest, '^[ \t\r]*\|[ \t\r]*$', '', 'g')
+  let chain = '^'.s:tag_address_part.'\%(;'.s:tag_address_part.'\)*'
+  let address = matchstr(rest, chain.'\ze\%(;"\|$\)')
+  if !empty(address)
+    return address
+  endif
+  let address = matchstr(rest, chain.'\ze;[/?]')
+  if !empty(address)
+    return address
+  endif
+  return a:whole ? matchstr(rest, '^'.s:tag_address_open.'\ze\%(\t\|$\)') : ''
+endfunction
+
 " [key, [filename, [stay_on_edit: 0]]]
 function! s:action_for(key, ...)
   let Cmd = get(get(g:, 'fzf_action', s:default_action), a:key, '')
@@ -729,23 +772,30 @@ function! s:goto_entry(winid, bufnr, dir, kind, entry) abort
     if len(parts) < 3
       return
     endif
-    let excmd = matchstr(join(parts[2:-2], '')[:-2], '^.\{-}\ze;\?"\t')
+    let excmd = s:tag_address(join(parts[2:-2], '')[:-2], 1)
+    if empty(excmd)
+      return s:warn('Unsupported tag address: '.s:strip(parts[0]))
+    endif
     let relpath = parts[1][:-2]
     let path = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/')
           \ ? relpath : join([fnamemodify(parts[-1], ':h'), relpath], '/')
     let path = expand(path, 1)
-    if empty(excmd) || !filereadable(path)
+    if !filereadable(path)
       return
     endif
     let cmds = s:edit_cmds(a:winid, path)
-          \ + ['keepjumps '.excmd, 'normal! ^zvzz']
+          \ + [s:sandboxed('keepjumps '.excmd), 'normal! ^zvzz']
   elseif a:kind ==# 'btags'
     let parts = split(entry, "\t")
     if len(parts) < 3 || !bufexists(a:bufnr)
       return
     endif
+    let excmd = s:tag_address(parts[2], 0)
+    if empty(excmd)
+      return s:warn('Unsupported tag address: '.s:strip(parts[0]))
+    endif
     let cmds = ['keepalt keepjumps hide buffer '.a:bufnr,
-          \ 'keepjumps '.parts[2], 'normal! zvzz']
+          \ s:sandboxed('keepjumps '.excmd), 'normal! zvzz']
   elseif a:kind ==# 'marks'
     " A lowercase mark is local to the buffer the run started on
     let mark = matchstr(entry, '^\s*\zs\S')
@@ -1652,14 +1702,31 @@ function! s:btags_sink(from, lines)
   let tagname = ''
   call s:action_for(a:lines[0])
   let qfl = []
-  for line in a:lines[1:]
-    let parts = split(line, "\t")
-    call s:execute_silent(parts[2])
-    call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
-    if empty(tagname)
-      let tagname = s:strip(parts[0])
-    endif
-  endfor
+  try
+    " Searched with the settings s:tags_sink and the CTRL-O callback use, and a
+    " failing address must not drop the rest of the selection
+    let [magic, &magic, wrapscan, &wrapscan] = [&magic, 0, &wrapscan, 1]
+    for line in a:lines[1:]
+      try
+        let parts = split(line, "\t")
+        let excmd = len(parts) > 2 ? s:tag_address(parts[2], 0) : ''
+        if empty(excmd)
+          throw 'Unsupported tag address: '.s:strip(get(parts, 0, line))
+        endif
+        call s:execute_tag_address(excmd)
+        call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
+        if empty(tagname)
+          let tagname = s:strip(parts[0])
+        endif
+      catch /^Vim:Interrupt$/
+        break
+      catch
+        call s:warn(v:exception)
+      endtry
+    endfor
+  finally
+    let [&magic, &wrapscan] = [magic, wrapscan]
+  endtry
 
   if len(qfl) > 1
     " Go back to the original position
@@ -1724,7 +1791,10 @@ function! s:tags_sink(from, lines)
     for line in list
       try
         let parts   = split(line, '\t\zs')
-        let excmd   = matchstr(join(parts[2:-2], '')[:-2], '^.\{-}\ze;\?"\t')
+        let excmd   = s:tag_address(join(parts[2:-2], '')[:-2], 1)
+        if empty(excmd)
+          throw 'Unsupported tag address: '.s:strip(get(parts, 0, line))
+        endif
         let base    = fnamemodify(parts[-1], ':h')
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
@@ -1734,7 +1804,7 @@ function! s:tags_sink(from, lines)
         else
           call s:open(expand(abspath, 1))
         endif
-        call s:execute_silent(excmd)
+        call s:execute_tag_address(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
         if empty(tagname)
           let tagname = s:strip(parts[0])
