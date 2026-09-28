@@ -779,7 +779,9 @@ function! s:goto_entry(winid, bufnr, dir, kind, entry) abort
     let relpath = parts[1][:-2]
     let path = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/')
           \ ? relpath : join([fnamemodify(parts[-1], ':h'), relpath], '/')
-    let path = expand(path, 1)
+    " fnamemodify(), not expand(), which runs backticks in the name a tags file
+    " gives, as s:in_dir says
+    let path = fnamemodify(path, ':p')
     if !filereadable(path)
       return
     endif
@@ -1799,10 +1801,12 @@ function! s:tags_sink(from, lines)
         let relpath = parts[1][:-2]
         let abspath = relpath =~ (s:is_win ? '^[A-Z]:\' : '^/') ? relpath : join([base, relpath], '/')
 
+        " fnamemodify(), not expand(), which runs backticks in the name
+        let abspath = fnamemodify(abspath, ':p')
         if len(list) == 1
-          call s:action_for(key, expand(abspath, 1))
+          call s:action_for(key, abspath)
         else
-          call s:open(expand(abspath, 1))
+          call s:open(abspath)
         endif
         call s:execute_tag_address(excmd)
         call add(qfl, {'filename': expand('%'), 'lnum': line('.'), 'text': getline('.')})
