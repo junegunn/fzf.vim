@@ -724,15 +724,15 @@ function! s:show_entry(winid, bufnr, dir, kind, entry) abort
   " 'acd' would move the cwd on the first open, and s:ag_to_qf resolves a
   " relative match against it. Tag addresses are searched with the settings
   " s:tags_sink uses.
-  let [magic, wrapscan, acd] = [&magic, &wrapscan, &acd]
+  let [magic, wrapscan, acd, ic] = [&magic, &wrapscan, &acd, &ignorecase]
   let &acd = 0
   if a:kind ==# 'tags' || a:kind ==# 'btags'
-    let [&magic, &wrapscan] = [0, 1]
+    let [&magic, &wrapscan, &ignorecase] = [0, 1, 0]
   endif
   try
     call s:goto_entry(a:winid, a:bufnr, a:dir, a:kind, entry)
   finally
-    let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
+    let [&magic, &wrapscan, &acd, &ignorecase] = [magic, wrapscan, acd, ic]
   endtry
 endfunction
 
@@ -1707,7 +1707,8 @@ function! s:btags_sink(from, lines)
   try
     " Searched with the settings s:tags_sink and the CTRL-O callback use, and a
     " failing address must not drop the rest of the selection
-    let [magic, &magic, wrapscan, &wrapscan] = [&magic, 0, &wrapscan, 1]
+    let [magic, &magic, wrapscan, &wrapscan, ic, &ignorecase] =
+          \ [&magic, 0, &wrapscan, 1, &ignorecase, 0]
     for line in a:lines[1:]
       try
         let parts = split(line, "\t")
@@ -1727,7 +1728,7 @@ function! s:btags_sink(from, lines)
       endtry
     endfor
   finally
-    let [&magic, &wrapscan] = [magic, wrapscan]
+    let [&magic, &wrapscan, &ignorecase] = [magic, wrapscan, ic]
   endtry
 
   if len(qfl) > 1
@@ -1789,7 +1790,8 @@ function! s:tags_sink(from, lines)
   let [key; list] = a:lines
 
   try
-    let [magic, &magic, wrapscan, &wrapscan, acd, &acd] = [&magic, 0, &wrapscan, 1, &acd, 0]
+    let [magic, &magic, wrapscan, &wrapscan, acd, &acd, ic, &ignorecase] =
+          \ [&magic, 0, &wrapscan, 1, &acd, 0, &ignorecase, 0]
     for line in list
       try
         let parts   = split(line, '\t\zs')
@@ -1820,7 +1822,7 @@ function! s:tags_sink(from, lines)
       endtry
     endfor
   finally
-    let [&magic, &wrapscan, &acd] = [magic, wrapscan, acd]
+    let [&magic, &wrapscan, &acd, &ignorecase] = [magic, wrapscan, acd, ic]
   endtry
 
   if len(qfl) > 1
