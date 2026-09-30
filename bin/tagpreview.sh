@@ -30,9 +30,21 @@ else
   exit 1
 fi
 
+# Ex mode starts on the last line, so an entry with no address would report the
+# end of the file as the tag. Every other path refuses such an entry
+if [ -z "${EXCMD}" ]; then
+  exit 1
+fi
+
+# The address comes from a tags file, which can be untrusted, and a preview runs
+# as soon as an entry is highlighted. Sandboxed as a builtin tag jump is, so that
+# it cannot run a shell command or touch a file. ':sandbox' on its own only covers
+# the command up to the first '|', so hand the whole address to ':execute' as a
+# string literal, doubling the quotes in it
+EXCMD_LITERAL=${EXCMD//\'/\'\'}
 CENTER="$("${VIMNAME}" -R -i NONE -u NONE -e -m -s "${FILE}" \
               -c "set nomagic" \
-              -c "silent ${EXCMD}" \
+              -c "silent sandbox execute '${EXCMD_LITERAL}'" \
               -c 'let l=line(".") | new | put =l | print | qa!')" || exit
 
 START_LINE="$(( CENTER - FZF_PREVIEW_LINES / 2 ))"
