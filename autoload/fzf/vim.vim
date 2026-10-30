@@ -205,7 +205,7 @@ function! fzf#vim#with_preview(...)
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
-  if &ambiwidth ==# 'double'
+  if &ambiwidth ==# 'double' || s:is_win
     let preview += ['--no-unicode']
   end
 
