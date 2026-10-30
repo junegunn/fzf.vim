@@ -4,15 +4,21 @@ REVERSE="\x1b[7m"
 RESET="\x1b[m"
 
 if [ -z "$1" ]; then
-  echo "usage: $0 FILENAME:TAGFILE:EXCMD"
+  echo "usage: $0 FILENAME[:TAGFILE]:EXCMD"
   exit 1
 fi
 
-IFS=':' read -r FILE TAGFILE EXCMD <<< "$*"
+IFS=':' read -r FILE ARG1 ARG2 <<< "$*"
 
-# Complete file paths which are relative to the given tag file
-if [ "${FILE:0:1}" != "/" ]; then
-  FILE="$(dirname "${TAGFILE}")/${FILE}"
+if [ -n "$ARG2" ]; then
+    TAGFILE="$ARG1"
+    EXCMD="$ARG2"
+    # Complete file paths which are relative to the given tag file
+    if [ "${FILE:0:1}" != "/" ]; then
+        FILE="$(dirname "${TAGFILE}")/${FILE}"
+    fi
+else
+    EXCMD="$ARG1"
 fi
 
 if [ ! -r "$FILE" ]; then
