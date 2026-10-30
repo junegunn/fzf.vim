@@ -66,17 +66,17 @@ if [[ -z "$BATCAT" ]]; then
   fi
 fi
 
-if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATCAT:+x}" ] && [[ ! -d "$FILE" ]] ; then
-  ${BATCAT} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
-      --highlight-line=$CENTER -- "$FILE"
-  exit $?
-fi
-
 FILE_LENGTH=${#FILE}
 MIME=$(file --dereference --mime -- "$FILE")
 if [[ "${MIME:FILE_LENGTH}" =~ binary ]] && [[ ! -d "$FILE" ]]; then
   echo "$MIME"
   exit 0
+fi
+
+if [ -z "$FZF_PREVIEW_COMMAND" ] && [ "${BATCAT:+x}" ] && [[ ! -d "$FILE" ]] ; then
+  ${BATCAT} --style="${BAT_STYLE:-numbers}" --color=always --pager=never \
+      --highlight-line=$CENTER -- "$FILE"
+  exit $?
 fi
 
 DEFAULT_COMMAND="highlight -O ansi -l {} || coderay {} || rougify {} || cat {}"
