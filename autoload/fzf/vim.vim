@@ -76,22 +76,34 @@ function! s:bash()
   return s:bash
 endfunction
 
-function! s:escape_for_bash(path)
-  if !s:is_win
-    return fzf#shellescape(a:path)
-  endif
-
+function! s:bash_path(path)
   if !exists('s:is_linux_like_bash')
     call system(s:bash . ' -c "ls /mnt/[A-Za-z]"')
     let s:is_linux_like_bash = v:shell_error == 0
   endif
 
-  let path = substitute(s:winpath(tr(a:path, '/', '\')), '\', '/', 'g')
+  let path = substitute(a:path, '\', '/', 'g')
   if s:is_linux_like_bash
     let path = substitute(path, '^\([A-Z]\):', '/mnt/\L\1', '')
   endif
 
-  return escape(path, ' ')
+  return path
+endfunction
+
+" For use inside a bash command string
+function! s:escape_for_bash(path)
+  if !s:is_win
+    return fzf#shellescape(a:path)
+  endif
+  return "'" . substitute(s:bash_path(a:path), "'", "'\\\\''", 'g') . "'"
+endfunction
+
+" For an argument to bash.exe, parsed by cmd.exe and the Windows runtime
+function! s:escape_for_bash_exe(path)
+  if !s:is_win
+    return fzf#shellescape(a:path)
+  endif
+  return '"' . s:bash_path(a:path) . '"'
 endfunction
 
 let s:min_version = '0.63.0'
@@ -201,7 +213,7 @@ function! fzf#vim#with_preview(...)
       let $WSLENV = 'MSWINHOME/u:'.$WSLENV
     endif
   endif
-  let preview_cmd = s:bash() . ' ' . s:escape_for_bash(s:bin.preview)
+  let preview_cmd = s:bash() . ' ' . s:escape_for_bash_exe(s:bin.preview)
   if len(placeholder)
     let preview += ['--preview', preview_cmd.' '.placeholder]
   end
