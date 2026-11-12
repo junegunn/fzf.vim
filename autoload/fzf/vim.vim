@@ -86,7 +86,7 @@ function! s:escape_for_bash(path)
     let s:is_linux_like_bash = v:shell_error == 0
   endif
 
-  let path = substitute(a:path, '\', '/', 'g')
+  let path = substitute(s:winpath(tr(a:path, '/', '\')), '\', '/', 'g')
   if s:is_linux_like_bash
     let path = substitute(path, '^\([A-Z]\):', '/mnt/\L\1', '')
   endif
