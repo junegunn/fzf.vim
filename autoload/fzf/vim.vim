@@ -78,7 +78,7 @@ endfunction
 
 function! s:bash_path(path)
   if !exists('s:is_linux_like_bash')
-    call system(s:bash . ' -c "ls /mnt/[A-Za-z]"')
+    call system(s:bash() . ' -c "ls /mnt/[A-Za-z]"')
     let s:is_linux_like_bash = v:shell_error == 0
   endif
 
