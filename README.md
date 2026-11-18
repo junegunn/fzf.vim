@@ -73,6 +73,7 @@ Commands
 | `:Ag [PATTERN]`        | [ag][ag] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
 | `:Rg [PATTERN]`        | [rg][rg] search result (`ALT-A` to select all, `ALT-D` to deselect all)               |
 | `:RG [PATTERN]`        | [rg][rg] search result; relaunch ripgrep on every keystroke                           |
+| `:BRg [PATTERN]`       | [rg][rg] search result in the current file                                            |
 | `:Lines [QUERY]`       | Lines in loaded buffers                                                               |
 | `:BLines [QUERY]`      | Lines in the current buffer                                                           |
 | `:Tags [PREFIX]`       | Tags in the project (`ctags -R`)                                                      |
@@ -324,6 +325,7 @@ a command or define a variation of it by calling its corresponding function.
 | `Colors`  | `fzf#vim#colors([spec dict], [fullscreen bool])`                                 |
 | `Rg`      | `fzf#vim#grep(command, [spec dict], [fullscreen bool])`                          |
 | `RG`      | `fzf#vim#grep2(command_prefix, query, [spec dict], [fullscreen bool])`           |
+| `BRg`     | `fzf#vim#buffer_grep(query, [spec dict], [fullscreen bool])`                     |
 | ...       | ...                                                                              |
 
 (We can see that the last two optional arguments of each function are

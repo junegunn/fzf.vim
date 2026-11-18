@@ -113,7 +113,7 @@ so you can omit it if you use a plugin manager that doesn't support hooks.
 COMMANDS                                                      *fzf-vim-commands*
 ==============================================================================
 
-       *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:Lines* *:BLines* *:Tags* *:BTags*
+       *:Files* *:GFiles* *:Buffers* *:Colors* *:Ag* *:Rg* *:RG* *:BRg* *:Lines* *:BLines* *:Tags* *:BTags*
    *:Changes* *:Marks* *:BMarks* *:Jumps* *:Windows* *:Locate* *:History* *:Snippets* *:Commits*
                                 *:BCommits* *:Commands* *:Maps* *:Helptags* *:Filetypes*
 
@@ -128,6 +128,7 @@ COMMANDS                                                      *fzf-vim-commands*
   `:Ag [PATTERN]`         | {ag}{6} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
   `:Rg [PATTERN]`         | {rg}{7} search result ( `ALT-A`  to select all,  `ALT-D`  to deselect all)
   `:RG [PATTERN]`         | {rg}{7} search result; relaunch ripgrep on every keystroke
+  `:BRg [PATTERN]`        | {rg}{7} search result in the current file
   `:Lines [QUERY]`        | Lines in loaded buffers
   `:BLines [QUERY]`       | Lines in the current buffer
   `:Tags [PREFIX]`        | Tags in the project ( `ctags -R` )
@@ -404,6 +405,7 @@ command or define a variation of it by calling its corresponding function.
   `Colors`   |  `fzf#vim#colors([spec dict], [fullscreen bool])`
   `Rg`       |  `fzf#vim#grep(command, [spec dict], [fullscreen bool])`
   `RG`       |  `fzf#vim#grep2(command_prefix, query, [spec dict], [fullscreen bool])`
+  `BRg`      |  `fzf#vim#buffer_grep(query, [spec dict], [fullscreen bool])`
  ...       | ...
  ----------+---------------------------------------------------------------------------------
 

@@ -1662,6 +1662,19 @@ function! fzf#vim#grep2(command_prefix, query, ...)
 endfunction
 
 " ------------------------------------------------------------------
+" BRg
+" ------------------------------------------------------------------
+" query (string), [spec (dict)], [fullscreen (bool)]
+function! fzf#vim#buffer_grep(query, ...)
+  if empty(expand('%'))
+    return s:warn('Buffer has no file name')
+  endif
+  let command = 'rg --column --line-number --no-heading --with-filename --color=always --smart-case -- '
+        \ .fzf#shellescape(a:query).' '.fzf#shellescape(expand('%:p'))
+  return call('fzf#vim#grep', extend([command], a:000))
+endfunction
+
+" ------------------------------------------------------------------
 " BTags
 " ------------------------------------------------------------------
 " ctags leaves a tab inside a pattern as it found it, and splitting the line on
