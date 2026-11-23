@@ -66,7 +66,7 @@ call s:defs([
 \'command!      -bang -nargs=* BTags                            call fzf#vim#buffer_tags(<q-args>, fzf#vim#with_preview({ "placeholder": "{2}:{3..}" }), <bang>0)',
 \'command! -bar -bang Snippets                                  call fzf#vim#snippets(<bang>0)',
 \'command! -bar -bang Commands                                  call fzf#vim#commands(<bang>0)',
-\'command! -bar -bang Jumps                                     call fzf#vim#jumps(fzf#vim#with_preview({ "placeholder": "{2..4}"}), <bang>0)',
+\'command! -bar -bang Jumps                                     call fzf#vim#jumps(fzf#vim#with_preview({ "placeholder": "{2..}"}), <bang>0)',
 \'command! -bar -bang -nargs=* Marks                            call fzf#vim#marks(<q-args>, <bang>0)',
 \'command! -bar -bang -nargs=* BMarks                           call fzf#vim#marks("abcdefghijklmnopqrstuvwxyz", <bang>0)',
 \'command! -bar -bang Changes                                   call fzf#vim#changes(<bang>0)',
