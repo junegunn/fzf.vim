@@ -418,7 +418,8 @@ function! s:fzf(name, opts, extra)
   call s:merge_opts(merged, eopts)
 
   " Command-level fzf options
-  call s:merge_opts(merged, s:conf(a:name.'_options', []))
+  let default_options = a:name ==# 'history-files' ? s:conf('history_options', []) : []
+  call s:merge_opts(merged, s:conf(a:name.'_options', default_options))
 
   let fifo = s:add_hints(merged, bang)
   let ok = 0
